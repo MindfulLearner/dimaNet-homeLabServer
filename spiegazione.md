@@ -1,0 +1,1 @@
+# init spiegazione del progetto/servizio personale
