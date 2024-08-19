@@ -15,7 +15,7 @@ https://github.com/MindfulLearner/josh-nvim-config
 ### TMUX SETUP BYUME.
 https://github.com/MindfulLearner/dimaNet-Tmux-COnf
 
-### Documentation by Celes:
+### Documentation SULLA SICUREZZA ancora da leggere e applicare sul mio serverby Celes:
 https://github.com/celesrenata/pfsense-ultimate-config
 
 
