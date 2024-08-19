@@ -11,6 +11,8 @@ Al momento, queste sono le uniche idee che ho.
 
 ### Nvim Setup by Me.
 https://github.com/MindfulLearner/josh-nvim-config
+- per usare bisogna saper usare Packer.lua
+- e MASON PER LSP
 
 ### TMUX SETUP BYUME.
 https://github.com/MindfulLearner/dimaNet-Tmux-COnf
