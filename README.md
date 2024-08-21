@@ -26,6 +26,32 @@ https://github.com/MindfulLearner/dimaNet-Tmux-COnf
 https://github.com/celesrenata/pfsense-ultimate-config
 
 
+# dimaNet-homeLabServer
+
+#DA FARE una lista dei miei Container e VM, attivi 24 su 24 swag
+
+Il progetto dimaNet nasce dall'esigenza di avere diversi dispositivi collegati alla rete domestica. Mi capita spesso di trovarmi in situazioni in cui, quando sono a casa di un amico o in un bar, non riesco a lavorare con il mio ambiente abituale. Ad esempio, quando utilizzo Fedora sul MacBook, ho difficoltà a eseguire chiamate API su Lua in ArchLinux, problema causato dalla differenza di aggiornamento di LuaRocks.
+
+Oltre a questo, la voglia di fare PenTesting su altri PC rende dimaNet un ambiente perfetto per contenere dati personali, lavorarci da remoto da diversi dispositivi e svolgere attività di PenTesting.
+
+Il server avrà come sistema operativo PROXMOX MY LOVE, con virtualizzazione e containerizzazione di Kali Linux e Windows.
+Al momento, queste sono le uniche idee che ho.
+
+### PER collegarmi in remoto? Se vuoi posso fare un server per te!! se sei mio amico non mi fido della gente!
+- utilizzo wireguard
+
+## per il miglior utilizzo LINK di cose utili:
+
+### Nvim Setup by Me.
+https://github.com/MindfulLearner/josh-nvim-config
+
+### TMUX SETUP BYUME.
+https://github.com/MindfulLearner/dimaNet-Tmux-COnf
+
+### Documentation SULLA SICUREZZA ancora da leggere e applicare sul mio serverby Celes:
+https://github.com/celesrenata/pfsense-ultimate-config
+
+
 # Network Basato su PROXMOX COSE DA FARE!!!
 ## Glossario dei Simboli
 - ✅ **Completato:** L'attività è stata completata con successo.
@@ -98,4 +124,6 @@ https://github.com/celesrenata/pfsense-ultimate-config
 
 ### 16. **IoT Hub**
    - 🚧 **MQTT Broker:** Gestione di dispositivi IoT utilizzando un broker MQTT per facilitare la comunicazione tra i dispositivi tramite VM in Proxmox.
+
+
 
