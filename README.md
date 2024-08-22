@@ -1,5 +1,8 @@
 # dimaNet-homeLabServer
 
+## STRUTTURA LOGICA DEL PROGETTO
+https://www.figma.com/design/UISdFu3LdHfMs9JhffvU5J/Untitled?node-id=1-3&t=jYQEWzh2mugPYC9o-1
+
 ### DA FARE una lista dei miei Container e VM, attivi 24 su 24 swag
 - per coleggarmi in remoto DDNS e WIREGUARD
 
