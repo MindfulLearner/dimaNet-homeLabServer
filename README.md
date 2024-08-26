@@ -16,24 +16,6 @@ Oltre a questo, la voglia di fare PenTesting su altri PC rende dimaNet un ambien
 Il server avrà come sistema operativo PROXMOX MY LOVE, con virtualizzazione e containerizzazione di Kali Linux e Windows.
 Al momento, queste sono le uniche idee che ho.
 
-
-### PER collegarmi in remoto? Se vuoi posso fare un server per te!! se sei mio amico non mi fido della gente!
-- utilizzo wireguard
-
-## per il miglior utilizzo LINK di cose utili:
-
-### Nvim Setup by Me.
-https://github.com/MindfulLearner/josh-nvim-config
-- per usare bisogna saper usare Packer.lua
-- e MASON PER LSP
-
-### TMUX SETUP BYUME.
-https://github.com/MindfulLearner/dimaNet-Tmux-COnf
-
-### Documentation SULLA SICUREZZA ancora da leggere e applicare sul mio serverby Celes:
-https://github.com/celesrenata/pfsense-ultimate-config
-
-
 # dimaNet-homeLabServer
 
 #DA FARE una lista dei miei Container e VM, attivi 24 su 24 swag
