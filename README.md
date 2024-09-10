@@ -1,5 +1,9 @@
 # dimaNet-homeLabServer
 
+## RATING? 
+
+molto bello sopratutto per chi ha setup di lavoro di nvim, molto complicato da setuppare in windows, ora ufficialmente e' meglio usarlo attraverso windows tramite windows terminal 
+
 ### Come ho imparato? 
 debuggando la mia rete... 
 
