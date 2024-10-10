@@ -1,5 +1,12 @@
 # dimaNet-homeLabServer
 
+Structure:
+![image](https://github.com/user-attachments/assets/0d59c93b-380f-475c-bb52-890dc0ead69d)
+
+Container In view:
+![image](https://github.com/user-attachments/assets/55c11777-531d-49b5-8527-bf7fc1802a34)
+
+
 ## RATING? 
 
 molto bello sopratutto per chi ha setup di lavoro di nvim, molto complicato da setuppare in windows, ora ufficialmente e' meglio usarlo attraverso windows tramite windows terminal 
