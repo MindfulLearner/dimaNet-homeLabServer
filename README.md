@@ -1,4 +1,5 @@
 # dimaNet-homeLabServer
+![image](https://github.com/user-attachments/assets/171c5c98-2c1e-4ac4-a676-452d072d4950)
 
 Structure:
 ![image](https://github.com/user-attachments/assets/0d59c93b-380f-475c-bb52-890dc0ead69d)
