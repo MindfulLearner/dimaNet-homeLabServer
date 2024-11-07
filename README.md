@@ -27,8 +27,8 @@ Oltre a questo, la voglia di fare PenTesting su altri PC rende dimaNet un ambien
 Il server avrà come sistema operativo PROXMOX MY LOVE, con virtualizzazione e containerizzazione di Kali Linux e Windows.
 Al momento, queste sono le uniche idee che ho.
 
-### PER collegarmi in remoto? Se vuoi posso fare un server per te!! se sei mio amico non mi fido della gente!
-- utilizzo wireguard
+### PER collegarmi in remoto?
+- utilizzo..
 
 ## per il miglior utilizzo LINK di cose utili:
 
