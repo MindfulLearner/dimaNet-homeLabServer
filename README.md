@@ -6,25 +6,17 @@ Structure:
 Container In view:
 ![image](https://github.com/user-attachments/assets/55c11777-531d-49b5-8527-bf7fc1802a34)
 
-
-## RATING? 
-
-molto bello sopratutto per chi ha setup di lavoro di nvim, molto complicato da setuppare in windows, ora ufficialmente e' meglio usarlo attraverso windows tramite windows terminal 
-
 ### Come ho imparato? 
 debuggando la mia rete... 
 
-## STRUTTURA LOGICA DEL PROGETTO
-https://www.figma.com/design/UISdFu3LdHfMs9JhffvU5J/Untitled?node-id=1-3&t=jYQEWzh2mugPYC9o-1
-
-### DA FARE una lista dei miei Container e VM, attivi 24 su 24 swag
+### DA FARE una lista dei miei Container e VM, attivi 24 su 24 
 - per coleggarmi in remoto DDNS e WIREGUARD
 
 Il progetto dimaNet nasce dall'esigenza di avere diversi dispositivi collegati alla rete domestica. Mi capita spesso di trovarmi in situazioni in cui, quando sono a casa di un amico o in un bar, non riesco a lavorare con il mio ambiente abituale. Ad esempio, quando utilizzo Fedora sul MacBook, ho difficoltà a eseguire chiamate API su Lua in ArchLinux, problema causato dalla differenza di aggiornamento di LuaRocks.
 
 Oltre a questo, la voglia di fare PenTesting su altri PC rende dimaNet un ambiente perfetto per contenere dati personali, lavorarci da remoto da diversi dispositivi e svolgere attività di PenTesting.
 
-Il server avrà come sistema operativo PROXMOX MY LOVE, con virtualizzazione e containerizzazione di Kali Linux e Windows.
+Il server avrà come sistema operativo PROXMOX, con virtualizzazione e containerizzazione di Kali Linux e Windows.
 Al momento, queste sono le uniche idee che ho.
 
 ### PER collegarmi in remoto?
