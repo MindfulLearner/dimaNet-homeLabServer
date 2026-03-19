@@ -6,6 +6,10 @@
 
 ---
 
+## PICTURE FIRST PROTOTYPE HAND CREATION BELOW MERMID
+<img width="7568" height="6234" alt="375177447-0d59c93b-380f-475c-bb52-890dc0ead69d" src="https://github.com/user-attachments/assets/6dfc4829-9707-4df0-ae64-f766626bf624" />
+
+
 ## Infrastructure Overview
 
 ```mermaid
