@@ -1,5 +1,9 @@
 # dimaNet-homeLabServer
 
+CUSTOM PROXMOX UI      
+<img width="1914" height="560" alt="image" src="https://github.com/user-attachments/assets/20fb6451-bd81-4366-9d9f-73e1aaf5b561" />
+
+
 Structure:
 ![image](https://github.com/user-attachments/assets/0d59c93b-380f-475c-bb52-890dc0ead69d)
 
