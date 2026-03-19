@@ -10,6 +10,9 @@
 
 ---
 
+<img width="4422" height="4322" alt="image" src="https://github.com/user-attachments/assets/ea9a1f12-7d37-48d5-89d2-a32068507f9c" />
+
+
 ## Architecture
 
 ```mermaid
