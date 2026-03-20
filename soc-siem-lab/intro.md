@@ -10,7 +10,8 @@
 
 ---
 
-<img width="512" height="512" alt="image" src="https://github.com/user-attachments/assets/64c55f6d-0f05-4b21-9afa-c7f8485cb054" />
+<img width="4422" height="4322" alt="image" src="https://github.com/user-attachments/assets/bb6581b2-1e22-4a25-b74b-841d8f88d864" />
+
 
 ## Architecture
 
