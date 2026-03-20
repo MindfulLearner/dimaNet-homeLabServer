@@ -1,4 +1,4 @@
-# dimaNet — Home Lab Server
+# dimaNet - Home Lab Server
 
 ## Custom Proxmox UI
 
@@ -95,7 +95,7 @@ Sistema operativo host: **Proxmox VE 8.2** su bare metal.
 Legenda: `done` `wip` `planned`
 
 ### 1. Web Server
-- `wip` Apache/Nginx — hosting su VM o container LXC
+- `wip` Apache/Nginx - hosting su VM o container LXC
 - `wip` Stack LAMP/LEMP
 
 ### 2. Database Server

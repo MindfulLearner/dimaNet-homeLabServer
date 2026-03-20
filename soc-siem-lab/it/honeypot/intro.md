@@ -1,3 +1,3 @@
-> **WIP — da ignorare per il momento**
+> **WIP - da ignorare per il momento**
 
 COWRIE!!!!

@@ -237,7 +237,7 @@
         dash.innerHTML = `
             <div class="dash-header">
                 <div>
-                    <div class="dash-title">DIMANET — NETWORK MAP</div>
+                    <div class="dash-title">DIMANET - NETWORK MAP</div>
                     <div class="dash-subtitle">PROXMOX VE &middot; ${NODE.toUpperCase()}</div>
                 </div>
                 <div class="dash-stats" id="custom-dash-stats">LOADING...</div>

@@ -117,7 +117,7 @@
     color: #d0e0ff;
 }
 
-/* host node — slightly larger, no click */
+/* host node - slightly larger, no click */
 .topo-node.host {
     background: #0c1630;
     border-color: #4a70b8;

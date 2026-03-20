@@ -4,8 +4,8 @@
 
 | Name | Type | OS | Role |
 |------|------|----|------|
-| cs20 | VM | Kali Linux | Attacker — Red Team |
-| cs33 | Container | Ubuntu | Victim — Wazuh Agent (user: `swagvict`, password: `victim`) |
+| cs20 | VM | Kali Linux | Attacker - Red Team |
+| cs33 | Container | Ubuntu | Victim - Wazuh Agent (user: `swagvict`, password: `victim`) |
 | cs55 | VM | Ubuntu | Wazuh Manager + Dashboard |
 
 ---
@@ -43,9 +43,9 @@ flowchart LR
 
 ## Checklist
 
-- [x] cs55 — install Wazuh Manager + Dashboard + Indexer (all-in-one script)
-- [x] cs33 — install Wazuh Agent, connect to cs55
-- [x] cs20 — first attack: SSH brute force with Hydra + nmap scan
+- [x] cs55 - install Wazuh Manager + Dashboard + Indexer (all-in-one script)
+- [x] cs33 - install Wazuh Agent, connect to cs55
+- [x] cs20 - first attack: SSH brute force with Hydra + nmap scan
 - [x] verify alerts on Wazuh Dashboard
 
 ## Startup sequence (mandatory order)
@@ -53,4 +53,4 @@ flowchart LR
 1. cs55: `wazuh-indexer` → `wazuh-manager` → `wazuh-dashboard`
 2. cs33: `wazuh-agent`
 
-> All services are enabled with `systemctl enable` — they start automatically on boot.
+> All services are enabled with `systemctl enable` - they start automatically on boot.

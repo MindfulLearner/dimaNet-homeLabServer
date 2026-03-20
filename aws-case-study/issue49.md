@@ -12,7 +12,7 @@ The project is a portfolio site with an automated contributor flow backed by AWS
 
 | Component | Role |
 |---|---|
-| **API Gateway** | Public HTTP endpoint — receives contributor submissions from the frontend |
+| **API Gateway** | Public HTTP endpoint - receives contributor submissions from the frontend |
 | **Lambda** | Processes incoming requests, triggers contributor PR creation and README updates |
 | **DynamoDB** | Stores contributor records; acts as a validation layer before any action is taken |
 | **GitHub Actions** | Handles automatic PR creation, merge, and README updates after Lambda success |
@@ -61,15 +61,15 @@ The attack vector was possible because:
 
 ### How the attack was identified
 
-CloudWatch logs surfaced the anomalous activity in real time — repeated Lambda invocations with identical malformed payloads from the same source, triggering the PR creation pipeline in rapid succession.
+CloudWatch logs surfaced the anomalous activity in real time - repeated Lambda invocations with identical malformed payloads from the same source, triggering the PR creation pipeline in rapid succession.
 
 ---
 
 ## Immediate Response
 
-1. **Deactivated the API** — temporarily disabled the API Gateway endpoint to stop further spam ingestion
-2. **Ran cleanup script** — used a GitHub script to bulk-close the spammed PRs created by the attack
-3. **Reviewed CloudWatch logs** — confirmed the scope and source of the attack
+1. **Deactivated the API** - temporarily disabled the API Gateway endpoint to stop further spam ingestion
+2. **Ran cleanup script** - used a GitHub script to bulk-close the spammed PRs created by the attack
+3. **Reviewed CloudWatch logs** - confirmed the scope and source of the attack
 
 ---
 
@@ -80,13 +80,13 @@ CloudWatch logs surfaced the anomalous activity in real time — repeated Lambda
 | **Input sanitization** | Lambda | Reject payloads containing newline characters or non-printable content in `name`/`email` fields |
 | **DynamoDB double-check** | DynamoDB | Validate contributor data against existing records before allowing any pipeline action |
 | **API throttling** | API Gateway | Rate limiting enabled to prevent burst abuse from a single source |
-| **CloudWatch monitoring** | CloudWatch | Ongoing real-time log protection — alerts on anomalous invocation patterns |
+| **CloudWatch monitoring** | CloudWatch | Ongoing real-time log protection - alerts on anomalous invocation patterns |
 
 ---
 
 ## Key Takeaways
 
-- Public APIs must sanitize inputs at the boundary — the frontend enforcing format is not sufficient since attackers bypass it directly
+- Public APIs must sanitize inputs at the boundary - the frontend enforcing format is not sufficient since attackers bypass it directly
 - CloudWatch real-time logging was critical for fast incident detection
 - DynamoDB as a validation layer adds a second checkpoint before any automated action runs
 - Rate limiting at the Gateway should be enabled from day one on any public endpoint

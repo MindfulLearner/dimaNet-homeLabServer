@@ -1,4 +1,4 @@
-# Attack Plan #1 — SSH Brute Force
+# Attack Plan #1 - SSH Brute Force
 
 > Total time: ~3h (including setup and debugging)
 
@@ -8,7 +8,7 @@
 I got connected to a WiFi network. I don't know who else is on it.
 My goal is to find active hosts, identify a target, and gain SSH access via brute force.
 
-> Note: `netstat` is not enough here — it only shows connections and open ports on **my own machine**.
+> Note: `netstat` is not enough here - it only shows connections and open ports on **my own machine**.
 > I need `nmap` because it actively scans the **entire network** and discovers other devices.
 
 ---
@@ -37,7 +37,7 @@ flowchart TD
 
 ## Steps
 
-### 1. Network scan — discover active hosts
+### 1. Network scan - discover active hosts
 
 ```bash
 nmap -sn 192.168.1.0/24
@@ -45,15 +45,15 @@ nmap -sn 192.168.1.0/24
 
 This shows all active devices on the network.
 
-From the scan, multiple Proxmox devices appear (MAC prefix `BC:24:11`). Since cs33 is an LXC container, it doesn't appear with a hostname — I identify it via the Proxmox host (`pct exec 33 -- ip a`), which confirms cs33 is at `192.168.1.133`.
+From the scan, multiple Proxmox devices appear (MAC prefix `BC:24:11`). Since cs33 is an LXC container, it doesn't appear with a hostname - I identify it via the Proxmox host (`pct exec 33 -- ip a`), which confirms cs33 is at `192.168.1.133`.
 
-### 2. Port scan — find open services on the target
+### 2. Port scan - find open services on the target
 
 ```bash
 nmap -sV 192.168.1.133
 ```
 
-Port 22 (SSH) is open — running OpenSSH 8.9p1 on Ubuntu. The target is vulnerable to brute force.
+Port 22 (SSH) is open - running OpenSSH 8.9p1 on Ubuntu. The target is vulnerable to brute force.
 
 ### 3. Brute force SSH with Hydra
 
@@ -91,7 +91,7 @@ Found `/usr/bin/su` with SUID bit. Running `su -` with the root password granted
 
 > **Security issue:** any user on cs33 can switch to root if they know the root password. In a hardened system, root login should be disabled and `su` restricted to a specific group (e.g. `wheel`).
 
-### Backdoor User — Persistence
+### Backdoor User - Persistence
 
 Once root, created a backdoor user with sudo privileges:
 
@@ -109,16 +109,16 @@ ssh backdoor@192.168.1.133
 
 ---
 
-## Detection — cs55 Wazuh Alerts
+## Detection - cs55 Wazuh Alerts
 
-> **Note:** Initially no alerts appeared. This was a false alarm during investigation — Wazuh was already monitoring SSH via `journald`. Once deliberate failed logins were attempted, alerts appeared immediately.
+> **Note:** Initially no alerts appeared. This was a false alarm during investigation - Wazuh was already monitoring SSH via `journald`. Once deliberate failed logins were attempted, alerts appeared immediately.
 
 Wazuh categorized the attack as:
 - `Initial Access`
-- `Credential Access` — brute force
-- `Lateral Movement - Success` — successful SSH login
+- `Credential Access` - brute force
+- `Lateral Movement - Success` - successful SSH login
 - `Privilege Escalation`
-- `Persistence` — backdoor user created
+- `Persistence` - backdoor user created
 - `Defense Evasion`
 
 cs55 also detected:
@@ -135,9 +135,9 @@ cs55 also detected:
 
 ## AI Observations
 
-- **Weak password on a critical user:** `swagvict` had password `victim` — cracked instantly. In a real environment, password policies and account lockout after N failed attempts are essential.
+- **Weak password on a critical user:** `swagvict` had password `victim` - cracked instantly. In a real environment, password policies and account lockout after N failed attempts are essential.
 - **Root password accessible via `su`:** privilege escalation was trivial. `su` should be restricted or root password disabled entirely in favor of `sudo` with per-user rules.
 - **LXC containers are not isolated at network level:** cs33 was reachable from the entire LAN with no firewall rules. A proper setup would restrict inbound SSH to trusted IPs only.
-- **Wazuh detected everything but didn't block anything:** Wazuh in this setup is passive (SIEM only). To actively block attacks, `active-response` rules need to be configured — e.g. auto-ban IPs after X failed SSH attempts via `fail2ban` integration.
+- **Wazuh detected everything but didn't block anything:** Wazuh in this setup is passive (SIEM only). To actively block attacks, `active-response` rules need to be configured - e.g. auto-ban IPs after X failed SSH attempts via `fail2ban` integration.
 - **Backdoor user was detected but not stopped:** this highlights the importance of alerting AND response. Detection alone is not enough in a real SOC.
 
