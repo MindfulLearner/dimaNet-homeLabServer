@@ -1,5 +1,11 @@
 # dimaNet - Home Lab Server
 
+## About
+
+Il progetto dimaNet nasce dall'esigenza di avere un ambiente centralizzato accessibile da remoto, indipendente dal dispositivo in uso. Gestione remota tramite DDNS e WireGuard, pentesting lab su rete isolata, e sperimentazione su virtualizzazione e sicurezza.
+
+Sistema operativo host: **Proxmox VE 8.2** su bare metal.
+
 ## Custom Proxmox UI
 
 <img width="1914" height="560" alt="custom proxmox ui" src="https://github.com/user-attachments/assets/20fb6451-bd81-4366-9d9f-73e1aaf5b561" />
@@ -72,11 +78,7 @@ graph TD
 
 ---
 
-## About
 
-Il progetto dimaNet nasce dall'esigenza di avere un ambiente centralizzato accessibile da remoto, indipendente dal dispositivo in uso. Gestione remota tramite DDNS e WireGuard, pentesting lab su rete isolata, e sperimentazione su virtualizzazione e sicurezza.
-
-Sistema operativo host: **Proxmox VE 8.2** su bare metal.
 
 ### Accesso remoto
 - WireGuard VPN gestito tramite PiVPN
