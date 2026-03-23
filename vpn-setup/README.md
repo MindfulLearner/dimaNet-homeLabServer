@@ -114,9 +114,6 @@ Usiamo lo **[split tunnel](#split-tunnel)**.
 
 ## Glossario
 
-<details>
-  <summary>Espandi</summary>
-
 ### VPN
 Tunnel cifrato tra due dispositivi attraverso internet.
 
@@ -173,5 +170,3 @@ Linux Container — container leggero gestito da Proxmox, più leggero di una VM
 
 ### Subnet
 Porzione di rete IP (es. `10.x.x.0/24` = 254 indirizzi). La `/24` indica la maschera di rete.
-
-</details>
