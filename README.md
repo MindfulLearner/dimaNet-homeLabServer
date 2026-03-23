@@ -79,8 +79,8 @@ Il progetto dimaNet nasce dall'esigenza di avere un ambiente centralizzato acces
 Sistema operativo host: **Proxmox VE 8.2** su bare metal.
 
 ### Accesso remoto
-- WireGuard VPN — gestito tramite PiVPN
-- DDNS per IP dinamico — No-IP con hostname dedicato
+- WireGuard VPN gestito tramite PiVPN
+- DDNS per IP dinamico No-IP con hostname dedicato
 - Port forwarding sul router (NAT Statico, porta 51820 UDP)
 - Documentazione dettagliata: [vpn-setup/README.md](vpn-setup/README.md)
 
