@@ -1,3 +1,5 @@
+sudo rtcwake -m off -s 120      
+
 # dimaNet - Home Lab Server
 
 ## About
