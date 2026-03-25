@@ -5,7 +5,7 @@
 | Name | Type | OS | Role |
 |------|------|----|------|
 | cs20 | VM | Kali Linux | Attacker - Red Team |
-| cs33 | Container | Ubuntu | Victim - Wazuh Agent (user: `swagvict`, password: `victim`) |
+| cs33 | Container | Ubuntu | Victim - Wazuh Agent (user: `[capybara-priv]`, password: `[capybara-priv]`) |
 | cs55 | VM | Ubuntu | Wazuh Manager + Dashboard |
 
 ---

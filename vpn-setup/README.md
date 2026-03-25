@@ -15,7 +15,7 @@ Configurazione accesso remoto al homelab via [VPN](#vpn).
         |
 [Router casa] ← Mappatura Porte (UDP 51820) → Proxmox
         |
-[Proxmox 192.168.1.x] ← WireGuard server (wg0)
+[Proxmox 192.capy.1.capy] ← WireGuard server (wg0)
         |
 [Rete VPN 10.x.x.x]
 ```
@@ -88,7 +88,7 @@ Su **Router**: Impostazioni → Avanzate → **Mappatura Porte**
 - Porta esterna: `51820`
 - Porta interna: `51820`
 - Protocollo: `UDP`
-- IP: `192.168.1.x` (IP locale del Proxmox)
+- IP: `192.capy.1.capy` (IP locale del Proxmox)
 
 Il [NAT](#nat) Statico non viene usato perché manderebbe tutto il traffico in entrata verso quell'IP, non solo la porta 51820, rompendo la connettività degli altri dispositivi.
 

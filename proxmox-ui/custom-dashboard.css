@@ -134,6 +134,7 @@
 .topo-node.running {
     background: #0e1e30;
     border-color: #3a7ac8;
+    animation: pulse-running 2.4s ease-in-out infinite;
 }
 
 .topo-node.stopped {
@@ -144,6 +145,11 @@
 .topo-node.paused {
     background: #1e1800;
     border-color: #9a6010;
+}
+
+@keyframes pulse-running {
+    0%, 100% { box-shadow: 0 0 0 0 #3a7ac830; }
+    50%       { box-shadow: 0 0 0 6px #3a7ac800; }
 }
 
 /* ── node text ─────────────────────────────────────────── */

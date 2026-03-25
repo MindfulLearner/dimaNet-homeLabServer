@@ -124,7 +124,7 @@
         try {
             vms = await fetchVMs();
         } catch (e) {
-            canvas.innerHTML = '<div class="topo-loading">ERRORE CONNESSIONE API</div>';
+            canvas.innerHTML = '<div class="topo-loading">API CONNECTION ERROR</div>';
             return;
         }
 
@@ -203,9 +203,24 @@
         document.getElementById('popup-vm-id').textContent     = vm.vmid;
         document.getElementById('popup-vm-type').textContent   = vm.type === 'lxc' ? 'Container LXC' : 'Virtual Machine';
         document.getElementById('popup-vm-status').textContent = vm.status.toUpperCase();
-        document.getElementById('popup-vm-cpu').textContent    = vm.cpus || '-';
-        document.getElementById('popup-vm-ram').textContent    = vm.maxmem  ? Math.round(vm.maxmem  / 1073741824) + ' GB' : '-';
-        document.getElementById('popup-vm-disk').textContent   = vm.maxdisk ? Math.round(vm.maxdisk / 1073741824) + ' GB' : '-';
+
+        const cpuPct = vm.cpu != null ? (vm.cpu * 100).toFixed(1) + '%  (' + (vm.cpus || '-') + ' vCPU)' : (vm.cpus || '-') + ' vCPU';
+        document.getElementById('popup-vm-cpu').textContent = cpuPct;
+
+        const ramUsed = vm.mem    ? (vm.mem    / 1073741824).toFixed(1) : null;
+        const ramMax  = vm.maxmem ? (vm.maxmem / 1073741824).toFixed(1) : null;
+        document.getElementById('popup-vm-ram').textContent =
+            ramUsed && ramMax ? ramUsed + ' / ' + ramMax + ' GB' : (ramMax ? ramMax + ' GB' : '-');
+
+        document.getElementById('popup-vm-disk').textContent   = vm.maxdisk ? (vm.maxdisk / 1073741824).toFixed(1) + ' GB' : '-';
+
+        const uptimeSec = vm.uptime || 0;
+        const uptimeStr = uptimeSec > 0
+            ? (Math.floor(uptimeSec / 86400) > 0 ? Math.floor(uptimeSec / 86400) + 'd ' : '') +
+              Math.floor((uptimeSec % 86400) / 3600) + 'h ' +
+              Math.floor((uptimeSec % 3600)  / 60)   + 'm'
+            : '-';
+        document.getElementById('popup-vm-uptime').textContent = uptimeStr;
 
         document.getElementById('popup-btn-start').style.opacity  = vm.status === 'running' ? '0.3' : '1';
         document.getElementById('popup-btn-stop').style.opacity   = vm.status === 'stopped'  ? '0.3' : '1';
@@ -252,12 +267,13 @@
         popup.id = 'custom-vm-popup';
         popup.innerHTML = `
             <h3 id="popup-vm-name">VM NAME</h3>
-            <div class="popup-row"><span class="popup-label">ID</span>    <span class="popup-value" id="popup-vm-id">-</span></div>
-            <div class="popup-row"><span class="popup-label">TIPO</span>  <span class="popup-value" id="popup-vm-type">-</span></div>
-            <div class="popup-row"><span class="popup-label">STATO</span> <span class="popup-value" id="popup-vm-status">-</span></div>
-            <div class="popup-row"><span class="popup-label">CPU</span>   <span class="popup-value" id="popup-vm-cpu">-</span></div>
-            <div class="popup-row"><span class="popup-label">RAM</span>   <span class="popup-value" id="popup-vm-ram">-</span></div>
-            <div class="popup-row"><span class="popup-label">DISCO</span> <span class="popup-value" id="popup-vm-disk">-</span></div>
+            <div class="popup-row"><span class="popup-label">ID</span>     <span class="popup-value" id="popup-vm-id">-</span></div>
+            <div class="popup-row"><span class="popup-label">TYPE</span>   <span class="popup-value" id="popup-vm-type">-</span></div>
+            <div class="popup-row"><span class="popup-label">STATUS</span> <span class="popup-value" id="popup-vm-status">-</span></div>
+            <div class="popup-row"><span class="popup-label">CPU</span>    <span class="popup-value" id="popup-vm-cpu">-</span></div>
+            <div class="popup-row"><span class="popup-label">RAM</span>    <span class="popup-value" id="popup-vm-ram">-</span></div>
+            <div class="popup-row"><span class="popup-label">DISK</span>   <span class="popup-value" id="popup-vm-disk">-</span></div>
+            <div class="popup-row"><span class="popup-label">UPTIME</span> <span class="popup-value" id="popup-vm-uptime">-</span></div>
             <div class="popup-actions">
                 <button id="popup-btn-start"  class="popup-btn start"  onclick="customDashCommand('start')">&#9654; START</button>
                 <button id="popup-btn-stop"   class="popup-btn stop"   onclick="customDashCommand('stop')">&#9632; STOP</button>
@@ -287,14 +303,17 @@
         const dash = document.getElementById('custom-dashboard');
         const label = document.querySelector('#custom-toggle-btn span');
 
+        const dot = document.querySelector('#custom-toggle-btn .toggle-dot');
         if (dashActive) {
             dash.classList.add('active');
             label.textContent = 'PROXMOX';
+            if (dot) dot.style.background = '#50e890';
             renderTopology();
             refreshTimer = setInterval(renderTopology, REFRESH_MS);
         } else {
             dash.classList.remove('active');
             label.textContent = 'MAP';
+            if (dot) dot.style.background = '#4a8fd9';
             customDashClosePopup();
             clearInterval(refreshTimer);
         }
@@ -304,6 +323,9 @@
     function init() {
         buildDashboard();
         buildToggleBtn();
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') customDashClosePopup();
+        });
     }
 
     if (document.readyState === 'loading') {
