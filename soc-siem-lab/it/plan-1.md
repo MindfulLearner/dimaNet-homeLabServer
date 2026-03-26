@@ -18,9 +18,9 @@ Il mio obiettivo è trovare gli host attivi, identificare un bersaglio e ottener
 ```mermaid
 flowchart TD
     A([cs20 - Kali Linux]) -->|nmap -sn| B[Scopro gli host in rete]
-    B -->|nmap -sV 192.capy.1.capy| C[Porta 22 SSH aperta su cs33]
-    C -->|Hydra brute force| D[Credenziali trovate: [capybara-priv] / [capybara-priv]]
-    D -->|ssh [capybara-priv]@cs33| E[Dentro cs33 come [capybara-priv]]
+    B -->|nmap -sV 192.y.1.y| C[Porta 22 SSH aperta su cs33]
+    C -->|Hydra brute force| D[Credenziali trovate: [192.168.1.x] / [192.168.1.x]]
+    D -->|ssh [192.x.x.x]@cs33| E[Dentro cs33 come [192.168.1.x]]
     E -->|ricerca binari SUID| F[su - → shell root]
     F -->|useradd backdoor| G[Utente backdoor creato]
     G -->|ssh backdoor@cs33| H[Accesso persistente stabilito]
