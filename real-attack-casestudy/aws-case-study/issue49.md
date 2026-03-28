@@ -25,13 +25,13 @@ User visits portfolio
        ↓
 Submits name/email via frontend
        ↓
-API Gateway → Lambda
+API Gateway -> Lambda
        ↓
 DynamoDB validation check
        ↓
 GitHub Actions triggered
        ↓
-Auto PR created → README updated → Contributor badge added
+Auto PR created -> README updated -> Contributor badge added
 ```
 
 ---

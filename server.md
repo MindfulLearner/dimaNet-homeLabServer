@@ -1,4 +1,4 @@
-# Home Lab Server — Context & Instructions
+# Home Lab Server - Context & Instructions
 
 ## Connection
 
@@ -28,17 +28,17 @@ Never suggest the user run commands manually unless absolutely necessary. Always
 
 ## Key Services
 
-- **Proxmox VE** — hypervisor/VM management (`pvestatd`, `pmxcfs`)
-- **fail2ban** — brute-force protection on SSH
-- **pve-firewall** — network firewall
-- **WireGuard** — VPN tunnel (`wg0`)
+- **Proxmox VE** - hypervisor/VM management (`pvestatd`, `pmxcfs`)
+- **fail2ban** - brute-force protection on SSH
+- **pve-firewall** - network firewall
+- **WireGuard** - VPN tunnel (`wg0`)
 
 ## How to Help
 
 When the user asks anything about this server (health, logs, services, configs, VMs, networking, security, etc.):
 
 1. Connect via `ssh root@192.capy.1.capy "<command>"` using the Bash tool
-2. Run the relevant command(s) directly — do not ask the user to run them
+2. Run the relevant command(s) directly - do not ask the user to run them
 3. Interpret the output and present a clean, concise summary
 4. Flag anything anomalous (high disk, failed services, suspicious logins, etc.)
 

@@ -1,4 +1,4 @@
-# VPN Setup — WireGuard + PiVPN + No-IP DDNS
+# VPN Setup - WireGuard + PiVPN + No-IP DDNS
 
 Configurazione accesso remoto al homelab via [VPN](#vpn).
 
@@ -13,9 +13,9 @@ Configurazione accesso remoto al homelab via [VPN](#vpn).
         |
 [Internet]
         |
-[Router casa] ← Mappatura Porte (UDP 51820) → Proxmox
+[Router casa] <- Mappatura Porte (UDP 51820) -> Proxmox
         |
-[Proxmox 192.capy.1.capy] ← WireGuard server (wg0)
+[Proxmox 192.capy.1.capy] <- WireGuard server (wg0)
         |
 [Rete VPN 10.x.x.x]
 ```
@@ -59,7 +59,7 @@ Client configs: `/etc/wireguard/configs/`
 Il router ha un [IP dinamico](#ip-dinamico) che cambia al riavvio o quando l'[ISP](#isp) lo riassegna. No-IP mantiene un hostname fisso (`<hostname>.ddns.net`) aggiornato con l'IP corrente.
 
 - Piano gratuito: richiede conferma dell'hostname ogni 30 giorni via email
-- Il router ha un client [DDNS](#ddns) integrato — nessuna configurazione aggiuntiva su [Proxmox](#proxmox) necessaria.
+- Il router ha un client [DDNS](#ddns) integrato - nessuna configurazione aggiuntiva su [Proxmox](#proxmox) necessaria.
 
 ---
 
@@ -74,8 +74,8 @@ WireGuard usa crittografia a chiave pubblica/privata (come SSH).
 | **[Preshared key](#preshared-key)** | Layer extra di sicurezza simmetrica (opzionale) |
 
 Le chiavi stanno in:
-- `/etc/wireguard/wg0.conf` — private key del server + public key di ogni peer
-- `/etc/wireguard/configs/` — config dei client (generati da [PiVPN](#pivpn))
+- `/etc/wireguard/wg0.conf` - private key del server + public key di ogni peer
+- `/etc/wireguard/configs/` - config dei client (generati da [PiVPN](#pivpn))
 
 ---
 
@@ -83,7 +83,7 @@ Le chiavi stanno in:
 
 Il router blocca le connessioni in entrata. La porta 51820 UDP va inoltrata all'IP del [Proxmox](#proxmox).
 
-Su **Router**: Impostazioni → Avanzate → **Mappatura Porte**
+Su **Router**: Impostazioni -> Avanzate -> **Mappatura Porte**
 
 - Porta esterna: `51820`
 - Porta interna: `51820`
@@ -124,10 +124,10 @@ Protocollo VPN basato su crittografia a chiave pubblica.
 Script che semplifica l'installazione e gestione di WireGuard su Linux.
 
 ### DDNS
-Dynamic DNS — aggiorna automaticamente un hostname con l'IP pubblico corrente quando cambia.
+Dynamic DNS - aggiorna automaticamente un hostname con l'IP pubblico corrente quando cambia.
 
 ### ISP
-Internet Service Provider — il fornitore di connessione internet. Assegna l'IP pubblico al router.
+Internet Service Provider - il fornitore di connessione internet. Assegna l'IP pubblico al router.
 
 ### IP dinamico
 IP pubblico che può cambiare nel tempo, tipico dei contratti casa. Richiede DDNS per mantenere un hostname raggiungibile.
@@ -136,7 +136,7 @@ IP pubblico che può cambiare nel tempo, tipico dei contratti casa. Richiede DDN
 Regola sul router che inoltra il traffico su una porta specifica a un IP interno.
 
 ### NAT
-Network Address Translation — il router traduce l'IP pubblico in IP privati interni (192.168.x.x). Il port forwarding è una regola NAT.
+Network Address Translation - il router traduce l'IP pubblico in IP privati interni (192.168.x.x). Il port forwarding è una regola NAT.
 
 ### Peer
 Dispositivo partecipante alla VPN WireGuard. Ha una coppia di chiavi e un IP assegnato nella rete VPN.
@@ -166,7 +166,7 @@ Interfaccia di rete virtuale creata da WireGuard. Visibile con `ip link show` o 
 Hypervisor installato su bare metal. Gestisce VM e container LXC.
 
 ### LXC
-Linux Container — container leggero gestito da Proxmox, più leggero di una VM.
+Linux Container - container leggero gestito da Proxmox, più leggero di una VM.
 
 ### Subnet
 Porzione di rete IP (es. `10.x.x.0/24` = 254 indirizzi). La `/24` indica la maschera di rete.

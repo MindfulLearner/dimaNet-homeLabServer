@@ -4,7 +4,7 @@
 # ==============================================
 # Usage:
 #   bash investigate_attack.sh              # last 7 days
-#   bash investigate_attack.sh 2.57.122.238 # specific IP
+#   bash investigate_attack.sh x.x.x.x # specific IP
 #   bash investigate_attack.sh "" 30        # last 30 days
 # ==============================================
 
@@ -85,9 +85,9 @@ if [ -n "$TARGET_IP" ]; then
     SUCCESS=$(journalctl _SYSTEMD_UNIT=ssh.service --since "$SINCE" 2>/dev/null \
         | grep "Accepted" | grep "$TARGET_IP")
     if [ -z "$SUCCESS" ]; then
-        echo -e "${GREEN}No — all attempts failed${NC}"
+        echo -e "${GREEN}No - all attempts failed${NC}"
     else
-        echo -e "${RED}!! YES — successful login detected:${NC}"
+        echo -e "${RED}!! YES - successful login detected:${NC}"
         echo "$SUCCESS"
     fi
     echo ""
@@ -118,9 +118,9 @@ else
         SUCCESS=$(journalctl _SYSTEMD_UNIT=ssh.service --since "$SINCE" 2>/dev/null \
             | grep "Accepted" | grep "$TOP_IP")
         if [ -z "$SUCCESS" ]; then
-            echo -e "${GREEN}No — all attempts failed${NC}"
+            echo -e "${GREEN}No - all attempts failed${NC}"
         else
-            echo -e "${RED}!! YES — successful login detected:${NC}"
+            echo -e "${RED}!! YES - successful login detected:${NC}"
             echo "$SUCCESS"
         fi
         echo ""

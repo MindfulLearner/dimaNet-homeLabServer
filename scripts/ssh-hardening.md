@@ -1,11 +1,11 @@
-# SSH Hardening — dimaNet Proxmox
+# SSH Hardening - dimaNet Proxmox
 
 **Data:** 2026-03-24
 **Host:** dimanet (Proxmox VE 8.2)
 
 ---
 
-## Contesto — Cosa è successo
+## Contesto - Cosa è successo
 
 Durante un health check del server è stato rilevato un attacco brute force SSH attivo.
 
@@ -22,7 +22,7 @@ Bot automatico che scansiona internet cercando server con utenti legati a **Sola
 
 ### Risultato
 
-Tutti i tentativi **falliti** — nessun utente `sol`/`solana` esiste su dimaNet.
+Tutti i tentativi **falliti** - nessun utente `sol`/`solana` esiste su dimaNet.
 
 ---
 

@@ -21,7 +21,7 @@ flowchart TD
     B -->|nmap -sV 192.y.1.y| C[Porta 22 SSH aperta su cs33]
     C -->|Hydra brute force| D["Credenziali trovate: 192.168.1.x / password"]
     D -->|"ssh user@cs33"| E["Dentro cs33 come utente"]
-    E -->|ricerca binari SUID| F[su - → shell root]
+    E -->|ricerca binari SUID| F[su - -> shell root]
     F -->|useradd backdoor| G[Utente backdoor creato]
     G -->|ssh backdoor@cs33| H[Accesso persistente stabilito]
 

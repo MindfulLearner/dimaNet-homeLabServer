@@ -50,7 +50,7 @@ flowchart LR
 
 ## Startup sequence (mandatory order)
 
-1. cs55: `wazuh-indexer` → `wazuh-manager` → `wazuh-dashboard`
+1. cs55: `wazuh-indexer` -> `wazuh-manager` -> `wazuh-dashboard`
 2. cs33: `wazuh-agent`
 
 > All services are enabled with `systemctl enable` - they start automatically on boot.

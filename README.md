@@ -1,5 +1,3 @@
-sudo rtcwake -m off -s 120      
-
 # dimaNet - Home Lab Server
 
 ## About
@@ -87,6 +85,16 @@ graph TD
 - DDNS per IP dinamico No-IP con hostname dedicato
 - Port forwarding sul router (Mappatura Porte, porta 51820 UDP)
 - Documentazione dettagliata: [vpn-setup/README.md](vpn-setup/README.md)
+
+### Gestione alimentazione remota
+Il server non è sempre acceso. L'accensione è gestita tramite `rtcwake`, che usa il Real Time Clock hardware per programmare il wake del sistema a un orario preciso, senza bisogno di Wake-on-LAN o intervento fisico.
+
+Comando tipico (spegni e svegliati tra N secondi):
+```bash
+rtcwake -m off -s <secondi>
+```
+
+Questo permette di gestire il server da remoto (es. da Praga) programmando finestre di accensione pianificate, riducendo consumo energetico e usura.
 
 ### Link utili
 

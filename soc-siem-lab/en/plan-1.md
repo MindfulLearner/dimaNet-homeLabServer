@@ -21,7 +21,7 @@ flowchart TD
     B -->|nmap -sV 192.capy.1.capy| C[Port 22 SSH open on cs33]
     C -->|Hydra brute force| D[Credentials found: [capybara-priv] / [capybara-priv]]
     D -->|ssh [capybara-priv]@cs33| E[Inside cs33 as [capybara-priv]]
-    E -->|find SUID binaries| F[su - → root shell]
+    E -->|find SUID binaries| F[su - -> root shell]
     F -->|useradd backdoor| G[Backdoor user created]
     G -->|ssh backdoor@cs33| H[Persistent access established]
 

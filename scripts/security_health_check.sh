@@ -161,11 +161,11 @@ PRL=$(grep -E "^PermitRootLogin" /etc/ssh/sshd_config | awk '{print $2}')
 
 [ "$PA" = "no" ] \
     && echo -e "  PasswordAuthentication : ${GREEN}no (good)${NC}" \
-    || echo -e "  PasswordAuthentication : ${RED}${PA:-yes (default!)} — RISK${NC}"
+    || echo -e "  PasswordAuthentication : ${RED}${PA:-yes (default!)} - RISK${NC}"
 
 [ "$PRL" = "prohibit-password" ] || [ "$PRL" = "no" ] \
     && echo -e "  PermitRootLogin        : ${GREEN}${PRL} (good)${NC}" \
-    || echo -e "  PermitRootLogin        : ${RED}${PRL:-yes (default!)} — RISK${NC}"
+    || echo -e "  PermitRootLogin        : ${RED}${PRL:-yes (default!)} - RISK${NC}"
 echo ""
 
 echo -e "${BLUE}============================================${NC}"
