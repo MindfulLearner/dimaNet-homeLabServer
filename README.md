@@ -13,7 +13,8 @@ Sistema operativo host: **Proxmox VE 8.2** su bare metal.
 ---
 
 ## PICTURE FIRST PROTOTYPE HAND CREATION BELOW MERMID
-<img width="7568" height="6234" alt="375177447-0d59c93b-380f-475c-bb52-890dc0ead69d" src="https://github.com/user-attachments/assets/6dfc4829-9707-4df0-ae64-f766626bf624" />
+<img width="7568" height="6234" alt="image" src="https://github.com/user-attachments/assets/6a2892d6-0900-4b57-9744-f1237b0f318d" />
+
 
 
 ## Infrastructure Overview
