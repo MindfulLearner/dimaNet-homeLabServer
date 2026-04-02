@@ -1,5 +1,8 @@
 # Pi-hole
 
+<img width="1600" height="898" alt="image" src="https://github.com/user-attachments/assets/f7968c9f-788b-4a0e-a029-2fd17c5ad3c1" />
+
+
 ## Setup
 
 - **Host:** narutoPi (`<PI_IP>`)
