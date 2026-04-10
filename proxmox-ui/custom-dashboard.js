@@ -33,6 +33,50 @@
         ].sort((a, b) => a.vmid - b.vmid);
     }
 
+    async function fetchTasks() {
+        const res = await fetch(`/api2/json/nodes/${NODE}/tasks?limit=20`, {
+            credentials: 'include',
+            headers: { 'CSRFPreventionToken': Proxmox.CSRFPreventionToken },
+        });
+        return res.ok ? (await res.json()).data || [] : [];
+    }
+
+    async function renderTasks() {
+        const panel = document.getElementById('dash-tasks-list');
+        if (!panel) return;
+        let tasks;
+        try { tasks = await fetchTasks(); } catch (e) { return; }
+
+        const runningCount = tasks.filter(t => !t.endtime).length;
+        const header = document.getElementById('dash-tasks-header');
+        if (header) {
+            header.textContent = 'TASKS' + (runningCount > 0 ? `  ·  ${runningCount} RUNNING` : '');
+            header.style.color = runningCount > 0 ? '#4a8fd9' : '#2a4060';
+        }
+
+        if (!tasks.length) {
+            panel.innerHTML = '<div class="task-empty">NO RECENT TASKS</div>';
+            return;
+        }
+
+        panel.innerHTML = tasks.map(t => {
+            const isRunning  = !t.endtime;
+            const statusClass = isRunning ? 'task-running' : (t.status === 'OK' ? 'task-ok' : 'task-failed');
+            const statusText  = isRunning ? 'RUNNING' : (t.status || 'OK');
+            const time = new Date(t.starttime * 1000).toLocaleTimeString('it-IT', {
+                hour: '2-digit', minute: '2-digit', second: '2-digit',
+            });
+            const user = (t.user || '').replace(/@pam|@pve/g, '');
+            return `<div class="task-row">
+                <span class="task-status ${statusClass}">${statusText}</span>
+                <span class="task-type">${t.type.toUpperCase()}</span>
+                <span class="task-id">${t.id ? '#' + t.id : ''}</span>
+                <span class="task-user">${user}</span>
+                <span class="task-time">${time}</span>
+            </div>`;
+        }).join('');
+    }
+
     async function sendCommand(vmid, type, cmd) {
         await fetch(`/api2/json/nodes/${NODE}/${type}/${vmid}/status/${cmd}`, {
             method: 'POST',
@@ -140,6 +184,11 @@
                 `<span style="color:#4a8fd9">● ${running} RUNNING</span> &nbsp;` +
                 `<span style="color:#8b3030">● ${stopped} STOPPED</span>`;
         }
+        const killAllBtn = document.getElementById('dash-kill-all-btn');
+        if (killAllBtn) {
+            killAllBtn.disabled = running === 0;
+            killAllBtn.style.opacity = running === 0 ? '0.3' : '1';
+        }
 
         // canvas dimensions
         const canvasW = Math.max(
@@ -174,6 +223,8 @@
             `<div class="node-type">PROXMOX</div>`;
         canvas.appendChild(hostEl);
 
+        renderTasks();
+
         // vm/lxc nodes
         nodes.forEach(vm => {
             const el = document.createElement('div');
@@ -184,8 +235,18 @@
             el.innerHTML =
                 `<div class="node-name">${vm.name || 'VM-' + vm.vmid}</div>` +
                 `<div class="node-id">#${vm.vmid}</div>` +
-                `<div class="node-type">${vm.type}</div>`;
+                `<div class="node-type">${vm.type}</div>` +
+                (vm.status === 'running' ? `<button class="node-stop-btn" title="Stop">&#9632; STOP</button>` : '');
             el.onclick = () => customDashSelectVM(vm.vmid, vm.type);
+            if (vm.status === 'running') {
+                const stopBtn = el.querySelector('.node-stop-btn');
+                if (stopBtn) {
+                    stopBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        sendCommand(vm.vmid, vm.type, 'stop');
+                    };
+                }
+            }
             canvas.appendChild(el);
         });
     }
@@ -236,6 +297,12 @@
         selectedVM = null;
     };
 
+    window.customDashKillAll = function () {
+        const running = (window._customVMData || []).filter(v => v.status === 'running');
+        if (!running.length) return;
+        running.forEach(vm => sendCommand(vm.vmid, vm.type, 'stop'));
+    };
+
     window.customDashCommand = function (cmd) {
         if (!selectedVM) return;
         if (cmd === 'start'  && selectedVM.status === 'running') return;
@@ -255,10 +322,17 @@
                     <div class="dash-title">DIMANET - NETWORK MAP</div>
                     <div class="dash-subtitle">PROXMOX VE &middot; ${NODE.toUpperCase()}</div>
                 </div>
-                <div class="dash-stats" id="custom-dash-stats">LOADING...</div>
+                <div style="display:flex;align-items:center;gap:16px;">
+                    <button id="dash-kill-all-btn" class="dash-kill-all" onclick="customDashKillAll()">&#9632; KILL ALL</button>
+                    <div class="dash-stats" id="custom-dash-stats">LOADING...</div>
+                </div>
             </div>
             <div id="topology-canvas">
                 <div class="topo-loading">LOADING...</div>
+            </div>
+            <div id="dash-tasks">
+                <div id="dash-tasks-header" class="dash-tasks-header">TASKS</div>
+                <div id="dash-tasks-list"><div class="task-empty">LOADING...</div></div>
             </div>
         `;
         document.body.appendChild(dash);

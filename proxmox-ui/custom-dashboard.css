@@ -85,10 +85,80 @@
 #topology-canvas {
     position: relative;
     width: 100%;
-    height: calc(100vh - 64px);
+    height: calc(100vh - 64px - 160px);
     overflow-x: auto;
     overflow-y: auto;
 }
+
+/* ── tasks panel ───────────────────────────────────────── */
+#dash-tasks {
+    height: 160px;
+    border-top: 1px solid #1a2d6b;
+    background: #060a18;
+    display: flex;
+    flex-direction: column;
+}
+
+.dash-tasks-header {
+    padding: 6px 20px;
+    font-size: 9px;
+    letter-spacing: 3px;
+    color: #2a4060;
+    border-bottom: 1px solid #0e1830;
+    text-transform: uppercase;
+    flex-shrink: 0;
+    transition: color 0.3s;
+}
+
+#dash-tasks-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 4px 0;
+}
+
+.task-row {
+    display: grid;
+    grid-template-columns: 80px 140px 60px 80px 1fr;
+    align-items: center;
+    padding: 3px 20px;
+    font-size: 10px;
+    font-family: monospace;
+    border-bottom: 1px solid #0a1020;
+    gap: 8px;
+}
+
+.task-row:hover { background: #0a1428; }
+
+.task-status {
+    font-size: 9px;
+    letter-spacing: 1px;
+    font-weight: bold;
+}
+
+.task-running {
+    color: #4a8fd9;
+    animation: blink 1.2s infinite;
+}
+
+.task-ok     { color: #3a8a50; }
+.task-failed { color: #a03030; }
+
+.task-type   { color: #5a7aa0; letter-spacing: 0.5px; }
+.task-id     { color: #3a5a80; }
+.task-user   { color: #2a4060; }
+.task-time   { color: #2a4060; text-align: right; }
+
+.task-empty {
+    padding: 20px;
+    text-align: center;
+    color: #1a2d4a;
+    font-size: 10px;
+    letter-spacing: 3px;
+}
+
+#dash-tasks-list::-webkit-scrollbar { width: 3px; }
+#dash-tasks-list::-webkit-scrollbar-track { background: transparent; }
+#dash-tasks-list::-webkit-scrollbar-thumb { background: #1a2d6b; border-radius: 2px; }
 
 /* ── node base ─────────────────────────────────────────── */
 .topo-node {
@@ -249,6 +319,46 @@
 #custom-vm-popup .popup-btn.reboot { border-color: #8a6010; color: #c89030; }
 #custom-vm-popup .popup-btn.close  { border-color: #2a3050; color: #4a5878; }
 #custom-vm-popup .popup-btn:hover  { opacity: 0.65; }
+
+/* ── inline stop button on running nodes ───────────────── */
+.node-stop-btn {
+    position: absolute;
+    bottom: 6px;
+    background: transparent;
+    border: 1px solid #7a2828;
+    color: #c05050;
+    border-radius: 2px;
+    font-size: 7px;
+    padding: 1px 5px;
+    cursor: pointer;
+    font-family: monospace;
+    letter-spacing: 1px;
+    transition: background 0.2s;
+}
+
+.node-stop-btn:hover {
+    background: #3a0e0e;
+}
+
+/* ── kill all button in header ─────────────────────────── */
+.dash-kill-all {
+    background: transparent;
+    border: 1px solid #7a2828;
+    color: #c05050;
+    border-radius: 3px;
+    padding: 5px 14px;
+    cursor: pointer;
+    font-family: monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    transition: background 0.2s, color 0.2s;
+}
+
+.dash-kill-all:hover {
+    background: #3a0e0e;
+    color: #e07070;
+}
 
 /* ── overlay ───────────────────────────────────────────── */
 #popup-overlay {
