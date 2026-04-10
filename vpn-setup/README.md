@@ -136,7 +136,7 @@ IP pubblico che può cambiare nel tempo, tipico dei contratti casa. Richiede DDN
 Regola sul router che inoltra il traffico su una porta specifica a un IP interno.
 
 ### NAT
-Network Address Translation - il router traduce l'IP pubblico in IP privati interni (192.168.x.x). Il port forwarding è una regola NAT.
+Network Address Translation - il router traduce l'IP pubblico in IP privati interni (RFC1918, es. LAN domestica). Il port forwarding è una regola NAT.
 
 ### Peer
 Dispositivo partecipante alla VPN WireGuard. Ha una coppia di chiavi e un IP assegnato nella rete VPN.

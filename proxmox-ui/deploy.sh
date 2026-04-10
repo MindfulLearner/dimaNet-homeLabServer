@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
-# Esporta prima: export PROXMOX_SSH=root@<IP-LAN-Proxmox>
-HOST="${PROXMOX_SSH:?Imposta PROXMOX_SSH (es. export PROXMOX_SSH=root@10.0.0.1)}"
+# Esporta prima: export PROXMOX_SSH=root@capybara-redacted (sostituisci con IP LAN reale)
+HOST="${PROXMOX_SSH:?Imposta PROXMOX_SSH (es. export PROXMOX_SSH=root@capybara-redacted)}"
 REMOTE_CSS="/usr/share/pve-manager/css/custom-dashboard.css"
 REMOTE_JS="/usr/share/pve-manager/js/custom-dashboard.js"
 REMOTE_TPL="/usr/share/pve-manager/index.html.tpl"

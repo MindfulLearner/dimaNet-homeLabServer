@@ -32,7 +32,7 @@ Due problemi distinti investigati il 28 marzo 2026:
 Il server si è svegliato normalmente. Tutti i servizi sono partiti senza errori:
 - NIC `eno1` up a 1000 Mbps Full Duplex
 - `vmbr0` in forwarding state
-- `wg-quick@wg0` -> OK (IP 10.118.240.1/24, porta 51820)
+- `wg-quick@wg0` -> OK (IP `capybara-redacted/24`, porta 51820)
 - `pve-firewall`, `fail2ban`, `pvedaemon`, `pveproxy` -> tutti OK
 - Boot completato in 21.5 secondi, NTP sincronizzato
 
@@ -42,7 +42,7 @@ Nonostante tutto OK nei log, il server era irraggiungibile sia via VPN che via L
 
 Ipotesi in ordine di probabilità:
 
-1. **ARP stale** - dopo 8h offline, il gateway potrebbe aver impiegato qualche secondo ad aggiornare la tabella ARP per `192.168.1.100`
+1. **ARP stale** - dopo 8h offline, il gateway potrebbe aver impiegato qualche secondo ad aggiornare la tabella ARP per l'host Proxmox (`capybara-redacted`)
 2. **IP pubblico cambiato** - l'ISP potrebbe aver riassegnato l'IP durante le 8h di spegnimento (spiegherebbe il VPN fail, non il LAN fail)
 3. **e1000e post-ACPI wake** - il driver Intel sulla HP EliteDesk 800 G3 può avere anomalie nei primi secondi dopo wake da S4/S5
 
@@ -52,7 +52,7 @@ Ipotesi in ordine di probabilità:
 
 Eseguire subito dopo il wake:
 ```bash
-ping 192.168.1.1        # verifica routing LAN
+ping capybara-redacted  # gateway LAN (sostituisci con IP reale in locale)
 wg show                 # verifica tunnel WireGuard
 ```
 
@@ -137,5 +137,5 @@ VM 105 avviata alle 14:11 con config corretta, monitorata oltre 20 minuti senza 
 ## Open Items
 
 - [x] ~~QEMU freeze VM 105~~ - risolto (iothread=0, memory=4096, verificato 14:11–14:32)
-- [ ] Investigare irraggiungibilità post-rtcwake - al prossimo wake eseguire `ping 192.168.1.1` e `wg show` subito dopo il boot
+- [ ] Investigare irraggiungibilità post-rtcwake - al prossimo wake eseguire `ping` al gateway LAN (`capybara-redacted` in locale) e `wg show` subito dopo il boot
 - [ ] Valutare `PersistentKeepalive = 25` nel peer WireGuard per mantenere il tunnel attivo dopo wake da sleep lungo

