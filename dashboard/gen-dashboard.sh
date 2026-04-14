@@ -13,6 +13,14 @@ OUT_HTML="$STATIC_DIR/dashboard.html"
 RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'
 BLUE='\033[1;34m'; NC='\033[0m'
 
+CONFIG="$(cd "$SCRIPT_DIR/.." && pwd)/config.env"
+if [ ! -f "$CONFIG" ]; then
+    echo -e "${RED}[dashboard]${NC} ERROR: config.env non trovato. Copia config.env.example in config.env e inserisci i valori."
+    exit 1
+fi
+# shellcheck source=../config.env
+source "$CONFIG"
+
 echo -e "${BLUE}[dashboard]${NC} Raccolta dati in corso..."
 
 # ──────────────────────────────────────────────
@@ -24,7 +32,7 @@ TMP_NARUTO=$(mktemp)
 TMP_CS42=$(mktemp)
 
 _get_proxmox() {
-ssh -o ConnectTimeout=10 -o BatchMode=yes proxmox bash 2>/dev/null >"$TMP_PROXMOX" <<'ENDSSH'
+ssh -o ConnectTimeout=10 -o BatchMode=yes "$PROXMOX_SSH" bash 2>/dev/null >"$TMP_PROXMOX" <<'ENDSSH'
 echo "=UPTIME=$(uptime -p)"
 echo "=LOAD=$(cut -d' ' -f1-3 /proc/loadavg)"
 echo "=RAM_USED=$(free -m | awk '/Mem/{print $3}')"
@@ -55,7 +63,7 @@ ENDSSH
 }
 
 _get_naruto() {
-ssh -o ConnectTimeout=10 -o BatchMode=yes naruto bash 2>/dev/null >"$TMP_NARUTO" <<'ENDSSH'
+ssh -o ConnectTimeout=10 -o BatchMode=yes "$NARUTO_SSH" bash 2>/dev/null >"$TMP_NARUTO" <<'ENDSSH'
 echo "=UPTIME=$(uptime -p)"
 echo "=LOAD=$(cut -d' ' -f1-3 /proc/loadavg)"
 echo "=RAM_USED=$(free -m | awk '/Mem/{print $3}')"
@@ -83,7 +91,7 @@ ENDSSH
 }
 
 _get_cs42() {
-ssh -o ConnectTimeout=10 -o BatchMode=yes cs42 bash 2>/dev/null >"$TMP_CS42" <<'ENDSSH'
+ssh -o ConnectTimeout=10 -o BatchMode=yes "$CS42_SSH" bash 2>/dev/null >"$TMP_CS42" <<'ENDSSH'
 echo "=UPTIME=$(uptime -p)"
 echo "=LOAD=$(cut -d' ' -f1-3 /proc/loadavg)"
 echo "=RAM_USED=$(free -m | awk '/Mem/{print $3}')"

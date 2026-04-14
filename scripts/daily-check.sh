@@ -12,7 +12,16 @@ BLUE='\033[1;34m'
 CYAN='\033[0;36m'
 NC='\033[0m'
 
-LOG_DIR="$(dirname "$0")/../logs"
+REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+CONFIG="$REPO_ROOT/config.env"
+if [ ! -f "$CONFIG" ]; then
+    echo "ERROR: $CONFIG non trovato. Copia config.env.example in config.env e inserisci i valori."
+    exit 1
+fi
+# shellcheck source=../config.env
+source "$CONFIG"
+
+LOG_DIR="$REPO_ROOT/logs"
 mkdir -p "$LOG_DIR"
 LOG_FILE="$LOG_DIR/daily-check-$(date '+%Y-%m-%d').log"
 
@@ -40,11 +49,11 @@ log "${CYAN}Daily homelab check - $(date '+%Y-%m-%d %H:%M:%S')${NC}"
 log "Log salvato in: $LOG_FILE"
 
 # ==============================================
-# PROXMOX (192.168.1.100)
+# PROXMOX
 # ==============================================
-header "PROXMOX - 192.168.1.100"
+header "PROXMOX - $PROXMOX_IP"
 
-PROXMOX_OUT=$(ssh -o ConnectTimeout=10 proxmox bash <<'ENDSSH'
+PROXMOX_OUT=$(ssh -o ConnectTimeout=10 "$PROXMOX_SSH" bash <<'ENDSSH'
 echo "=UPTIME=$(uptime -p)"
 echo "=LOAD=$(cut -d' ' -f1-3 /proc/loadavg)"
 echo "=RAM=$(free -m | awk '/Mem/{printf "%s/%s MB", $3, $2}')"
@@ -135,11 +144,11 @@ else
 fi
 
 # ==============================================
-# NARUTOPI (192.168.1.31)
+# NARUTOPI
 # ==============================================
-header "narutoPi - 192.168.1.31"
+header "narutoPi - $NARUTO_IP"
 
-NARUTO_OUT=$(ssh -o ConnectTimeout=10 naruto@192.168.1.31 bash <<'ENDSSH'
+NARUTO_OUT=$(ssh -o ConnectTimeout=10 "$NARUTO_SSH" bash <<'ENDSSH'
 echo "=UPTIME=$(uptime -p)"
 echo "=LOAD=$(cut -d' ' -f1-3 /proc/loadavg)"
 echo "=RAM=$(free -m | awk '/Mem/{printf "%s/%s MB", $3, $2}')"
@@ -244,11 +253,11 @@ else
 fi
 
 # ==============================================
-# CS42 - SOC Ubuntu (192.168.1.5)
+# CS42 - SOC Ubuntu
 # ==============================================
-header "cs42 SOC - 192.168.1.5"
+header "cs42 SOC - $CS42_IP"
 
-CS42_OUT=$(ssh -o ConnectTimeout=10 cs42 bash <<'ENDSSH'
+CS42_OUT=$(ssh -o ConnectTimeout=10 "$CS42_SSH" bash <<'ENDSSH'
 echo "=UPTIME=$(uptime -p)"
 echo "=LOAD=$(cut -d' ' -f1-3 /proc/loadavg)"
 echo "=RAM=$(free -m | awk '/Mem/{printf "%s/%s MB", $3, $2}')"

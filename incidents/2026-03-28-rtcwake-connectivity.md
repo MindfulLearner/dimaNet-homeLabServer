@@ -70,7 +70,7 @@ wg show                 # verifica tunnel WireGuard
 | Scopo | Lab vittima per CVE-2024-6387 (regreSSHion) |
 | OpenSSH | `9.2p1-2+deb12u2` (versione vulnerabile, downgraded) |
 | sshd_config | `MaxAuthTries 200`, `PubkeyAcceptedAlgorithms +ssh-rsa` |
-| Utenti | `root`, `swagvict` (josh) |
+| Utenti | `root`, `lab-user` |
 
 ### Timeline eventi VM 105 (notte 27->28 marzo)
 
