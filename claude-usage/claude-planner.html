@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude Usage Planner</title>
+<style>
+:root {
+    --bg:           #0d1117;
+    --surface:      #161b22;
+    --surface2:     #1c2128;
+    --border:       #30363d;
+    --green:        #2ea043;
+    --green-bright: #3fb950;
+    --orange:       #d29922;
+    --red:          #da3633;
+    --red-bright:   #f85149;
+    --purple:       #a855f7;
+    --blue:         #1f6feb;
+    --text:         #e6edf3;
+    --muted:        #8b949e;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    min-height: 100vh;
+    padding: 24px;
+    max-width: 1300px;
+    margin: 0 auto;
+}
+
+/* ---- HEADER ---- */
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--border);
+}
+.header-title { font-size: 1.25rem; font-weight: 700; }
+.header-title span { color: var(--purple); }
+.header-sub { font-size: 0.75rem; color: var(--muted); margin-top: 4px; }
+.clock-block { text-align: right; }
+.clock {
+    font-size: 2.6rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -2px;
+    line-height: 1;
+}
+.clock-date { font-size: 0.75rem; color: var(--muted); margin-top: 4px; }
+
+/* ---- BANNER ---- */
+.banner {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 18px;
+    border-radius: 10px;
+    border: 1px solid;
+    margin-bottom: 18px;
+    transition: background .35s, border-color .35s;
+}
+.banner.good  { background: rgba(46,160,67,.07);  border-color: var(--green); }
+.banner.bad   { background: rgba(218,54,51,.07);  border-color: var(--red); }
+.banner.great { background: rgba(31,111,235,.07); border-color: var(--blue); }
+
+.pulse {
+    width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0;
+    animation: blink 2s infinite;
+}
+.good  .pulse { background: var(--green-bright); }
+.bad   .pulse { background: var(--red-bright); }
+.great .pulse { background: #58a6ff; }
+@keyframes blink {
+    0%,100% { opacity:1; transform:scale(1); }
+    50%      { opacity:.4; transform:scale(1.35); }
+}
+.banner-main { flex: 1; }
+.banner-title { font-size: 1rem; font-weight: 600; }
+.banner-desc  { font-size: 0.77rem; color: var(--muted); margin-top: 2px; }
+.banner-next  {
+    font-size: 0.74rem; color: var(--muted);
+    text-align: right; line-height: 1.6; flex-shrink: 0; min-width: 100px;
+}
+.banner-next strong { color: var(--text); font-size: 0.95rem; display: block; }
+
+/* ---- LAYOUT ---- */
+.layout {
+    display: grid;
+    grid-template-columns: 1fr 290px;
+    gap: 18px;
+    align-items: start;
+}
+@media (max-width: 840px) { .layout { grid-template-columns: 1fr; } }
+
+/* ---- CARD ---- */
+.card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 18px;
+}
+.card + .card { margin-top: 16px; }
+.card-title {
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    color: var(--muted);
+    font-weight: 600;
+    margin-bottom: 14px;
+}
+
+/* ---- CALENDAR ---- */
+.cal-wrap { overflow-x: auto; }
+
+/* header row: separate from body so it can have its own height */
+.cal-head {
+    display: grid;
+    grid-template-columns: 36px repeat(7, 1fr);
+    gap: 2px;
+    margin-bottom: 3px;
+}
+.cal-th {
+    text-align: center;
+    font-size: 0.68rem;
+    font-weight: 600;
+    color: var(--muted);
+    padding: 5px 2px;
+    border-radius: 5px;
+    line-height: 1.3;
+}
+.cal-th.is-today   { color: var(--purple); background: rgba(168,85,247,.13); }
+.cal-th.is-weekend { color: #58a6ff; }
+.cal-th .day-num   { font-weight: 400; font-size: 0.62rem; display: block; }
+
+/* body grid: strict row height */
+.cal-body {
+    display: grid;
+    grid-template-columns: 36px repeat(7, 1fr);
+    grid-auto-rows: 19px;
+    gap: 2px;
+    min-width: 420px;
+}
+.cal-tl {
+    font-size: 0.57rem;
+    color: var(--muted);
+    text-align: right;
+    padding-right: 5px;
+    line-height: 19px;
+    white-space: nowrap;
+}
+.cal-cell {
+    border-radius: 3px;
+    cursor: default;
+    transition: filter .12s;
+    position: relative;
+}
+.cal-cell:hover { filter: brightness(1.4); }
+.cal-cell.off-peak { background: rgba(46,160,67,.42); }
+.cal-cell.peak     { background: rgba(218,54,51,.62); }
+.cal-cell.weekend  { background: rgba(31,111,235,.42); }
+.cal-cell.now-cell {
+    outline: 2px solid rgba(255,255,255,.9);
+    outline-offset: 1px;
+    z-index: 2;
+}
+/* subtle today column tint */
+.cal-cell.today-col.off-peak { background: rgba(46,160,67,.55); }
+.cal-cell.today-col.peak     { background: rgba(218,54,51,.75); }
+.cal-cell.today-col.weekend  { background: rgba(31,111,235,.55); }
+
+.legend {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-top: 11px;
+}
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.7rem;
+    color: var(--muted);
+}
+.legend-dot { width: 10px; height: 10px; border-radius: 2px; flex-shrink: 0; }
+
+/* ---- GUIDE TABLE ---- */
+.guide-table { border-collapse: collapse; width: 100%; font-size: 0.77rem; }
+.guide-table td { padding: 7px 8px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+.guide-table tr:last-child td { border-bottom: none; }
+.guide-table tr.guide-active td { background: rgba(168,85,247,.08); }
+.guide-table tr.guide-active td:first-child { border-left: 2px solid var(--purple); padding-left: 6px; }
+.g-time  { color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; width: 50px; }
+.g-bar   { width: 80px; }
+.g-pct   { width: 38px; font-weight: 700; font-size: 0.8rem; }
+.g-act   { color: var(--muted); font-size: 0.72rem; line-height: 1.4; }
+.bar-outer { background: var(--border); border-radius: 4px; height: 5px; overflow: hidden; }
+.bar-inner { height: 100%; border-radius: 4px; }
+
+/* ---- SIDEBAR ---- */
+.sidebar { display: flex; flex-direction: column; gap: 16px; }
+
+/* session input */
+.sess-row {
+    display: flex;
+    gap: 7px;
+    margin-bottom: 12px;
+}
+.sess-row input {
+    flex: 1;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 7px 10px;
+    border-radius: 7px;
+    font-size: 0.85rem;
+    min-width: 0;
+}
+.sess-row input:focus { outline: none; border-color: var(--purple); }
+.btn {
+    background: var(--purple);
+    color: #fff;
+    border: none;
+    padding: 7px 12px;
+    border-radius: 7px;
+    cursor: pointer;
+    font-size: 0.82rem;
+    font-weight: 600;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+.btn:hover { opacity: .85; }
+.btn.ghost {
+    background: var(--surface2);
+    color: var(--muted);
+    border: 1px solid var(--border);
+}
+.btn.ghost:hover { color: var(--text); border-color: var(--muted); background: var(--surface2); opacity: 1; }
+
+/* ring */
+.ring-wrap {
+    display: flex;
+    justify-content: center;
+    position: relative;
+    margin: 4px 0 14px;
+}
+.ring-svg { transform: rotate(-90deg); display: block; }
+.ring-bg   { fill: none; stroke: var(--border); stroke-width: 9; }
+.ring-fill {
+    fill: none; stroke-width: 9; stroke-linecap: round;
+    transition: stroke-dashoffset .6s ease, stroke .35s;
+}
+.ring-inner {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    text-align: center;
+    pointer-events: none;
+}
+.ring-pct { font-size: 1.85rem; font-weight: 700; line-height: 1; }
+.ring-sub { font-size: 0.62rem; color: var(--muted); margin-top: 1px; }
+
+/* stats grid */
+.stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    margin-bottom: 10px;
+}
+.stat {
+    background: var(--surface2);
+    border-radius: 8px;
+    padding: 8px 10px;
+    text-align: center;
+}
+.stat-val { font-size: 1rem; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.2; }
+.stat-lbl { font-size: 0.62rem; color: var(--muted); margin-top: 3px; }
+
+/* recommendation */
+.rec {
+    background: var(--surface2);
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 0.77rem;
+    border-left: 3px solid var(--border);
+    display: none;
+    line-height: 1.55;
+}
+.rec.green  { border-left-color: var(--green); }
+.rec.orange { border-left-color: var(--orange); }
+.rec.red    { border-left-color: var(--red); }
+.rec strong { display: block; margin-bottom: 3px; font-size: 0.8rem; }
+
+/* tips */
+.tips { list-style: none; }
+.tips li {
+    display: flex;
+    gap: 9px;
+    padding: 7px 0;
+    font-size: 0.76rem;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+    line-height: 1.45;
+    align-items: flex-start;
+}
+.tips li:last-child { border-bottom: none; }
+.tag {
+    flex-shrink: 0;
+    font-size: 0.57rem;
+    font-weight: 700;
+    background: var(--border);
+    color: var(--muted);
+    padding: 2px 5px;
+    border-radius: 4px;
+    letter-spacing: .04em;
+    margin-top: 1px;
+}
+
+/* ---- BOTTOM ROW ---- */
+.bottom-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 18px;
+    margin-top: 18px;
+}
+@media (max-width: 900px) { .bottom-row { grid-template-columns: 1fr; } }
+@media (max-width: 1100px) and (min-width: 900px) { .bottom-row { grid-template-columns: 1fr 1fr; } }
+
+/* code block */
+.code-block {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    font-size: 0.75rem;
+    line-height: 1.7;
+    color: #79c0ff;
+    white-space: pre;
+    overflow-x: auto;
+    margin-bottom: 10px;
+    position: relative;
+}
+.code-block .key   { color: #79c0ff; }
+.code-block .str   { color: #a5d6ff; }
+.code-block .num   { color: #ffa657; }
+.copy-btn {
+    display: block;
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 6px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.74rem;
+    font-weight: 600;
+    transition: color .15s, border-color .15s;
+}
+.copy-btn:hover { color: var(--text); border-color: var(--muted); }
+.copy-btn.copied { color: var(--green-bright); border-color: var(--green); }
+
+/* hybrid workflow table */
+.hybrid-table { border-collapse: collapse; width: 100%; font-size: 0.76rem; }
+.hybrid-table td { padding: 7px 8px; border-bottom: 1px solid var(--border); vertical-align: top; line-height: 1.4; }
+.hybrid-table tr:last-child td { border-bottom: none; }
+.hybrid-table td:first-child { color: var(--muted); width: 42%; }
+.hybrid-table td:last-child  { color: var(--text); }
+.hybrid-tool { font-weight: 600; display: block; }
+.hybrid-note { font-size: 0.68rem; color: var(--muted); }
+
+/* plan cards */
+.plan-cards { display: flex; flex-direction: column; gap: 10px; }
+.plan-card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 11px 13px;
+}
+.plan-card.plan-pro    { border-left: 3px solid var(--orange); }
+.plan-card.plan-max    { border-left: 3px solid var(--green); }
+.plan-card.plan-web    { border-left: 3px solid var(--muted); }
+.plan-name  { font-size: 0.8rem; font-weight: 700; margin-bottom: 5px; }
+.plan-items { list-style: none; font-size: 0.73rem; color: var(--muted); line-height: 1.7; }
+.plan-items li::before { content: '· '; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="header">
+    <div>
+        <div class="header-title">Claude <span>Usage Planner</span></div>
+        <div class="header-sub">Orari ottimali e tracker sessione - ora italiana (CET/CEST)</div>
+    </div>
+    <div class="clock-block">
+        <div class="clock" id="clock">--:--:--</div>
+        <div class="clock-date" id="clockDate"></div>
+    </div>
+</div>
+
+<!-- BANNER -->
+<div class="banner good" id="banner">
+    <div class="pulse"></div>
+    <div class="banner-main">
+        <div class="banner-title" id="bannerTitle">Caricamento...</div>
+        <div class="banner-desc"  id="bannerDesc"></div>
+    </div>
+    <div class="banner-next" id="bannerNext"></div>
+</div>
+
+<!-- LAYOUT -->
+<div class="layout">
+
+    <!-- LEFT -->
+    <div>
+        <!-- Calendar -->
+        <div class="card">
+            <div class="card-title">Calendario settimanale</div>
+            <div class="cal-wrap">
+                <div class="cal-head" id="calHead"></div>
+                <div class="cal-body" id="calBody"></div>
+            </div>
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="legend-dot" style="background:rgba(46,160,67,.55)"></div>
+                    Ottimo (fuori peak)
+                </div>
+                <div class="legend-item">
+                    <div class="legend-dot" style="background:rgba(218,54,51,.65)"></div>
+                    Peak 14:00-20:00
+                </div>
+                <div class="legend-item">
+                    <div class="legend-dot" style="background:rgba(31,111,235,.5)"></div>
+                    Weekend
+                </div>
+                <div class="legend-item">
+                    <div class="legend-dot" style="outline:2px solid rgba(255,255,255,.8);background:transparent"></div>
+                    Adesso
+                </div>
+            </div>
+        </div>
+
+        <!-- Guide table -->
+        <div class="card" style="margin-top:16px">
+            <div class="card-title">Piano orario sessione (Pro, reset ogni 5h)</div>
+            <table class="guide-table">
+                <tbody id="guideBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="sidebar">
+
+        <!-- Session tracker -->
+        <div class="card">
+            <div class="card-title">Session Tracker</div>
+            <div class="sess-row">
+                <input type="time" id="startInput">
+                <button class="btn ghost" onclick="setNow()">Adesso</button>
+                <button class="btn" onclick="setSession()">Set</button>
+            </div>
+
+            <div class="ring-wrap">
+                <svg width="112" height="112" class="ring-svg">
+                    <circle class="ring-bg"   cx="56" cy="56" r="47"/>
+                    <circle class="ring-fill" id="ringFill" cx="56" cy="56" r="47"
+                        stroke-dasharray="295" stroke-dashoffset="295" stroke="var(--green)"/>
+                </svg>
+                <div class="ring-inner">
+                    <div class="ring-pct" id="ringPct">--</div>
+                    <div class="ring-sub">consumato</div>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat">
+                    <div class="stat-val" id="statElapsed">--</div>
+                    <div class="stat-lbl">Trascorse</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-val" id="statRemaining">--</div>
+                    <div class="stat-lbl">Rimanenti</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-val" id="statTaskDone">--%</div>
+                    <div class="stat-lbl">Task completati min.</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-val" id="statReset">--:--</div>
+                    <div class="stat-lbl">Reset alle</div>
+                </div>
+            </div>
+
+            <div class="rec" id="rec">
+                <strong id="recTitle"></strong>
+                <span id="recText"></span>
+            </div>
+        </div>
+
+        <!-- Tips -->
+        <div class="card">
+            <div class="card-title">Quick Tips</div>
+            <ul class="tips">
+                <li><span class="tag">MODELLO</span>Usa Sonnet al posto di Opus: 80% dei task, 5x meno costoso</li>
+                <li><span class="tag">TIMING</span>Trick sessione: manda un prompt alle 6:00, lavora dalle 9:00. Finestra da 5h si resetta alle 11:00</li>
+                <li><span class="tag">CTX</span>Torna al modello 200K se vedi "1M" o "extended" nel nome</li>
+                <li><span class="tag">TASK</span>Una conversazione per task, non lasciare crescere i thread</li>
+                <li><span class="tag">PROMPT</span>Scrivi "fix line 42 in auth.ts" non "fix auth" (fino a 10x piu' economico)</li>
+                <li><span class="tag">BATCH</span>Raggruppa 3 domande in un prompt invece di 3 follow-up separati</li>
+                <li><span class="tag">CTX</span>Esegui /compact spesso, CLAUDE.md sotto 60 righe</li>
+                <li><span class="tag">FILE</span>Aggiungi .claudeignore per escludere dir irrilevanti</li>
+                <li><span class="tag">BUG</span>Sessione gia' consumata all'avvio: apri nuova conversazione</li>
+            </ul>
+        </div>
+
+    </div>
+</div>
+
+<!-- BOTTOM ROW: CLI config + hybrid workflow + bottom line -->
+<div class="bottom-row">
+
+    <!-- CLI Config -->
+    <div class="card">
+        <div class="card-title">CLI Config - risparmio 60-80% in un colpo</div>
+        <div class="code-block" id="configBlock"><span class="key">{
+  "model"</span><span class="str">: "sonnet"</span>,
+  <span class="key">"env"</span>: {
+    <span class="key">"MAX_THINKING_TOKENS"</span>:          <span class="str">"10000"</span>,
+    <span class="key">"CLAUDE_AUTOCOMPACT_PCT_OVERRIDE"</span>: <span class="str">"50"</span>,
+    <span class="key">"CLAUDE_CODE_SUBAGENT_MODEL"</span>:     <span class="str">"haiku"</span>
+  }
+}</div>
+        <button class="copy-btn" id="copyBtn" onclick="copyConfig()">Copia in clipboard</button>
+        <ul class="tips" style="margin-top:12px">
+            <li><span class="tag">FILE</span>Salva in <code style="font-size:.72rem;color:#79c0ff">~/.claude/settings.json</code></li>
+            <li><span class="tag">THINK</span>MAX_THINKING_TOKENS: da 32K default a 10K (~70% risparmio)</li>
+            <li><span class="tag">CTX</span>Autocompact al 50% invece di 95%: sessioni piu' sane</li>
+            <li><span class="tag">EXTRA</span>.claudeignore + CLAUDE.md sotto 60 righe (90% meno costo avvio)</li>
+        </ul>
+        <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">
+            <div class="card-title" style="margin-bottom:8px">Monitoring Tools (CLI)</div>
+            <ul class="tips">
+                <li><span class="tag">NPM</span><code style="font-size:.72rem;color:#79c0ff">npx ccusage@latest</code> - token usage da log locali</li>
+                <li><span class="tag">NPM</span><code style="font-size:.72rem;color:#79c0ff">ccburn --compact</code> - grafico burn-up, stima reset</li>
+                <li><span class="tag">HOOK</span>Read-once hook: -40-90% token su letture file ridondanti</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Hybrid Workflow -->
+    <div class="card">
+        <div class="card-title">Hybrid Workflow - quando i limiti stringono</div>
+        <table class="hybrid-table">
+            <tr>
+                <td>Pianificazione e architettura</td>
+                <td>
+                    <span class="hybrid-tool">Claude Opus</span>
+                    <span class="hybrid-note">Miglior ragionamento, usalo con parsimonia</span>
+                </td>
+            </tr>
+            <tr>
+                <td>Generazione codice</td>
+                <td>
+                    <span class="hybrid-tool">Codex CLI o Cursor</span>
+                    <span class="hybrid-note">Nessun limite sessione, pay-per-token</span>
+                </td>
+            </tr>
+            <tr>
+                <td>Parsing documenti e ricerca</td>
+                <td>
+                    <span class="hybrid-tool">Gemini free o ChatGPT</span>
+                    <span class="hybrid-note">Gratis per documenti e research leggero</span>
+                </td>
+            </tr>
+            <tr>
+                <td>Senza moltiplicatori nascosti</td>
+                <td>
+                    <span class="hybrid-tool">API diretta Anthropic</span>
+                    <span class="hybrid-note">api.anthropic.com, pricing puro per token, zero peak multiplier</span>
+                </td>
+            </tr>
+            <tr>
+                <td>Alternativa terminale free</td>
+                <td>
+                    <span class="hybrid-tool">Gemini CLI</span>
+                    <span class="hybrid-note">60 req/min, 1.000 req/giorno, contesto 1M. Gratuito</span>
+                </td>
+            </tr>
+            <tr>
+                <td>Modello economico per task semplici</td>
+                <td>
+                    <span class="hybrid-tool">claude-haiku-4-5</span>
+                    <span class="hybrid-note">~80% piu' economico, veloce per task ripetitivi</span>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- Bottom line per piano -->
+    <div class="card">
+        <div class="card-title">Bottom Line per Piano</div>
+        <div class="plan-cards">
+            <div class="plan-card plan-pro">
+                <div class="plan-name" style="color:var(--orange)">Pro $20/mo</div>
+                <ul class="plan-items">
+                    <li>Appena distinguibile dal Free in questo momento</li>
+                    <li>Solo sezione A (disciplina d'uso), non espandibile</li>
+                    <li>CLI config obbligatoria per reggere</li>
+                    <li>Sessioni che partono consumate: bug noto, riapri</li>
+                    <li>Trick timing sessione: manda un prompt alle 6:00</li>
+                </ul>
+            </div>
+            <div class="plan-card plan-max">
+                <div class="plan-name" style="color:var(--green-bright)">Max $100-200/mo</div>
+                <ul class="plan-items">
+                    <li>settings.json + hook + CLAUDE.md snello = 3-5x piu' utilizzo</li>
+                    <li>Peak multiplier attivo comunque</li>
+                    <li>Combinato con Codex/Cursor e' il setup piu' efficiente</li>
+                    <li>Penalizzante per chi usa i default (la maggioranza)</li>
+                </ul>
+            </div>
+            <div class="plan-card plan-web">
+                <div class="plan-name" style="color:var(--muted)">Web e Mobile</div>
+                <ul class="plan-items">
+                    <li>Nessun accesso alle ottimizzazioni CLI</li>
+                    <li>Solo disciplina: orari, prompt specifici, thread corti</li>
+                    <li>Evita modelli "1M" o "extended"</li>
+                    <li>Pre-processa PDF esternamente prima di caricarli</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+const PEAK_START = 14;
+const PEAK_END   = 20;
+const SESSION_H  = 5;
+const TZ         = 'Europe/Rome';
+
+function pad(n) { return String(Math.floor(n)).padStart(2, '0'); }
+
+function romeNow() {
+    const now = new Date();
+    const fmt = f => parseInt(
+        new Intl.DateTimeFormat('en-US', { timeZone: TZ, [f]: 'numeric', hour12: false }).format(now)
+    );
+    return {
+        hour:   fmt('hour'),
+        minute: fmt('minute'),
+        second: fmt('second'),
+        dayShort: new Intl.DateTimeFormat('en-US', { timeZone: TZ, weekday: 'short' }).format(now),
+        dateStr:  new Intl.DateTimeFormat('en-CA',  { timeZone: TZ }).format(now),
+        display:  new Intl.DateTimeFormat('it-IT', {
+            timeZone: TZ, weekday: 'long', day: 'numeric', month: 'long', year: 'numeric'
+        }).format(now),
+        raw: now
+    };
+}
+
+function isWknd(d) { return d === 'Sat' || d === 'Sun'; }
+function isPeak(h, d) { return !isWknd(d) && h >= PEAK_START && h < PEAK_END; }
+
+// ---- CLOCK ----
+function tick() {
+    const t = romeNow();
+    document.getElementById('clock').textContent    = `${pad(t.hour)}:${pad(t.minute)}:${pad(t.second)}`;
+    document.getElementById('clockDate').textContent = t.display;
+    updateBanner(t);
+    updateSession();
+}
+
+// ---- BANNER ----
+function updateBanner(t) {
+    const el    = document.getElementById('banner');
+    const title = document.getElementById('bannerTitle');
+    const desc  = document.getElementById('bannerDesc');
+    const next  = document.getElementById('bannerNext');
+
+    if (isWknd(t.dayShort)) {
+        el.className      = 'banner great';
+        title.textContent = 'Weekend - Momento Ottimo';
+        desc.textContent  = 'Nessun moltiplicatore peak attivo. Usa Claude liberamente.';
+        next.innerHTML    = '';
+        return;
+    }
+
+    if (isPeak(t.hour, t.dayShort)) {
+        const left = (PEAK_END - t.hour) * 60 - t.minute;
+        el.className      = 'banner bad';
+        title.textContent = 'PEAK HOURS - Rallenta';
+        desc.textContent  = `Orario di punta USA (${PEAK_START}:00-${PEAK_END}:00 IT = 5am-11am PT). Limiti si consumano piu' velocemente.`;
+        next.innerHTML    = `Fine peak tra<br><strong>${Math.floor(left/60)}h ${left%60}m</strong>`;
+    } else if (t.hour < PEAK_START) {
+        const left = (PEAK_START - t.hour) * 60 - t.minute;
+        el.className      = 'banner good';
+        title.textContent = 'Fuori Peak - Ottimo per lavoro intenso';
+        desc.textContent  = 'Prima delle ore di punta (5am-11am PT). Approfitta adesso.';
+        next.innerHTML    = `Peak inizia tra<br><strong>${Math.floor(left/60)}h ${left%60}m</strong>`;
+    } else {
+        el.className      = 'banner good';
+        title.textContent = 'Fuori Peak - Ottimo per lavoro intenso';
+        desc.textContent  = `Dopo le ore di punta (${PEAK_START}:00-${PEAK_END}:00 IT / 5am-11am PT). Nessun moltiplicatore attivo.`;
+        next.innerHTML    = '';
+    }
+}
+
+// ---- CALENDAR ----
+function buildCalendar() {
+    const now = new Date();
+    const t   = romeNow();
+
+    // ISO week start (Monday) in Rome
+    const rDate = new Date(now.toLocaleString('en-US', { timeZone: TZ }));
+    const dow   = rDate.getDay();
+    const diff  = dow === 0 ? -6 : 1 - dow;
+
+    const labels   = ['Lun','Mar','Mer','Gio','Ven','Sab','Dom'];
+    const weekDays = [];
+    for (let i = 0; i < 7; i++) {
+        const d = new Date(now);
+        d.setDate(now.getDate() + diff + i);
+        weekDays.push({
+            label:   labels[i],
+            short:   new Intl.DateTimeFormat('en-US', { timeZone: TZ, weekday: 'short' }).format(d),
+            num:     new Intl.DateTimeFormat('it-IT', { timeZone: TZ, day: 'numeric' }).format(d),
+            dateStr: new Intl.DateTimeFormat('en-CA', { timeZone: TZ }).format(d),
+            isToday: new Intl.DateTimeFormat('en-CA', { timeZone: TZ }).format(d) === t.dateStr
+        });
+    }
+
+    // --- header ---
+    let hHtml = '<div></div>';
+    weekDays.forEach(d => {
+        let cls = 'cal-th';
+        if (d.isToday)                        cls += ' is-today';
+        else if (d.short==='Sat'||d.short==='Sun') cls += ' is-weekend';
+        hHtml += `<div class="${cls}">${d.label}<span class="day-num">${d.num}</span></div>`;
+    });
+    document.getElementById('calHead').innerHTML = hHtml;
+
+    // --- body ---
+    let bHtml = '';
+    for (let h = 0; h < 24; h++) {
+        bHtml += `<div class="cal-tl">${h % 2 === 0 ? pad(h)+':00' : ''}</div>`;
+        weekDays.forEach(d => {
+            const wknd = isWknd(d.short);
+            let cls = 'cal-cell';
+            cls += wknd ? ' weekend' : (h >= PEAK_START && h < PEAK_END) ? ' peak' : ' off-peak';
+            if (d.isToday) cls += ' today-col';
+            if (d.isToday && h === t.hour) cls += ' now-cell';
+            const tip = wknd
+                ? `${d.label} ${d.num} ${pad(h)}:00 - weekend: ottimo`
+                : (h >= PEAK_START && h < PEAK_END)
+                    ? `${d.label} ${d.num} ${pad(h)}:00 - peak hours: rallenta`
+                    : `${d.label} ${d.num} ${pad(h)}:00 - fuori peak: ottimo`;
+            bHtml += `<div class="${cls}" title="${tip}"></div>`;
+        });
+    }
+    document.getElementById('calBody').innerHTML = bHtml;
+}
+
+// ---- GUIDE TABLE ----
+const GUIDE_ROWS = [
+    { h: 5,   pct: 0,   color: '#2ea043', action: 'Pianifica scope e task. Nessuna limitazione.' },
+    { h: 4,   pct: 20,  color: '#3fb950', action: 'Task pesanti: codice, analisi, refactoring.' },
+    { h: 3,   pct: 40,  color: '#5bba6f', action: 'Task medi. Dovresti aver gia completato il 40% del piano.' },
+    { h: 2,   pct: 60,  color: '#d29922', action: 'Chiudi i task aperti. Nessun task nuovo grande.' },
+    { h: 1,   pct: 80,  color: '#e3a008', action: 'Wrap-up. Esegui /compact. Salva gli output importanti.' },
+    { h: 0.5, pct: 90,  color: '#f85149', action: 'Solo task leggeri. Reset imminente.' },
+    { h: 0,   pct: 100, color: '#da3633', action: 'Sessione scaduta. Apri nuova conversazione.' },
+];
+
+function buildGuide(activePct) {
+    let html = '';
+    GUIDE_ROWS.forEach((r, i) => {
+        const timeStr = r.h === 0 ? 'Scaduta' : r.h < 1 ? `${r.h*60} min` : `${r.h}h rimaste`;
+        const isActive = activePct !== null &&
+            (i === GUIDE_ROWS.length - 1
+                ? activePct >= r.pct
+                : activePct >= r.pct && activePct < GUIDE_ROWS[i+1].pct);
+        html += `
+        <tr class="${isActive ? 'guide-active' : ''}">
+            <td class="g-time">${timeStr}</td>
+            <td class="g-bar"><div class="bar-outer"><div class="bar-inner" style="width:${r.pct}%;background:${r.color}"></div></div></td>
+            <td class="g-pct"><span style="color:${r.color}">${r.pct}%</span></td>
+            <td class="g-act">${r.action}</td>
+        </tr>`;
+    });
+    document.getElementById('guideBody').innerHTML = html;
+}
+
+// ---- SESSION TRACKER ----
+let sessionStart = null;
+
+function setNow() {
+    const t = romeNow();
+    document.getElementById('startInput').value = `${pad(t.hour)}:${pad(t.minute)}`;
+    setSession();
+}
+
+function setSession() {
+    const val = document.getElementById('startInput').value;
+    if (!val) return;
+    const [hh, mm] = val.split(':').map(Number);
+    const d = new Date();
+    d.setHours(hh, mm, 0, 0);
+    if (d > new Date()) d.setDate(d.getDate() - 1);
+    sessionStart = d;
+    updateSession();
+}
+
+function updateSession() {
+    const hasSess = !!sessionStart;
+    buildGuide(hasSess ? getElapsedPct() : null);
+    if (!hasSess) return;
+
+    const now     = new Date();
+    const elapsed = (now - sessionStart) / 60000;
+    const total   = SESSION_H * 60;
+    const remain  = Math.max(0, total - elapsed);
+    const pct     = Math.min(100, Math.round(elapsed / total * 100));
+
+    // ring
+    const circ = 295;
+    const fill = document.getElementById('ringFill');
+    fill.style.strokeDashoffset = circ * (1 - pct / 100);
+    fill.style.stroke = pct < 40 ? 'var(--green)' : pct < 70 ? 'var(--orange)' : 'var(--red)';
+    document.getElementById('ringPct').textContent = pct + '%';
+
+    // stats
+    const eH = Math.floor(elapsed / 60), eM = Math.round(elapsed % 60);
+    const rH = Math.floor(remain / 60),  rM = Math.round(remain % 60);
+    document.getElementById('statElapsed').textContent   = `${eH}h ${pad(eM)}m`;
+    document.getElementById('statRemaining').textContent = remain > 0 ? `${rH}h ${pad(rM)}m` : 'SCADUTA';
+    document.getElementById('statTaskDone').textContent  = `${pct}%`;
+
+    const resetAt = new Date(sessionStart.getTime() + total * 60000);
+    document.getElementById('statReset').textContent = `${pad(resetAt.getHours())}:${pad(resetAt.getMinutes())}`;
+
+    // recommendation
+    const rec    = document.getElementById('rec');
+    const rTitle = document.getElementById('recTitle');
+    const rText  = document.getElementById('recText');
+    rec.style.display = 'block';
+
+    if (remain <= 0) {
+        rec.className  = 'rec red';
+        rTitle.textContent = 'Sessione scaduta';
+        rText.textContent  = 'Apri una nuova conversazione. Salva il contesto importante prima.';
+    } else if (pct < 40) {
+        rec.className  = 'rec green';
+        rTitle.textContent = 'Stai bene';
+        rText.textContent  = `${100 - pct}% del tempo rimanente. Ottimo per task pesanti.`;
+    } else if (pct < 60) {
+        rec.className  = 'rec green';
+        rTitle.textContent = 'Meta sessione';
+        rText.textContent  = `Dovresti aver completato circa il ${pct}% dei task pianificati.`;
+    } else if (pct < 80) {
+        rec.className  = 'rec orange';
+        rTitle.textContent = 'Fase finale';
+        rText.textContent  = 'Chiudi i task aperti. Nessun task nuovo grande. Esegui /compact.';
+    } else if (pct < 95) {
+        rec.className  = 'rec red';
+        rTitle.textContent = 'Ultimi minuti';
+        rText.textContent  = 'Solo task leggeri. Salva output. Reset imminente.';
+    } else {
+        rec.className  = 'rec red';
+        rTitle.textContent = 'Praticamente scaduta';
+        rText.textContent  = 'Apri una nuova sessione appena possibile.';
+    }
+}
+
+function getElapsedPct() {
+    if (!sessionStart) return null;
+    const elapsed = (new Date() - sessionStart) / 60000;
+    return Math.min(100, Math.round(elapsed / (SESSION_H * 60) * 100));
+}
+
+// ---- COPY CONFIG ----
+function copyConfig() {
+    const json = `{
+  "model": "sonnet",
+  "env": {
+    "MAX_THINKING_TOKENS": "10000",
+    "CLAUDE_AUTOCOMPACT_PCT_OVERRIDE": "50",
+    "CLAUDE_CODE_SUBAGENT_MODEL": "haiku"
+  }
+}`;
+    navigator.clipboard.writeText(json).then(() => {
+        const btn = document.getElementById('copyBtn');
+        btn.textContent = 'Copiato!';
+        btn.classList.add('copied');
+        setTimeout(() => {
+            btn.textContent = 'Copia in clipboard';
+            btn.classList.remove('copied');
+        }, 2000);
+    });
+}
+
+// ---- INIT ----
+buildGuide(null);
+buildCalendar();
+tick();
+setInterval(tick, 1000);
+setInterval(buildCalendar, 60000);
+</script>
+</body>
+</html>
