@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude Tips & Reference</title>
+<style>
+:root {
+    --bg:           #0d1117;
+    --surface:      #161b22;
+    --surface2:     #1c2128;
+    --border:       #30363d;
+    --green:        #2ea043;
+    --green-bright: #3fb950;
+    --orange:       #d29922;
+    --red:          #da3633;
+    --red-bright:   #f85149;
+    --purple:       #a855f7;
+    --blue:         #1f6feb;
+    --text:         #e6edf3;
+    --muted:        #8b949e;
+}
+
+[data-theme="light"] {
+    --bg:           #ffffff;
+    --surface:      #f6f8fa;
+    --surface2:     #eaeef2;
+    --border:       #d0d7de;
+    --green:        #1a7f37;
+    --green-bright: #2da44e;
+    --orange:       #9a6700;
+    --red:          #cf222e;
+    --red-bright:   #a40e26;
+    --purple:       #8250df;
+    --blue:         #0969da;
+    --text:         #1f2328;
+    --muted:        #656d76;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    min-height: 100vh;
+    padding: 24px;
+    max-width: 1300px;
+    margin: 0 auto;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid var(--border);
+}
+.header-title { font-size: 1.25rem; font-weight: 700; }
+.header-title span { color: var(--purple); }
+.header-sub { font-size: 0.75rem; color: var(--muted); margin-top: 4px; }
+
+.card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 18px;
+}
+.card + .card { margin-top: 16px; }
+.card-title {
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    color: var(--muted);
+    font-weight: 600;
+    margin-bottom: 14px;
+}
+
+.tips { list-style: none; }
+.tips li {
+    display: flex;
+    gap: 9px;
+    padding: 7px 0;
+    font-size: 0.76rem;
+    color: var(--muted);
+    border-bottom: 1px solid var(--border);
+    line-height: 1.45;
+    align-items: flex-start;
+}
+.tips li:last-child { border-bottom: none; }
+.tips code { font-family: monospace; background: var(--surface2); color: var(--blue); padding: 1px 5px; border-radius: 4px; font-size: 0.75rem; }
+.tag {
+    flex-shrink: 0;
+    font-size: 0.57rem;
+    font-weight: 700;
+    background: var(--border);
+    color: var(--muted);
+    padding: 2px 5px;
+    border-radius: 4px;
+    letter-spacing: .04em;
+    margin-top: 1px;
+}
+
+.bottom-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 18px;
+    margin-top: 18px;
+}
+@media (max-width: 900px) { .bottom-row { grid-template-columns: 1fr; } }
+@media (max-width: 1100px) and (min-width: 900px) { .bottom-row { grid-template-columns: 1fr 1fr; } }
+
+.code-block {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
+    font-size: 0.75rem;
+    line-height: 1.7;
+    color: #79c0ff;
+    white-space: pre;
+    overflow-x: auto;
+    margin-bottom: 10px;
+}
+.code-block .key { color: #79c0ff; }
+.code-block .str { color: #a5d6ff; }
+.code-block .num { color: #ffa657; }
+.copy-btn {
+    display: block;
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 6px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.74rem;
+    font-weight: 600;
+    transition: color .15s, border-color .15s;
+}
+.copy-btn:hover { color: var(--text); border-color: var(--muted); }
+.copy-btn.copied { color: var(--green-bright); border-color: var(--green); }
+
+.hybrid-table { border-collapse: collapse; width: 100%; font-size: 0.76rem; }
+.hybrid-table td { padding: 7px 8px; border-bottom: 1px solid var(--border); vertical-align: top; line-height: 1.4; }
+.hybrid-table tr:last-child td { border-bottom: none; }
+.hybrid-table td:first-child { color: var(--muted); width: 42%; }
+.hybrid-tool { font-weight: 600; display: block; }
+.hybrid-note { font-size: 0.68rem; color: var(--muted); }
+
+.plan-cards { display: flex; flex-direction: column; gap: 10px; }
+.plan-card {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 11px 13px;
+}
+.plan-card.plan-pro { border-left: 3px solid var(--orange); }
+.plan-card.plan-max { border-left: 3px solid var(--green); }
+.plan-card.plan-web { border-left: 3px solid var(--muted); }
+.plan-name  { font-size: 0.8rem; font-weight: 700; margin-bottom: 5px; }
+.plan-items { list-style: none; font-size: 0.73rem; color: var(--muted); line-height: 1.7; }
+.plan-items li::before { content: '· '; }
+
+.btn {
+    background: var(--surface2);
+    color: var(--muted);
+    border: 1px solid var(--border);
+    padding: 6px 11px;
+    border-radius: 7px;
+    cursor: pointer;
+    font-size: 0.82rem;
+    font-weight: 600;
+    white-space: nowrap;
+    text-decoration: none;
+    display: inline-block;
+}
+.btn:hover { color: var(--text); border-color: var(--muted); }
+</style>
+</head>
+<body>
+
+<div class="header">
+    <div>
+        <div class="header-title">Claude <span>Tips & Reference</span></div>
+        <div class="header-sub">Strategie, configurazione CLI, workflow ibrido e bottom line per piano</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px">
+        <button class="btn" id="themeBtn" onclick="toggleTheme()" style="font-size:.8rem;padding:5px 10px" title="Cambia tema">☀</button>
+        <a class="btn" href="claude-planner.html">Planner</a>
+    </div>
+</div>
+
+<!-- CALIBRAZIONE SESSIONE: spostata in claude-planner.html (guide table) -->
+
+<!-- QUICK TIPS (placeholder card rimosso, sezione calibrazione ora nel planner) -->
+<div class="card" style="display:none">
+    <!-- Tabelle riferimento -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:14px">
+        <div>
+            <div style="font-size:0.68rem;font-weight:700;color:var(--green-bright);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Off-peak (20:00-14:00)</div>
+            <table class="hybrid-table" id="tblOffpeak">
+                <tr><td style="color:var(--muted);font-size:0.72rem">5h rimaste</td><td style="font-size:0.76rem" id="op5">0-5%</td></tr>
+                <tr><td style="color:var(--muted);font-size:0.72rem">4h rimaste</td><td style="font-size:0.76rem" id="op4">~20%</td></tr>
+                <tr><td style="color:var(--muted);font-size:0.72rem">3h rimaste</td><td style="font-size:0.76rem" id="op3">~40%</td></tr>
+                <tr><td style="color:var(--muted);font-size:0.72rem">2h rimaste</td><td style="font-size:0.76rem" id="op2">~60%</td></tr>
+                <tr><td style="color:var(--muted);font-size:0.72rem">1h rimasta</td><td style="font-size:0.76rem" id="op1">~80%</td></tr>
+                <tr><td style="color:var(--muted);font-size:0.72rem">30min rimasti</td><td style="font-size:0.76rem" id="op0">~90%</td></tr>
+            </table>
+            <div style="font-size:0.68rem;color:var(--muted);margin-top:8px;line-height:1.5">Ritmo lineare. Obiettivo: arrivare al 100% a fine sessione.</div>
+        </div>
+        <div>
+            <div style="font-size:0.68rem;font-weight:700;color:var(--red-bright);text-transform:uppercase;letter-spacing:.06em;margin-bottom:8px">Peak (14:00-20:00 Lun-Ven)</div>
+            <table class="hybrid-table" id="tblPeak">
+                <tr><td style="color:var(--muted);font-size:0.72rem">5h rimaste</td><td style="font-size:0.76rem" id="pk5">0-5%</td></tr>
+                <tr><td style="color:var(--muted);font-size:0.72rem">4h rimaste</td><td style="font-size:0.76rem" id="pk4">~10%</td></tr>
+                <tr><td style="color:var(--muted);font-size:0.72rem">3h rimaste</td><td style="font-size:0.76rem" id="pk3">~20%</td></tr>
+                <tr><td style="color:var(--muted);font-size:0.72rem">2h rimaste</td><td style="font-size:0.76rem" id="pk2">~35%</td></tr>
+                <tr><td style="color:var(--muted);font-size:0.72rem">1h rimasta</td><td style="font-size:0.76rem" id="pk1">~55%</td></tr>
+                <tr><td style="color:var(--muted);font-size:0.72rem">30min rimasti</td><td style="font-size:0.76rem" id="pk0">~70%</td></tr>
+            </table>
+            <div style="font-size:0.68rem;color:var(--muted);margin-top:8px;line-height:1.5">Moltiplicatore attivo. Tieni % bassa, carica dopo le 20:00.</div>
+        </div>
+    </div>
+
+    <!-- Calcolatore "Conviene adesso?" -->
+    <div style="padding-top:14px;border-top:1px solid var(--border)">
+        <div style="font-size:0.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px">Conviene adesso?</div>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px">
+            <div style="display:flex;align-items:center;gap:6px">
+                <label style="font-size:0.72rem;color:var(--muted)">Ora</label>
+                <input id="calcTime" type="time" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:4px 7px;border-radius:6px;font-size:0.76rem;width:88px" oninput="calcSession()">
+            </div>
+            <div style="display:flex;align-items:center;gap:6px">
+                <label style="font-size:0.72rem;color:var(--muted)">Giorno</label>
+                <select id="calcDay" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:4px 7px;border-radius:6px;font-size:0.76rem" onchange="calcSession()">
+                    <option value="1">Lun</option>
+                    <option value="2">Mar</option>
+                    <option value="3">Mer</option>
+                    <option value="4">Gio</option>
+                    <option value="5">Ven</option>
+                    <option value="6">Sab</option>
+                    <option value="0">Dom</option>
+                </select>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px">
+                <label style="font-size:0.72rem;color:var(--muted)">Ore rimaste</label>
+                <input id="calcHours" type="number" min="0" max="5" step="0.5" value="3" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:4px 7px;border-radius:6px;font-size:0.76rem;width:64px" oninput="calcSession()">
+            </div>
+            <div style="display:flex;align-items:center;gap:6px">
+                <label style="font-size:0.72rem;color:var(--muted)">% attuale</label>
+                <input id="calcPct" type="number" min="0" max="100" value="20" style="background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:4px 7px;border-radius:6px;font-size:0.76rem;width:64px" oninput="calcSession()">
+            </div>
+            <button class="btn" onclick="calcSetNow()" style="font-size:0.72rem;padding:4px 9px">Ora attuale</button>
+        </div>
+        <div id="calcResult" style="font-size:0.78rem;line-height:1.7;padding:10px 12px;background:var(--surface2);border-radius:8px;border:1px solid var(--border)">
+            Inserisci i valori per il calcolo.
+        </div>
+    </div>
+</div>
+
+<!-- QUICK TIPS -->
+<div class="card">
+    <div class="card-title">Quick Tips</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:0">
+    <ul class="tips">
+        <li><span class="tag">MODELLO</span>Usa Sonnet al posto di Opus: 80% dei task, 5x meno costoso</li>
+        <li><span class="tag">TIMING</span>Trick: manda un prompt alle 6:00, lavora dalle 9:00. Reset alle 11:00</li>
+        <li><span class="tag">CTX</span>Torna al modello 200K se vedi "1M" o "extended" nel nome</li>
+        <li><span class="tag">TASK</span>Una conversazione per task, non lasciare crescere i thread</li>
+        <li><span class="tag">PROMPT</span>Scrivi "fix line 42 in auth.ts" non "fix auth" (10x piu' economico)</li>
+    </ul>
+    <ul class="tips">
+        <li><span class="tag">BATCH</span>3 domande in un prompt invece di 3 follow-up separati</li>
+        <li><span class="tag">CTX</span>Esegui /compact spesso, CLAUDE.md sotto 60 righe</li>
+        <li><span class="tag">FILE</span>Aggiungi .claudeignore per escludere dir irrilevanti</li>
+        <li><span class="tag">BUG</span>Sessione gia' consumata all'avvio: apri nuova conversazione</li>
+        <li><span class="tag">AUTO</span>Prova le routine di Claude: <code>/cron</code> in Claude Code per task schedulati automatici (reminder, log, cleanup)</li>
+    </ul>
+    </div>
+</div>
+
+<!-- BOTTOM ROW -->
+<div class="bottom-row">
+
+    <!-- CLI Config -->
+    <div class="card">
+        <div class="card-title">CLI Config - risparmio 60-80% in un colpo</div>
+        <div class="code-block" id="configBlock"><span class="key">{
+  "model"</span><span class="str">: "sonnet"</span>,
+  <span class="key">"env"</span>: {
+    <span class="key">"MAX_THINKING_TOKENS"</span>:          <span class="str">"10000"</span>,
+    <span class="key">"CLAUDE_AUTOCOMPACT_PCT_OVERRIDE"</span>: <span class="str">"50"</span>,
+    <span class="key">"CLAUDE_CODE_SUBAGENT_MODEL"</span>:     <span class="str">"haiku"</span>
+  }
+}</div>
+        <button class="copy-btn" id="copyBtn" onclick="copyConfig()">Copia in clipboard</button>
+        <ul class="tips" style="margin-top:12px">
+            <li><span class="tag">FILE</span>Salva in <code style="font-size:.72rem;color:#79c0ff">~/.claude/settings.json</code></li>
+            <li><span class="tag">THINK</span>MAX_THINKING_TOKENS: da 32K default a 10K (~70% risparmio)</li>
+            <li><span class="tag">CTX</span>Autocompact al 50% invece di 95%: sessioni piu' sane</li>
+            <li><span class="tag">EXTRA</span>.claudeignore + CLAUDE.md sotto 60 righe (90% meno costo avvio)</li>
+        </ul>
+        <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">
+            <div class="card-title" style="margin-bottom:8px">Monitoring Tools (CLI)</div>
+            <ul class="tips">
+                <li><span class="tag">NPM</span><code style="font-size:.72rem;color:#79c0ff">npx ccusage@latest</code> - token usage da log locali</li>
+                <li><span class="tag">NPM</span><code style="font-size:.72rem;color:#79c0ff">ccburn --compact</code> - grafico burn-up, stima reset</li>
+                <li><span class="tag">HOOK</span>Read-once hook: -40-90% token su letture file ridondanti</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Hybrid Workflow -->
+    <div class="card">
+        <div class="card-title">Hybrid Workflow - quando i limiti stringono</div>
+        <table class="hybrid-table">
+            <tr>
+                <td>Pianificazione e architettura</td>
+                <td>
+                    <span class="hybrid-tool">Claude Opus</span>
+                    <span class="hybrid-note">Miglior ragionamento, usalo con parsimonia</span>
+                </td>
+            </tr>
+            <tr>
+                <td>Generazione codice</td>
+                <td>
+                    <span class="hybrid-tool">Codex CLI o Cursor</span>
+                    <span class="hybrid-note">Nessun limite sessione, pay-per-token</span>
+                </td>
+            </tr>
+            <tr>
+                <td>Parsing documenti e ricerca</td>
+                <td>
+                    <span class="hybrid-tool">Gemini free o ChatGPT</span>
+                    <span class="hybrid-note">Gratis per documenti e research leggero</span>
+                </td>
+            </tr>
+            <tr>
+                <td>Senza moltiplicatori nascosti</td>
+                <td>
+                    <span class="hybrid-tool">API diretta Anthropic</span>
+                    <span class="hybrid-note">api.anthropic.com, pricing puro, zero peak multiplier</span>
+                </td>
+            </tr>
+            <tr>
+                <td>Alternativa terminale free</td>
+                <td>
+                    <span class="hybrid-tool">Gemini CLI</span>
+                    <span class="hybrid-note">60 req/min, 1.000 req/giorno, contesto 1M. Gratuito</span>
+                </td>
+            </tr>
+            <tr>
+                <td>Modello economico per task semplici</td>
+                <td>
+                    <span class="hybrid-tool">claude-haiku-4-5</span>
+                    <span class="hybrid-note">~80% piu' economico, veloce per task ripetitivi</span>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <!-- Bottom line per piano -->
+    <div class="card">
+        <div class="card-title">Bottom Line per Piano</div>
+        <div class="plan-cards">
+            <div class="plan-card plan-pro">
+                <div class="plan-name" style="color:var(--orange)">Pro $20/mo</div>
+                <ul class="plan-items">
+                    <li>Appena distinguibile dal Free in questo momento</li>
+                    <li>Solo sezione A (disciplina d'uso), non espandibile</li>
+                    <li>CLI config obbligatoria per reggere</li>
+                    <li>Sessioni che partono consumate: bug noto, riapri</li>
+                    <li>Trick timing sessione: manda un prompt alle 6:00</li>
+                </ul>
+            </div>
+            <div class="plan-card plan-max">
+                <div class="plan-name" style="color:var(--green-bright)">Max $100-200/mo</div>
+                <ul class="plan-items">
+                    <li>settings.json + hook + CLAUDE.md snello = 3-5x piu' utilizzo</li>
+                    <li>Peak multiplier attivo comunque</li>
+                    <li>Combinato con Codex/Cursor e' il setup piu' efficiente</li>
+                    <li>Penalizzante per chi usa i default (la maggioranza)</li>
+                </ul>
+            </div>
+            <div class="plan-card plan-web">
+                <div class="plan-name" style="color:var(--muted)">Web e Mobile</div>
+                <ul class="plan-items">
+                    <li>Nessun accesso alle ottimizzazioni CLI</li>
+                    <li>Solo disciplina: orari, prompt specifici, thread corti</li>
+                    <li>Evita modelli "1M" o "extended"</li>
+                    <li>Pre-processa PDF esternamente prima di caricarli</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script>
+// ── Calcolatore "Conviene adesso?" ──────────────────────────────────────────
+
+function calcSetNow() {
+    const now = new Date();
+    const hh = String(now.getHours()).padStart(2,'0');
+    const mm = String(now.getMinutes()).padStart(2,'0');
+    document.getElementById('calcTime').value = hh + ':' + mm;
+    document.getElementById('calcDay').value = String(now.getDay());
+    calcSession();
+}
+
+function calcSession() {
+    const timeVal  = document.getElementById('calcTime').value;
+    const dayVal   = parseInt(document.getElementById('calcDay').value);
+    const hoursRem = parseFloat(document.getElementById('calcHours').value);
+    const pctNow   = parseFloat(document.getElementById('calcPct').value);
+    const el       = document.getElementById('calcResult');
+
+    if (!timeVal || isNaN(hoursRem) || isNaN(pctNow)) {
+        el.innerHTML = 'Inserisci tutti i valori.';
+        return;
+    }
+
+    const [hh, mm] = timeVal.split(':').map(Number);
+    const nowMin   = hh * 60 + mm;          // minuti dall'inizio giornata
+    const sessMin  = hoursRem * 60;          // minuti rimasti nella sessione
+    const isWeekend = (dayVal === 0 || dayVal === 6);
+
+    // Peak: 14:00-20:00 Lun-Ven
+    const peakStart = 14 * 60;  // 840
+    const peakEnd   = 20 * 60;  // 1200
+    const isPeak    = !isWeekend && nowMin >= peakStart && nowMin < peakEnd;
+
+    // Minuti fino alle 20:00 (fine peak)
+    const minsToOffPeak = isPeak ? (peakEnd - nowMin) : 0;
+
+    // Ore di off-peak raggiungibili dentro questa sessione
+    const offPeakMinsInSession = isPeak
+        ? Math.max(0, sessMin - minsToOffPeak)
+        : sessMin;
+
+    // % ideale adesso in base alle ore rimaste
+    // Off-peak: lineare 0%@5h -> 100%@0h
+    // Peak: dimezzato 0%@5h -> ~70%@0h
+    const idealOffpeak = Math.min(100, ((5 - hoursRem) / 5) * 100);
+    const idealPeak    = Math.min(100, ((5 - hoursRem) / 5) * 70);
+    const idealNow     = isPeak ? idealPeak : idealOffpeak;
+
+    const diff = pctNow - idealNow;
+    let paceLabel, paceColor;
+    if (Math.abs(diff) <= 8)       { paceLabel = 'in ritmo';        paceColor = 'var(--green-bright)'; }
+    else if (diff > 8 && diff <= 20){ paceLabel = 'un po\' avanti'; paceColor = 'var(--orange)'; }
+    else if (diff > 20)             { paceLabel = 'troppo avanti';   paceColor = 'var(--red-bright)'; }
+    else if (diff < -8 && diff >= -20){ paceLabel = 'un po\' indietro'; paceColor = 'var(--orange)'; }
+    else                            { paceLabel = 'troppo indietro'; paceColor = 'var(--red-bright)'; }
+
+    // ── Verdetto principale ──────────────────────────────────────────────────
+    let verdict, verdictColor, detail;
+
+    if (!isPeak) {
+        // OFF-PEAK
+        verdict      = 'Usa liberamente';
+        verdictColor = 'var(--green-bright)';
+        if (diff > 20) {
+            detail = 'Sei molto avanti rispetto al ritmo ideale — rallenta, potresti finire il budget troppo presto.';
+        } else if (diff < -20) {
+            detail = 'Sei indietro: puoi caricare tranquillamente, sei in off-peak e c\'e\' ancora molto budget.';
+        } else {
+            detail = 'Ritmo regolare. Continua cosi\'.';
+        }
+    } else {
+        // PEAK
+        const offPeakH = (offPeakMinsInSession / 60).toFixed(1);
+
+        if (sessMin <= minsToOffPeak || offPeakMinsInSession < 20) {
+            // La sessione scade prima che arrivi l'off-peak (o quasi)
+            verdict      = 'Nessun off-peak in questa sessione';
+            verdictColor = 'var(--orange)';
+            detail = `La sessione scade prima delle 20:00. Non puoi aspettare off-peak — usa con moderazione. % ideale adesso: ~${idealPeak.toFixed(0)}%. Cerca di non superare ~${Math.min(100, idealPeak + 15).toFixed(0)}% totale.`;
+        } else if (offPeakMinsInSession >= 60) {
+            // Vale molto la pena aspettare
+            verdict      = 'Aspetta le 20:00';
+            verdictColor = 'var(--red-bright)';
+            const maxBeforePeak = Math.max(5, idealPeak - 5);
+            detail = `Hai ${offPeakH}h di off-peak dentro questa sessione. Tieni la % sotto ~${maxBeforePeak.toFixed(0)}% adesso e carica i task pesanti dopo le 20:00. Guadagno stimato: +${(offPeakMinsInSession / sessMin * 100).toFixed(0)}% di budget usato a moltiplicatore basso.`;
+        } else {
+            // 20-60min di off-peak: marginale
+            verdict      = 'Poco da guadagnare';
+            verdictColor = 'var(--orange)';
+            detail = `Hai solo ${offPeakMinsInSession}min di off-peak nella sessione — il guadagno e' limitato. Usa con moderazione (% ideale ~${idealPeak.toFixed(0)}%) oppure aspetta se il task e' rimandabile.`;
+        }
+    }
+
+    // Highlight riga attiva nelle tabelle
+    ['op5','op4','op3','op2','op1','op0','pk5','pk4','pk3','pk2','pk1','pk0'].forEach(id => {
+        const el2 = document.getElementById(id);
+        if (el2) el2.style.fontWeight = '';
+    });
+    // Trova riga piu' vicina
+    const rowMap = [[5,'5'],[4,'4'],[3,'3'],[2,'2'],[1,'1'],[0.5,'0']];
+    let closest = '5';
+    for (const [h, key] of rowMap) {
+        if (hoursRem <= h + 0.25) closest = key;
+    }
+    const prefix = isPeak ? 'pk' : 'op';
+    const activeEl = document.getElementById(prefix + closest);
+    if (activeEl) activeEl.style.fontWeight = '700';
+
+    el.innerHTML = `
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px">
+            <span style="font-weight:700;font-size:0.82rem;color:${isPeak ? 'var(--red-bright)' : 'var(--green-bright)'}">${isPeak ? 'PEAK' : 'OFF-PEAK'}</span>
+            <span style="font-size:0.76rem;color:var(--muted)">% ideale adesso: <strong style="color:var(--text)">${idealNow.toFixed(0)}%</strong></span>
+            <span style="font-size:0.76rem;color:var(--muted)">sei: <strong style="color:${paceColor}">${paceLabel}</strong></span>
+            ${isPeak ? `<span style="font-size:0.76rem;color:var(--muted)">off-peak tra: <strong style="color:var(--text)">${Math.floor(minsToOffPeak/60)}h ${minsToOffPeak%60}min</strong></span>` : ''}
+        </div>
+        <div style="font-size:0.82rem;font-weight:700;color:${verdictColor};margin-bottom:4px">${verdict}</div>
+        <div style="font-size:0.73rem;color:var(--muted);line-height:1.5">${detail}</div>
+    `;
+}
+
+// Inizializza con ora attuale al caricamento
+window.addEventListener('DOMContentLoaded', () => { calcSetNow(); });
+
+// ── Tema ─────────────────────────────────────────────────────────────────────
+function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    document.getElementById('themeBtn').textContent = theme === 'light' ? '☾' : '☀';
+    localStorage.setItem('cpTheme', theme);
+}
+function toggleTheme() {
+    const current = document.documentElement.getAttribute('data-theme') || 'dark';
+    applyTheme(current === 'dark' ? 'light' : 'dark');
+}
+applyTheme(localStorage.getItem('cpTheme') || 'dark');
+
+function copyConfig() {
+    const json = `{
+  "model": "sonnet",
+  "env": {
+    "MAX_THINKING_TOKENS": "10000",
+    "CLAUDE_AUTOCOMPACT_PCT_OVERRIDE": "50",
+    "CLAUDE_CODE_SUBAGENT_MODEL": "haiku"
+  }
+}`;
+    navigator.clipboard.writeText(json).then(() => {
+        const btn = document.getElementById('copyBtn');
+        btn.textContent = 'Copiato!';
+        btn.classList.add('copied');
+        setTimeout(() => {
+            btn.textContent = 'Copia in clipboard';
+            btn.classList.remove('copied');
+        }, 2000);
+    });
+}
+</script>
+</body>
+</html>

@@ -19,6 +19,37 @@
     --blue:         #1f6feb;
     --text:         #e6edf3;
     --muted:        #8b949e;
+    /* calendar cell backgrounds */
+    --cell-offpeak: rgba(46,160,67,.42);
+    --cell-peak:    rgba(218,54,51,.62);
+    --cell-weekend: rgba(31,111,235,.42);
+    --cell-session: rgba(168,85,247,.35);
+    --cell-offpeak-today: rgba(46,160,67,.58);
+    --cell-peak-today:    rgba(218,54,51,.78);
+    --cell-weekend-today: rgba(31,111,235,.58);
+}
+
+[data-theme="light"] {
+    --bg:           #ffffff;
+    --surface:      #f6f8fa;
+    --surface2:     #eaeef2;
+    --border:       #d0d7de;
+    --green:        #1a7f37;
+    --green-bright: #2da44e;
+    --orange:       #9a6700;
+    --red:          #cf222e;
+    --red-bright:   #a40e26;
+    --purple:       #8250df;
+    --blue:         #0969da;
+    --text:         #1f2328;
+    --muted:        #656d76;
+    --cell-offpeak: rgba(26,127,55,.22);
+    --cell-peak:    rgba(207,34,46,.22);
+    --cell-weekend: rgba(9,105,218,.22);
+    --cell-session: rgba(130,80,223,.25);
+    --cell-offpeak-today: rgba(26,127,55,.38);
+    --cell-peak-today:    rgba(207,34,46,.38);
+    --cell-weekend-today: rgba(9,105,218,.38);
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -63,7 +94,7 @@ body {
     padding: 14px 18px;
     border-radius: 10px;
     border: 1px solid;
-    margin-bottom: 18px;
+    margin-bottom: 14px;
     transition: background .35s, border-color .35s;
 }
 .banner.good  { background: rgba(46,160,67,.07);  border-color: var(--green); }
@@ -89,6 +120,88 @@ body {
     text-align: right; line-height: 1.6; flex-shrink: 0; min-width: 100px;
 }
 .banner-next strong { color: var(--text); font-size: 0.95rem; display: block; }
+
+/* ---- CONTROL PANEL ---- */
+.ctrl-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin-bottom: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.ctrl-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.ctrl-lbl {
+    font-size: 0.63rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .07em;
+    color: var(--muted);
+    white-space: nowrap;
+    min-width: 72px;
+}
+.ctrl-input {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 6px 10px;
+    border-radius: 7px;
+    font-size: 0.85rem;
+    font-variant-numeric: tabular-nums;
+}
+.ctrl-input:focus { outline: none; border-color: var(--purple); }
+.ctrl-input[type="time"]   { width: 108px; }
+.ctrl-input[type="number"] { width: 80px; }
+.ctrl-suffix {
+    font-size: 0.82rem;
+    color: var(--muted);
+    font-weight: 600;
+    margin-left: -4px;
+}
+.ctrl-vdiv {
+    width: 1px;
+    height: 28px;
+    background: var(--border);
+    flex-shrink: 0;
+    margin: 0 4px;
+}
+.ctrl-spacer { flex: 1; }
+.ctrl-stats {
+    display: flex;
+    gap: 6px;
+    flex-shrink: 0;
+    flex-wrap: wrap;
+}
+.ctrl-stat {
+    background: var(--surface2);
+    border-radius: 7px;
+    padding: 6px 12px;
+    text-align: center;
+    min-width: 72px;
+}
+.ctrl-stat-val {
+    font-size: 1.05rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    line-height: 1.1;
+}
+.ctrl-stat-lbl {
+    font-size: 0.58rem;
+    color: var(--muted);
+    margin-top: 2px;
+    white-space: nowrap;
+}
+.ctrl-stat.hi-green .ctrl-stat-val { color: var(--green-bright); }
+.ctrl-stat.hi-orange .ctrl-stat-val { color: var(--orange); }
+.ctrl-stat.hi-red    .ctrl-stat-val { color: var(--red-bright); }
+.ctrl-stat.hi-purple .ctrl-stat-val { color: var(--purple); }
 
 /* ---- LAYOUT ---- */
 .layout {
@@ -118,8 +231,6 @@ body {
 
 /* ---- CALENDAR ---- */
 .cal-wrap { overflow-x: auto; }
-
-/* header row: separate from body so it can have its own height */
 .cal-head {
     display: grid;
     grid-template-columns: 36px repeat(7, 1fr);
@@ -138,8 +249,6 @@ body {
 .cal-th.is-today   { color: var(--purple); background: rgba(168,85,247,.13); }
 .cal-th.is-weekend { color: #58a6ff; }
 .cal-th .day-num   { font-weight: 400; font-size: 0.62rem; display: block; }
-
-/* body grid: strict row height */
 .cal-body {
     display: grid;
     grid-template-columns: 36px repeat(7, 1fr);
@@ -162,18 +271,18 @@ body {
     position: relative;
 }
 .cal-cell:hover { filter: brightness(1.4); }
-.cal-cell.off-peak { background: rgba(46,160,67,.42); }
-.cal-cell.peak     { background: rgba(218,54,51,.62); }
-.cal-cell.weekend  { background: rgba(31,111,235,.42); }
+.cal-cell.off-peak { background: var(--cell-offpeak); }
+.cal-cell.peak     { background: var(--cell-peak); }
+.cal-cell.weekend  { background: var(--cell-weekend); }
 .cal-cell.now-cell {
-    outline: 2px solid rgba(255,255,255,.9);
+    outline: 2px solid var(--text);
     outline-offset: 1px;
     z-index: 2;
 }
-/* subtle today column tint */
-.cal-cell.today-col.off-peak { background: rgba(46,160,67,.55); }
-.cal-cell.today-col.peak     { background: rgba(218,54,51,.75); }
-.cal-cell.today-col.weekend  { background: rgba(31,111,235,.55); }
+.cal-cell.today-col.off-peak { background: var(--cell-offpeak-today); }
+.cal-cell.today-col.peak     { background: var(--cell-peak-today); }
+.cal-cell.today-col.weekend  { background: var(--cell-weekend-today); }
+.cal-cell.session-block      { background: var(--cell-session) !important; outline: 1px solid var(--purple); outline-offset: -1px; }
 
 .legend {
     display: flex;
@@ -199,49 +308,54 @@ body {
 .g-time  { color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; width: 50px; }
 .g-bar   { width: 80px; }
 .g-pct   { width: 38px; font-weight: 700; font-size: 0.8rem; }
+.g-pk    { width: 38px; font-weight: 700; font-size: 0.8rem; }
 .g-act   { color: var(--muted); font-size: 0.72rem; line-height: 1.4; }
 .bar-outer { background: var(--border); border-radius: 4px; height: 5px; overflow: hidden; }
 .bar-inner { height: 100%; border-radius: 4px; }
+.guide-thead th { font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; padding: 0 8px 7px; border-bottom: 1px solid var(--border); text-align: left; color: var(--muted); }
+.guide-thead th.th-off  { color: var(--green-bright); }
+.guide-thead th.th-peak { color: var(--red-bright); }
+.guide-table tr.peak-active .g-pk   { color: var(--red-bright) !important; }
+.guide-table tr.off-active  .g-pct  { color: var(--green-bright) !important; }
+
+/* ---- TOOLTIP ---- */
+[data-tip] {
+    position: relative;
+    cursor: default;
+    text-decoration-line: underline;
+    text-decoration-style: dotted;
+    text-underline-offset: 3px;
+    text-decoration-thickness: 1px;
+    text-decoration-color: var(--muted);
+}
+[data-tip]::after {
+    content: attr(data-tip);
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: #2d333b;
+    color: #cdd9e5;
+    font-size: 0.68rem;
+    font-weight: 400;
+    line-height: 1.45;
+    white-space: pre-line;
+    padding: 6px 9px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    min-width: 160px;
+    max-width: 220px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .15s;
+    z-index: 100;
+    text-align: left;
+    text-decoration: none;
+}
+[data-tip]:hover::after { opacity: 1; }
 
 /* ---- SIDEBAR ---- */
 .sidebar { display: flex; flex-direction: column; gap: 16px; }
-
-/* session input */
-.sess-row {
-    display: flex;
-    gap: 7px;
-    margin-bottom: 12px;
-}
-.sess-row input {
-    flex: 1;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    color: var(--text);
-    padding: 7px 10px;
-    border-radius: 7px;
-    font-size: 0.85rem;
-    min-width: 0;
-}
-.sess-row input:focus { outline: none; border-color: var(--purple); }
-.btn {
-    background: var(--purple);
-    color: #fff;
-    border: none;
-    padding: 7px 12px;
-    border-radius: 7px;
-    cursor: pointer;
-    font-size: 0.82rem;
-    font-weight: 600;
-    white-space: nowrap;
-    flex-shrink: 0;
-}
-.btn:hover { opacity: .85; }
-.btn.ghost {
-    background: var(--surface2);
-    color: var(--muted);
-    border: 1px solid var(--border);
-}
-.btn.ghost:hover { color: var(--text); border-color: var(--muted); background: var(--surface2); opacity: 1; }
 
 /* ring */
 .ring-wrap {
@@ -297,98 +411,65 @@ body {
 .rec.red    { border-left-color: var(--red); }
 .rec strong { display: block; margin-bottom: 3px; font-size: 0.8rem; }
 
-/* tips */
-.tips { list-style: none; }
-.tips li {
-    display: flex;
-    gap: 9px;
-    padding: 7px 0;
-    font-size: 0.76rem;
-    color: var(--muted);
-    border-bottom: 1px solid var(--border);
-    line-height: 1.45;
-    align-items: flex-start;
-}
-.tips li:last-child { border-bottom: none; }
-.tag {
-    flex-shrink: 0;
-    font-size: 0.57rem;
-    font-weight: 700;
-    background: var(--border);
-    color: var(--muted);
-    padding: 2px 5px;
-    border-radius: 4px;
-    letter-spacing: .04em;
-    margin-top: 1px;
-}
-
-/* ---- BOTTOM ROW ---- */
-.bottom-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 18px;
-    margin-top: 18px;
-}
-@media (max-width: 900px) { .bottom-row { grid-template-columns: 1fr; } }
-@media (max-width: 1100px) and (min-width: 900px) { .bottom-row { grid-template-columns: 1fr 1fr; } }
-
-/* code block */
-.code-block {
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 12px 14px;
-    font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace;
-    font-size: 0.75rem;
-    line-height: 1.7;
-    color: #79c0ff;
-    white-space: pre;
-    overflow-x: auto;
-    margin-bottom: 10px;
-    position: relative;
-}
-.code-block .key   { color: #79c0ff; }
-.code-block .str   { color: #a5d6ff; }
-.code-block .num   { color: #ffa657; }
-.copy-btn {
-    display: block;
-    width: 100%;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    color: var(--muted);
-    padding: 6px;
-    border-radius: 6px;
+/* btn */
+.btn {
+    background: var(--purple);
+    color: #fff;
+    border: none;
+    padding: 6px 11px;
+    border-radius: 7px;
     cursor: pointer;
-    font-size: 0.74rem;
+    font-size: 0.82rem;
     font-weight: 600;
-    transition: color .15s, border-color .15s;
+    white-space: nowrap;
+    flex-shrink: 0;
 }
-.copy-btn:hover { color: var(--text); border-color: var(--muted); }
-.copy-btn.copied { color: var(--green-bright); border-color: var(--green); }
-
-/* hybrid workflow table */
-.hybrid-table { border-collapse: collapse; width: 100%; font-size: 0.76rem; }
-.hybrid-table td { padding: 7px 8px; border-bottom: 1px solid var(--border); vertical-align: top; line-height: 1.4; }
-.hybrid-table tr:last-child td { border-bottom: none; }
-.hybrid-table td:first-child { color: var(--muted); width: 42%; }
-.hybrid-table td:last-child  { color: var(--text); }
-.hybrid-tool { font-weight: 600; display: block; }
-.hybrid-note { font-size: 0.68rem; color: var(--muted); }
-
-/* plan cards */
-.plan-cards { display: flex; flex-direction: column; gap: 10px; }
-.plan-card {
-    background: var(--bg);
+.btn:hover { opacity: .85; }
+.btn.ghost {
+    background: var(--surface2);
+    color: var(--muted);
     border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 11px 13px;
 }
-.plan-card.plan-pro    { border-left: 3px solid var(--orange); }
-.plan-card.plan-max    { border-left: 3px solid var(--green); }
-.plan-card.plan-web    { border-left: 3px solid var(--muted); }
-.plan-name  { font-size: 0.8rem; font-weight: 700; margin-bottom: 5px; }
-.plan-items { list-style: none; font-size: 0.73rem; color: var(--muted); line-height: 1.7; }
-.plan-items li::before { content: '· '; }
+.btn.ghost:hover { color: var(--text); border-color: var(--muted); opacity: 1; }
+
+/* ---- WEEKLY BUDGET ---- */
+.weekly-dist + .weekly-dist {
+    margin-top: 18px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border);
+}
+.weekly-dist-header {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+}
+.weekly-dist-title { font-size: 0.77rem; font-weight: 600; color: var(--muted); }
+.weekly-dist-remain { font-size: 1.15rem; font-weight: 700; color: var(--green-bright); }
+.weekly-dist-remain.warn { color: var(--orange); }
+.weekly-dist-remain.crit { color: var(--red-bright); }
+.weekly-dist-sub { font-size: 0.68rem; color: var(--muted); margin-left: auto; }
+.wday-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+}
+.wday-card {
+    background: var(--surface2);
+    border-radius: 7px;
+    padding: 9px 4px 7px;
+    text-align: center;
+    border: 1px solid var(--border);
+}
+.wday-card.wday-today  { border-color: var(--purple); }
+.wday-card.wday-past   { opacity: 0.38; }
+.wday-label { font-size: 0.63rem; color: var(--muted); font-weight: 700; margin-bottom: 6px; text-transform: uppercase; }
+.wday-bar { background: var(--border); border-radius: 3px; height: 4px; overflow: hidden; margin: 0 4px 5px; }
+.wday-fill { height: 100%; border-radius: 3px; transition: width .45s ease; }
+.wday-pct { font-size: 0.73rem; font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1; }
+.wday-note { font-size: 0.56rem; color: var(--muted); margin-top: 3px; line-height: 1.3; min-height: 0.8em; }
+
 </style>
 </head>
 <body>
@@ -399,9 +480,13 @@ body {
         <div class="header-title">Claude <span>Usage Planner</span></div>
         <div class="header-sub">Orari ottimali e tracker sessione - ora italiana (CET/CEST)</div>
     </div>
-    <div class="clock-block">
-        <div class="clock" id="clock">--:--:--</div>
-        <div class="clock-date" id="clockDate"></div>
+    <div style="display:flex;align-items:center;gap:16px">
+        <a href="claude-tips.html" class="btn ghost" style="font-size:.8rem;padding:5px 10px">Tips</a>
+        <button class="btn ghost" id="themeBtn" onclick="toggleTheme()" style="font-size:.8rem;padding:5px 10px" title="Cambia tema">☀</button>
+        <div class="clock-block">
+            <div class="clock" id="clock">--:--:--</div>
+            <div class="clock-date" id="clockDate"></div>
+        </div>
     </div>
 </div>
 
@@ -415,6 +500,69 @@ body {
     <div class="banner-next" id="bannerNext"></div>
 </div>
 
+<!-- CONTROL PANEL: tutti gli input + readout live -->
+<div class="ctrl-panel">
+
+    <!-- Riga sessione -->
+    <div class="ctrl-row">
+        <span class="ctrl-lbl">Sessione</span>
+        <input class="ctrl-input" type="time" id="remInput" oninput="setResetFromInput();updateSession();buildCalendar()">
+        <span class="ctrl-suffix">rimasti</span>
+        <button class="btn ghost" onclick="clearRem()">×</button>
+        <div class="ctrl-vdiv"></div>
+        <input class="ctrl-input" type="number" id="pctInput" min="0" max="100" placeholder="% consumato" oninput="updateSession()">
+        <span class="ctrl-suffix">%</span>
+        <button class="btn ghost" onclick="clearPct()">×</button>
+        <div class="ctrl-spacer"></div>
+        <div class="ctrl-stats">
+            <div class="ctrl-stat" id="csPctBox">
+                <div class="ctrl-stat-val" id="csPct">--</div>
+                <div class="ctrl-stat-lbl">consumato</div>
+            </div>
+            <div class="ctrl-stat" id="csRemBox">
+                <div class="ctrl-stat-val" id="csRem">--</div>
+                <div class="ctrl-stat-lbl">tempo rimasto</div>
+            </div>
+            <div class="ctrl-stat">
+                <div class="ctrl-stat-val" id="csReset">--:--</div>
+                <div class="ctrl-stat-lbl">reset alle</div>
+            </div>
+            <div class="ctrl-stat" id="csPaceBox" data-tip="Ritmo sessione: % reale vs ideale.&#10;in ritmo = entro ±5% del target.&#10;+N% = stai consumando troppo.&#10;-N% = sei sotto, puoi usare di piu'.">
+                <div class="ctrl-stat-val" id="csPaceVal">--</div>
+                <div class="ctrl-stat-lbl" id="csPaceLbl">ideale --</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Riga settimanale -->
+    <div class="ctrl-row">
+        <span class="ctrl-lbl">Settimana</span>
+        <span style="font-size:.72rem;color:var(--muted)">Tutti</span>
+        <input class="ctrl-input" type="number" id="wAllInput" min="0" max="100" placeholder="es. 35" oninput="updateWeekly()">
+        <span class="ctrl-suffix">%</span>
+        <div class="ctrl-vdiv"></div>
+        <span style="font-size:.72rem;color:var(--muted)">Sonnet</span>
+        <input class="ctrl-input" type="number" id="wSonInput" min="0" max="100" placeholder="es. 20" oninput="updateWeekly()">
+        <span class="ctrl-suffix">%</span>
+        <div class="ctrl-spacer"></div>
+        <div class="ctrl-stats">
+            <div class="ctrl-stat" id="cwAllBox">
+                <div class="ctrl-stat-val" id="cwAll">—</div>
+                <div class="ctrl-stat-lbl">tutti rimane</div>
+            </div>
+            <div class="ctrl-stat" id="cwSonBox">
+                <div class="ctrl-stat-val" id="cwSon">—</div>
+                <div class="ctrl-stat-lbl">sonnet rimane</div>
+            </div>
+            <div class="ctrl-stat">
+                <div class="ctrl-stat-val" id="cwToday">—</div>
+                <div class="ctrl-stat-lbl">oggi (tutti)</div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
 <!-- LAYOUT -->
 <div class="layout">
 
@@ -422,51 +570,59 @@ body {
     <div>
         <!-- Calendar -->
         <div class="card">
-            <div class="card-title">Calendario settimanale</div>
+            <div class="card-title">Calendario settimanale <span id="calWeekRange" style="font-weight:400;font-size:.72rem;color:var(--muted);margin-left:8px"></span></div>
             <div class="cal-wrap">
                 <div class="cal-head" id="calHead"></div>
                 <div class="cal-body" id="calBody"></div>
             </div>
             <div class="legend">
                 <div class="legend-item">
-                    <div class="legend-dot" style="background:rgba(46,160,67,.55)"></div>
-                    Ottimo (fuori peak)
+                    <div class="legend-dot" style="background:var(--cell-offpeak-today)"></div>
+                    <span><strong style="color:var(--green-bright)">Verde</strong> — fuori peak, ottimo per lavorare</span>
                 </div>
                 <div class="legend-item">
-                    <div class="legend-dot" style="background:rgba(218,54,51,.65)"></div>
-                    Peak 14:00-20:00
+                    <div class="legend-dot" style="background:var(--cell-peak-today)"></div>
+                    <span><strong style="color:var(--red-bright)">Rosso</strong> — peak 14-20h, token costano di piu'</span>
                 </div>
                 <div class="legend-item">
-                    <div class="legend-dot" style="background:rgba(31,111,235,.5)"></div>
-                    Weekend
+                    <div class="legend-dot" style="background:var(--cell-weekend-today)"></div>
+                    <span><strong style="color:#58a6ff">Blu</strong> — weekend, nessun moltiplicatore</span>
                 </div>
                 <div class="legend-item">
-                    <div class="legend-dot" style="outline:2px solid rgba(255,255,255,.8);background:transparent"></div>
-                    Adesso
+                    <div class="legend-dot" style="outline:2px solid var(--text);background:transparent"></div>
+                    <span>Ora corrente</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-dot" style="background:var(--cell-session);outline:1px solid var(--purple)"></div>
+                    <span><strong style="color:var(--purple)">Viola</strong> — finestra sessione attiva (5h)</span>
                 </div>
             </div>
         </div>
 
         <!-- Guide table -->
         <div class="card" style="margin-top:16px">
-            <div class="card-title">Piano orario sessione (Pro, reset ogni 5h)</div>
+            <div class="card-title">Piano orario sessione — % ideale per ora rimasta</div>
             <table class="guide-table">
+                <thead class="guide-thead">
+                    <tr>
+                        <th style="width:50px">Rimaste</th>
+                        <th style="width:80px">Progresso</th>
+                        <th class="th-off"  style="width:38px" data-tip="% ideale fuori peak&#10;(lun-ven prima 14:00&#10;o dopo 20:00)">Off-peak</th>
+                        <th class="th-peak" style="width:38px" data-tip="% ideale in peak&#10;(lun-ven 14:00-20:00)&#10;max 70% — risparmia budget">Peak</th>
+                        <th>Azione consigliata</th>
+                    </tr>
+                </thead>
                 <tbody id="guideBody"></tbody>
             </table>
         </div>
     </div>
 
-    <!-- RIGHT -->
+    <!-- RIGHT: sidebar display-only -->
     <div class="sidebar">
 
-        <!-- Session tracker -->
+        <!-- Session ring -->
         <div class="card">
             <div class="card-title">Session Tracker</div>
-            <div class="sess-row">
-                <input type="time" id="startInput">
-                <button class="btn ghost" onclick="setNow()">Adesso</button>
-                <button class="btn" onclick="setSession()">Set</button>
-            </div>
 
             <div class="ring-wrap">
                 <svg width="112" height="112" class="ring-svg">
@@ -487,11 +643,11 @@ body {
                 </div>
                 <div class="stat">
                     <div class="stat-val" id="statRemaining">--</div>
-                    <div class="stat-lbl">Rimanenti</div>
+                    <div class="stat-lbl">Rimaste</div>
                 </div>
                 <div class="stat">
                     <div class="stat-val" id="statTaskDone">--%</div>
-                    <div class="stat-lbl">Task completati min.</div>
+                    <div class="stat-lbl">Consumato</div>
                 </div>
                 <div class="stat">
                     <div class="stat-val" id="statReset">--:--</div>
@@ -505,140 +661,110 @@ body {
             </div>
         </div>
 
-        <!-- Tips -->
-        <div class="card">
-            <div class="card-title">Quick Tips</div>
-            <ul class="tips">
-                <li><span class="tag">MODELLO</span>Usa Sonnet al posto di Opus: 80% dei task, 5x meno costoso</li>
-                <li><span class="tag">TIMING</span>Trick sessione: manda un prompt alle 6:00, lavora dalle 9:00. Finestra da 5h si resetta alle 11:00</li>
-                <li><span class="tag">CTX</span>Torna al modello 200K se vedi "1M" o "extended" nel nome</li>
-                <li><span class="tag">TASK</span>Una conversazione per task, non lasciare crescere i thread</li>
-                <li><span class="tag">PROMPT</span>Scrivi "fix line 42 in auth.ts" non "fix auth" (fino a 10x piu' economico)</li>
-                <li><span class="tag">BATCH</span>Raggruppa 3 domande in un prompt invece di 3 follow-up separati</li>
-                <li><span class="tag">CTX</span>Esegui /compact spesso, CLAUDE.md sotto 60 righe</li>
-                <li><span class="tag">FILE</span>Aggiungi .claudeignore per escludere dir irrilevanti</li>
-                <li><span class="tag">BUG</span>Sessione gia' consumata all'avvio: apri nuova conversazione</li>
-            </ul>
+        <!-- Conviene adesso? -->
+        <div class="card" id="convieneCard">
+            <div class="card-title">Conviene adesso?</div>
+            <div id="convieneContent" style="font-size:.77rem;color:var(--muted)">
+                Inserisci ore rimaste per la raccomandazione.
+            </div>
         </div>
 
     </div>
 </div>
 
-<!-- BOTTOM ROW: CLI config + hybrid workflow + bottom line -->
-<div class="bottom-row">
-
-    <!-- CLI Config -->
-    <div class="card">
-        <div class="card-title">CLI Config - risparmio 60-80% in un colpo</div>
-        <div class="code-block" id="configBlock"><span class="key">{
-  "model"</span><span class="str">: "sonnet"</span>,
-  <span class="key">"env"</span>: {
-    <span class="key">"MAX_THINKING_TOKENS"</span>:          <span class="str">"10000"</span>,
-    <span class="key">"CLAUDE_AUTOCOMPACT_PCT_OVERRIDE"</span>: <span class="str">"50"</span>,
-    <span class="key">"CLAUDE_CODE_SUBAGENT_MODEL"</span>:     <span class="str">"haiku"</span>
-  }
-}</div>
-        <button class="copy-btn" id="copyBtn" onclick="copyConfig()">Copia in clipboard</button>
-        <ul class="tips" style="margin-top:12px">
-            <li><span class="tag">FILE</span>Salva in <code style="font-size:.72rem;color:#79c0ff">~/.claude/settings.json</code></li>
-            <li><span class="tag">THINK</span>MAX_THINKING_TOKENS: da 32K default a 10K (~70% risparmio)</li>
-            <li><span class="tag">CTX</span>Autocompact al 50% invece di 95%: sessioni piu' sane</li>
-            <li><span class="tag">EXTRA</span>.claudeignore + CLAUDE.md sotto 60 righe (90% meno costo avvio)</li>
-        </ul>
-        <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border)">
-            <div class="card-title" style="margin-bottom:8px">Monitoring Tools (CLI)</div>
-            <ul class="tips">
-                <li><span class="tag">NPM</span><code style="font-size:.72rem;color:#79c0ff">npx ccusage@latest</code> - token usage da log locali</li>
-                <li><span class="tag">NPM</span><code style="font-size:.72rem;color:#79c0ff">ccburn --compact</code> - grafico burn-up, stima reset</li>
-                <li><span class="tag">HOOK</span>Read-once hook: -40-90% token su letture file ridondanti</li>
-            </ul>
+<!-- WEEKLY BUDGET: display grids only, inputs sono in cima -->
+<div class="card" style="margin-top:18px">
+    <div class="card-title" style="margin-bottom:10px">Distribuzione Budget Settimanale</div>
+    <div id="weekPaceBanner" style="display:none;padding:10px 14px;border-radius:8px;border:1px solid;margin-bottom:14px;display:flex;align-items:center;gap:12px">
+        <div style="flex:1">
+            <div id="weekPaceTitle" style="font-size:.88rem;font-weight:600"></div>
+            <div id="weekPaceDesc"  style="font-size:.73rem;color:var(--muted);margin-top:2px"></div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+            <div id="weekPaceDelta" data-tip="Differenza tra % usato e % ideale&#10;in base ai giorni trascorsi nel ciclo.&#10;+N% = stai consumando troppo.&#10;-N% = sei sotto, puoi usare di piu'." style="font-size:1.1rem;font-weight:700;font-variant-numeric:tabular-nums"></div>
+            <div style="font-size:.62rem;color:var(--muted)">vs ideale</div>
         </div>
     </div>
-
-    <!-- Hybrid Workflow -->
-    <div class="card">
-        <div class="card-title">Hybrid Workflow - quando i limiti stringono</div>
-        <table class="hybrid-table">
-            <tr>
-                <td>Pianificazione e architettura</td>
-                <td>
-                    <span class="hybrid-tool">Claude Opus</span>
-                    <span class="hybrid-note">Miglior ragionamento, usalo con parsimonia</span>
-                </td>
-            </tr>
-            <tr>
-                <td>Generazione codice</td>
-                <td>
-                    <span class="hybrid-tool">Codex CLI o Cursor</span>
-                    <span class="hybrid-note">Nessun limite sessione, pay-per-token</span>
-                </td>
-            </tr>
-            <tr>
-                <td>Parsing documenti e ricerca</td>
-                <td>
-                    <span class="hybrid-tool">Gemini free o ChatGPT</span>
-                    <span class="hybrid-note">Gratis per documenti e research leggero</span>
-                </td>
-            </tr>
-            <tr>
-                <td>Senza moltiplicatori nascosti</td>
-                <td>
-                    <span class="hybrid-tool">API diretta Anthropic</span>
-                    <span class="hybrid-note">api.anthropic.com, pricing puro per token, zero peak multiplier</span>
-                </td>
-            </tr>
-            <tr>
-                <td>Alternativa terminale free</td>
-                <td>
-                    <span class="hybrid-tool">Gemini CLI</span>
-                    <span class="hybrid-note">60 req/min, 1.000 req/giorno, contesto 1M. Gratuito</span>
-                </td>
-            </tr>
-            <tr>
-                <td>Modello economico per task semplici</td>
-                <td>
-                    <span class="hybrid-tool">claude-haiku-4-5</span>
-                    <span class="hybrid-note">~80% piu' economico, veloce per task ripetitivi</span>
-                </td>
-            </tr>
-        </table>
+    <div class="weekly-dist">
+        <div class="weekly-dist-header">
+            <span class="weekly-dist-title">Tutti i modelli — rimane</span>
+            <span class="weekly-dist-remain" id="wAllRemain">—</span>
+            <span class="weekly-dist-sub" id="wAllSub"></span>
+        </div>
+        <div class="wday-grid" id="wAllGrid"></div>
     </div>
+    <div class="weekly-dist">
+        <div class="weekly-dist-header">
+            <span class="weekly-dist-title">Solo Sonnet — rimane</span>
+            <span class="weekly-dist-remain" id="wSonRemain">—</span>
+            <span class="weekly-dist-sub" id="wSonSub"></span>
+        </div>
+        <div class="wday-grid" id="wSonGrid"></div>
+    </div>
+</div>
 
-    <!-- Bottom line per piano -->
-    <div class="card">
-        <div class="card-title">Bottom Line per Piano</div>
-        <div class="plan-cards">
-            <div class="plan-card plan-pro">
-                <div class="plan-name" style="color:var(--orange)">Pro $20/mo</div>
-                <ul class="plan-items">
-                    <li>Appena distinguibile dal Free in questo momento</li>
-                    <li>Solo sezione A (disciplina d'uso), non espandibile</li>
-                    <li>CLI config obbligatoria per reggere</li>
-                    <li>Sessioni che partono consumate: bug noto, riapri</li>
-                    <li>Trick timing sessione: manda un prompt alle 6:00</li>
-                </ul>
+<!-- PIANO MENSILE -->
+<div class="card" style="margin-top:18px">
+    <div class="card-title">Piano Mensile</div>
+    <div class="ctrl-row" style="margin-bottom:12px">
+        <span class="ctrl-lbl">Rinnovo</span>
+        <span style="font-size:.72rem;color:var(--muted)">giorno</span>
+        <input class="ctrl-input" type="number" id="planDayInput" min="1" max="31" placeholder="es. 15" style="width:70px" oninput="updatePlanReport()">
+        <div class="ctrl-vdiv"></div>
+        <span style="font-size:.72rem;color:var(--muted)">Piano</span>
+        <select class="ctrl-input" id="planTypeInput" onchange="updatePlanReport()" style="width:160px">
+            <option value="">Seleziona...</option>
+            <option value="pro">Pro ($20/mo)</option>
+            <option value="max5">Max 5x ($100/mo)</option>
+            <option value="max20">Max 20x ($200/mo)</option>
+        </select>
+        <div class="ctrl-spacer"></div>
+        <div class="ctrl-stats">
+            <div class="ctrl-stat">
+                <div class="ctrl-stat-val" id="planDayOf">—</div>
+                <div class="ctrl-stat-lbl">giorno ciclo</div>
             </div>
-            <div class="plan-card plan-max">
-                <div class="plan-name" style="color:var(--green-bright)">Max $100-200/mo</div>
-                <ul class="plan-items">
-                    <li>settings.json + hook + CLAUDE.md snello = 3-5x piu' utilizzo</li>
-                    <li>Peak multiplier attivo comunque</li>
-                    <li>Combinato con Codex/Cursor e' il setup piu' efficiente</li>
-                    <li>Penalizzante per chi usa i default (la maggioranza)</li>
-                </ul>
+            <div class="ctrl-stat">
+                <div class="ctrl-stat-val" id="planRemDays">—</div>
+                <div class="ctrl-stat-lbl">giorni rimasti</div>
             </div>
-            <div class="plan-card plan-web">
-                <div class="plan-name" style="color:var(--muted)">Web e Mobile</div>
-                <ul class="plan-items">
-                    <li>Nessun accesso alle ottimizzazioni CLI</li>
-                    <li>Solo disciplina: orari, prompt specifici, thread corti</li>
-                    <li>Evita modelli "1M" o "extended"</li>
-                    <li>Pre-processa PDF esternamente prima di caricarli</li>
-                </ul>
+            <div class="ctrl-stat" id="planPctBox">
+                <div class="ctrl-stat-val" id="planPct">—</div>
+                <div class="ctrl-stat-lbl">ciclo trascorso</div>
             </div>
         </div>
     </div>
+    <div class="bar-outer" style="margin-bottom:10px;height:7px" id="planBarWrap" style="display:none">
+        <div class="bar-inner" id="planBar" style="width:0%;background:var(--purple)"></div>
+    </div>
+    <div id="planInfo" style="display:none;font-size:.75rem;color:var(--muted);line-height:1.6"></div>
+    <div id="planTip" style="display:none;margin-top:10px;padding:9px 12px;border-radius:7px;border-left:3px solid var(--border);background:var(--surface2);font-size:.76rem;line-height:1.55"></div>
+</div>
 
+<!-- CCUSAGE PANEL -->
+<div class="card" style="margin-top:18px" id="ccCard">
+    <div class="card-title" style="display:flex;align-items:center;gap:10px;margin-bottom:0">
+        Utilizzo Reale
+        <button class="btn ghost" id="ccBtn" onclick="loadCCUsage()" style="font-size:.72rem;padding:4px 10px">
+            Carica ~/.claude/projects/
+        </button>
+        <span id="ccLoadedAt" style="font-size:.68rem;color:var(--muted);margin-left:4px"></span>
+    </div>
+    <div id="ccPanel" style="margin-top:12px;display:none">
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:6px;margin-bottom:10px" id="ccStats"></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+            <span style="font-size:.68rem;color:var(--muted)">Budget riferimento:</span>
+            <input class="ctrl-input" type="number" id="ccBudgetInput" min="1000" max="9999999" placeholder="es. 500000 token"
+                style="width:160px" oninput="saveCCBudget();renderCCStats()">
+            <span style="font-size:.68rem;color:var(--muted)">token / sessione 5h</span>
+            <span id="ccBudgetHint" style="font-size:.67rem;color:var(--purple)"></span>
+        </div>
+        <div id="ccModels" style="margin-top:8px;font-size:.72rem;color:var(--muted)"></div>
+    </div>
+    <div id="ccEmpty" style="margin-top:10px;font-size:.77rem;color:var(--muted);line-height:1.7">
+        Clicca "Carica" e seleziona <code style="font-family:monospace;background:var(--surface2);color:#79c0ff;padding:1px 5px;border-radius:4px">~/.claude/projects/</code> — nessun dato esce dal browser.<br>
+        <span style="color:var(--orange);font-weight:600">macOS:</span> nel picker premi <kbd style="background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-size:.75rem;font-family:monospace">Cmd + Shift + G</kbd>, incolla <code style="font-family:monospace;background:var(--surface2);color:#79c0ff;padding:1px 5px;border-radius:4px">~/.claude/projects</code> e premi Invio.
+    </div>
 </div>
 
 <script>
@@ -655,9 +781,9 @@ function romeNow() {
         new Intl.DateTimeFormat('en-US', { timeZone: TZ, [f]: 'numeric', hour12: false }).format(now)
     );
     return {
-        hour:   fmt('hour'),
-        minute: fmt('minute'),
-        second: fmt('second'),
+        hour:     fmt('hour'),
+        minute:   fmt('minute'),
+        second:   fmt('second'),
         dayShort: new Intl.DateTimeFormat('en-US', { timeZone: TZ, weekday: 'short' }).format(now),
         dateStr:  new Intl.DateTimeFormat('en-CA',  { timeZone: TZ }).format(now),
         display:  new Intl.DateTimeFormat('it-IT', {
@@ -670,12 +796,107 @@ function romeNow() {
 function isWknd(d) { return d === 'Sat' || d === 'Sun'; }
 function isPeak(h, d) { return !isWknd(d) && h >= PEAK_START && h < PEAK_END; }
 
+// ---- CONVIENE ADESSO? ----
+function updateConviene() {
+    const el = document.getElementById('convieneContent');
+    if (!el) return;
+
+    const t      = romeNow();
+    const remMin = parseRemInput();
+    const pctNow = getDisplayPct();
+
+    const nowMin    = t.hour * 60 + t.minute;
+    const weekend   = isWknd(t.dayShort);
+    const peakNow   = isPeak(t.hour, t.dayShort);
+    const peakEndMin = PEAK_END * 60;
+    const minsToOff  = peakNow ? (peakEndMin - nowMin) : 0;
+
+    const offPeakInSess = (peakNow && remMin !== null)
+        ? Math.max(0, remMin - minsToOff)
+        : (remMin || 0);
+
+    // ideal % based on time remaining
+    const hoursRem   = remMin !== null ? remMin / 60 : null;
+    const idealOff   = hoursRem !== null ? Math.min(100, ((5 - hoursRem) / 5) * 100) : null;
+    const idealPk    = hoursRem !== null ? Math.min(100, ((5 - hoursRem) / 5) * 70)  : null;
+    const idealNow   = hoursRem !== null ? (peakNow ? idealPk : idealOff) : null;
+
+    // pace label
+    let paceLabel = '', paceColor = 'var(--muted)', paceTip = '';
+    if (pctNow !== null && idealNow !== null) {
+        const diff = pctNow - idealNow;
+        if      (Math.abs(diff) <= 10)       { paceLabel = 'in ritmo';         paceColor = 'var(--green-bright)'; paceTip = `Sei entro ±10% del target ideale.\nPuoi continuare a questo ritmo.`; }
+        else if (diff > 10 && diff <= 20)  { paceLabel = "un po' avanti";    paceColor = 'var(--orange)';       paceTip = `Sei ${diff.toFixed(0)}% sopra il target.\nRallenta un po\u2019 per non finire il budget.`; }
+        else if (diff > 20)                { paceLabel = 'troppo avanti';     paceColor = 'var(--red-bright)';   paceTip = `Sei ${diff.toFixed(0)}% sopra il target.\nRischio di finire il budget prima della scadenza.`; }
+        else if (diff < -10 && diff >= -20){ paceLabel = "un po' indietro";  paceColor = 'var(--orange)';       paceTip = `Sei ${Math.abs(diff).toFixed(0)}% sotto il target.\nPuoi usare un po\u2019 di piu\u2019.`; }
+        else                               { paceLabel = 'troppo indietro';   paceColor = 'var(--red-bright)';   paceTip = `Sei ${Math.abs(diff).toFixed(0)}% sotto il target.\nHai budget disponibile, usalo.`; }
+    }
+
+    // verdict
+    let verdict, verdictColor, detail;
+
+    if (weekend) {
+        verdict      = 'Weekend — usa liberamente';
+        verdictColor = '#58a6ff';
+        detail       = idealNow !== null
+            ? `Nessun moltiplicatore. % ideale: <strong style="color:var(--text)">${idealNow.toFixed(0)}%</strong>.`
+            : 'Nessun moltiplicatore attivo. Ottimo per task pesanti.';
+    } else if (!peakNow) {
+        verdict      = 'Usa liberamente';
+        verdictColor = 'var(--green-bright)';
+        if (pctNow !== null && idealNow !== null) {
+            const diff = pctNow - idealNow;
+            detail = diff > 20
+                ? 'Sei molto avanti — rallenta per non finire il budget troppo presto.'
+                : diff < -20
+                    ? 'Sei indietro — carica pure, sei off-peak.'
+                    : 'Ritmo regolare. Continua cosi.';
+        } else {
+            detail = 'Sei fuori peak. Inserisci % per il ritmo dettagliato.';
+        }
+    } else if (remMin === null) {
+        verdict      = 'PEAK — attenzione';
+        verdictColor = 'var(--red-bright)';
+        detail       = `Peak attivo. Fine tra <strong style="color:var(--text)">${Math.floor(minsToOff/60)}h ${minsToOff%60}min</strong>. Inserisci ore rimaste per sapere se conviene aspettare.`;
+    } else if (remMin <= minsToOff || offPeakInSess < 30) {
+        verdict      = 'Sessione scade prima del off-peak';
+        verdictColor = 'var(--orange)';
+        const cap    = idealNow !== null ? ` % ideale: ~<strong style="color:var(--text)">${idealNow.toFixed(0)}%</strong>.` : '';
+        detail       = `La sessione scade prima delle 20:00.${cap} Usa con moderazione, non puoi aspettare.`;
+    } else if (offPeakInSess >= 60) {
+        verdict      = 'Aspetta le 20:00';
+        verdictColor = 'var(--red-bright)';
+        const offH   = (offPeakInSess / 60).toFixed(1);
+        const cap    = idealNow !== null ? ` Mantieni % &lt; ~<strong style="color:var(--text)">${Math.max(5, idealNow - 5).toFixed(0)}%</strong> adesso.` : '';
+        detail       = `Hai <strong style="color:var(--text)">${offH}h</strong> di off-peak in questa sessione.${cap} Carica i task pesanti dopo le 20:00.`;
+    } else {
+        verdict      = 'Poco da guadagnare';
+        verdictColor = 'var(--orange)';
+        const cap    = idealNow !== null ? ` % ideale: ~<strong style="color:var(--text)">${idealNow.toFixed(0)}%</strong>.` : '';
+        detail       = `Solo ${offPeakInSess}min di off-peak nella sessione.${cap} Usa con moderazione o aspetta.`;
+    }
+
+    el.innerHTML = `
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:9px;flex-wrap:wrap">
+            <span style="font-size:.8rem;font-weight:700;color:${verdictColor}">${
+                weekend ? 'WEEKEND' : peakNow ? 'PEAK' : 'OFF-PEAK'
+            }</span>
+            ${idealNow !== null ? `<span data-tip="% che dovresti aver consumato\na questo punto della sessione\n(off-peak: lineare; peak: max 70%)" style="font-size:.73rem;color:var(--muted)">ideale: <strong style="color:var(--text)">${idealNow.toFixed(0)}%</strong></span>` : ''}
+            ${paceLabel ? `<span data-tip="${paceTip}" style="font-size:.73rem;font-weight:600;color:${paceColor}">${paceLabel}</span>` : ''}
+        </div>
+        ${peakNow && !weekend ? `<div style="font-size:.7rem;color:var(--muted);margin-bottom:6px">off-peak tra <strong style="color:var(--text)">${Math.floor(minsToOff/60)}h ${minsToOff%60}min</strong></div>` : ''}
+        <div style="font-size:.84rem;font-weight:700;color:${verdictColor};margin-bottom:5px">${verdict}</div>
+        <div style="font-size:.72rem;color:var(--muted);line-height:1.55">${detail}</div>
+    `;
+}
+
 // ---- CLOCK ----
 function tick() {
     const t = romeNow();
-    document.getElementById('clock').textContent    = `${pad(t.hour)}:${pad(t.minute)}:${pad(t.second)}`;
+    document.getElementById('clock').textContent     = `${pad(t.hour)}:${pad(t.minute)}:${pad(t.second)}`;
     document.getElementById('clockDate').textContent = t.display;
     updateBanner(t);
+    updateConviene();
     updateSession();
 }
 
@@ -693,7 +914,6 @@ function updateBanner(t) {
         next.innerHTML    = '';
         return;
     }
-
     if (isPeak(t.hour, t.dayShort)) {
         const left = (PEAK_END - t.hour) * 60 - t.minute;
         el.className      = 'banner bad';
@@ -709,7 +929,7 @@ function updateBanner(t) {
     } else {
         el.className      = 'banner good';
         title.textContent = 'Fuori Peak - Ottimo per lavoro intenso';
-        desc.textContent  = `Dopo le ore di punta (${PEAK_START}:00-${PEAK_END}:00 IT / 5am-11am PT). Nessun moltiplicatore attivo.`;
+        desc.textContent  = `Dopo le ore di punta (${PEAK_START}:00-${PEAK_END}:00 IT). Nessun moltiplicatore attivo.`;
         next.innerHTML    = '';
     }
 }
@@ -718,8 +938,6 @@ function updateBanner(t) {
 function buildCalendar() {
     const now = new Date();
     const t   = romeNow();
-
-    // ISO week start (Monday) in Rome
     const rDate = new Date(now.toLocaleString('en-US', { timeZone: TZ }));
     const dow   = rDate.getDay();
     const diff  = dow === 0 ? -6 : 1 - dow;
@@ -733,22 +951,36 @@ function buildCalendar() {
             label:   labels[i],
             short:   new Intl.DateTimeFormat('en-US', { timeZone: TZ, weekday: 'short' }).format(d),
             num:     new Intl.DateTimeFormat('it-IT', { timeZone: TZ, day: 'numeric' }).format(d),
+            month:   new Intl.DateTimeFormat('it-IT', { timeZone: TZ, month: 'short' }).format(d),
             dateStr: new Intl.DateTimeFormat('en-CA', { timeZone: TZ }).format(d),
             isToday: new Intl.DateTimeFormat('en-CA', { timeZone: TZ }).format(d) === t.dateStr
         });
     }
 
-    // --- header ---
+    // week range label
+    const first = weekDays[0], last = weekDays[6];
+    const rangeEl = document.getElementById('calWeekRange');
+    if (rangeEl) rangeEl.textContent =
+        `${first.num} ${first.month} – ${last.num} ${last.month} ${new Date().getFullYear()}`;
+
+    // session window on today (based on remInput)
+    const remMin = parseRemInput();
+    let sessStartH = null, sessEndH = null;
+    if (remMin != null && remMin > 0) {
+        const elapsed = SESSION_H * 60 - remMin;
+        sessStartH = t.hour - Math.floor(elapsed / 60);
+        sessEndH   = t.hour + Math.ceil(remMin / 60);
+    }
+
     let hHtml = '<div></div>';
     weekDays.forEach(d => {
         let cls = 'cal-th';
-        if (d.isToday)                        cls += ' is-today';
-        else if (d.short==='Sat'||d.short==='Sun') cls += ' is-weekend';
+        if (d.isToday) cls += ' is-today';
+        else if (d.short === 'Sat' || d.short === 'Sun') cls += ' is-weekend';
         hHtml += `<div class="${cls}">${d.label}<span class="day-num">${d.num}</span></div>`;
     });
     document.getElementById('calHead').innerHTML = hHtml;
 
-    // --- body ---
     let bHtml = '';
     for (let h = 0; h < 24; h++) {
         bHtml += `<div class="cal-tl">${h % 2 === 0 ? pad(h)+':00' : ''}</div>`;
@@ -758,11 +990,11 @@ function buildCalendar() {
             cls += wknd ? ' weekend' : (h >= PEAK_START && h < PEAK_END) ? ' peak' : ' off-peak';
             if (d.isToday) cls += ' today-col';
             if (d.isToday && h === t.hour) cls += ' now-cell';
-            const tip = wknd
-                ? `${d.label} ${d.num} ${pad(h)}:00 - weekend: ottimo`
-                : (h >= PEAK_START && h < PEAK_END)
-                    ? `${d.label} ${d.num} ${pad(h)}:00 - peak hours: rallenta`
-                    : `${d.label} ${d.num} ${pad(h)}:00 - fuori peak: ottimo`;
+            if (d.isToday && sessStartH != null && h >= sessStartH && h < sessEndH)
+                cls += ' session-block';
+            const tip = wknd ? `${d.label} ${d.num} ${pad(h)}:00 - weekend: ottimo`
+                : (h >= PEAK_START && h < PEAK_END) ? `${d.label} ${d.num} ${pad(h)}:00 - peak hours: rallenta`
+                : `${d.label} ${d.num} ${pad(h)}:00 - fuori peak: ottimo`;
             bHtml += `<div class="${cls}" title="${tip}"></div>`;
         });
     }
@@ -771,28 +1003,48 @@ function buildCalendar() {
 
 // ---- GUIDE TABLE ----
 const GUIDE_ROWS = [
-    { h: 5,   pct: 0,   color: '#2ea043', action: 'Pianifica scope e task. Nessuna limitazione.' },
-    { h: 4,   pct: 20,  color: '#3fb950', action: 'Task pesanti: codice, analisi, refactoring.' },
-    { h: 3,   pct: 40,  color: '#5bba6f', action: 'Task medi. Dovresti aver gia completato il 40% del piano.' },
-    { h: 2,   pct: 60,  color: '#d29922', action: 'Chiudi i task aperti. Nessun task nuovo grande.' },
-    { h: 1,   pct: 80,  color: '#e3a008', action: 'Wrap-up. Esegui /compact. Salva gli output importanti.' },
-    { h: 0.5, pct: 90,  color: '#f85149', action: 'Solo task leggeri. Reset imminente.' },
-    { h: 0,   pct: 100, color: '#da3633', action: 'Sessione scaduta. Apri nuova conversazione.' },
+    { h: 5,   pct: 0,   pkPct: 0,   color: '#2ea043', action: 'Pianifica scope e task. Nessuna limitazione.' },
+    { h: 4,   pct: 20,  pkPct: 10,  color: '#3fb950', action: 'Task pesanti: codice, analisi, refactoring.' },
+    { h: 3,   pct: 40,  pkPct: 20,  color: '#5bba6f', action: 'Task medi. Se sei in peak, aspetta le 20:00 per i task grandi.' },
+    { h: 2,   pct: 60,  pkPct: 35,  color: '#d29922', action: 'Chiudi i task aperti. Nessun task nuovo grande.' },
+    { h: 1,   pct: 80,  pkPct: 55,  color: '#e3a008', action: 'Wrap-up. Esegui /compact. Salva gli output importanti.' },
+    { h: 0.5, pct: 90,  pkPct: 70,  color: '#f85149', action: 'Solo task leggeri. Reset imminente.' },
+    { h: 0,   pct: 100, pkPct: 100, color: '#da3633', action: 'Sessione scaduta. Apri nuova conversazione.' },
 ];
 
-function buildGuide(activePct) {
+function buildGuide(activePct, remMin) {
+    const t       = romeNow();
+    const peakNow = isPeak(t.hour, t.dayShort);
+
     let html = '';
     GUIDE_ROWS.forEach((r, i) => {
-        const timeStr = r.h === 0 ? 'Scaduta' : r.h < 1 ? `${r.h*60} min` : `${r.h}h rimaste`;
-        const isActive = activePct !== null &&
-            (i === GUIDE_ROWS.length - 1
+        const nextH = i < GUIDE_ROWS.length - 1 ? GUIDE_ROWS[i+1].h : -Infinity;
+        let isActive = false;
+        if (remMin != null) {
+            const remH = remMin / 60;
+            isActive = remH <= r.h && remH > nextH;
+        } else if (activePct != null) {
+            isActive = i === GUIDE_ROWS.length - 1
                 ? activePct >= r.pct
-                : activePct >= r.pct && activePct < GUIDE_ROWS[i+1].pct);
+                : activePct >= r.pct && activePct < GUIDE_ROWS[i+1].pct;
+        }
+        let timeStr;
+        if (isActive && remMin != null) {
+            const rH = Math.floor(remMin / 60), rM = remMin % 60;
+            timeStr = `<strong>${rH}h ${pad(rM)}m</strong>`;
+        } else {
+            timeStr = r.h === 0 ? 'Scaduta' : r.h < 1 ? `${r.h*60} min` : `${r.h}h rimaste`;
+        }
+        // highlight active column based on current peak/off-peak
+        const activeClass = isActive ? (peakNow ? 'guide-active peak-active' : 'guide-active off-active') : '';
+        const pkStyle  = isActive && peakNow  ? 'color:var(--red-bright)'   : `color:${r.color}`;
+        const offStyle = isActive && !peakNow ? 'color:var(--green-bright)' : `color:${r.color}`;
         html += `
-        <tr class="${isActive ? 'guide-active' : ''}">
+        <tr class="${activeClass}">
             <td class="g-time">${timeStr}</td>
             <td class="g-bar"><div class="bar-outer"><div class="bar-inner" style="width:${r.pct}%;background:${r.color}"></div></div></td>
-            <td class="g-pct"><span style="color:${r.color}">${r.pct}%</span></td>
+            <td class="g-pct"><span style="${offStyle}">${r.pct}%</span></td>
+            <td class="g-pk"><span style="${pkStyle}">${r.pkPct}%</span></td>
             <td class="g-act">${r.action}</td>
         </tr>`;
     });
@@ -800,90 +1052,510 @@ function buildGuide(activePct) {
 }
 
 // ---- SESSION TRACKER ----
-let sessionStart = null;
 
-function setNow() {
-    const t = romeNow();
-    document.getElementById('startInput').value = `${pad(t.hour)}:${pad(t.minute)}`;
-    setSession();
+let resetTimestamp = null;  // ms epoch when session resets
+
+function setResetFromInput() {
+    const val = (document.getElementById('remInput').value || '').trim();
+    if (!val) { resetTimestamp = null; return; }
+    const [hh, mm] = val.split(':').map(Number);
+    if (isNaN(hh)) { resetTimestamp = null; return; }
+    resetTimestamp = Date.now() + (hh * 60 + (mm || 0)) * 60000;
 }
 
-function setSession() {
-    const val = document.getElementById('startInput').value;
-    if (!val) return;
-    const [hh, mm] = val.split(':').map(Number);
-    const d = new Date();
-    d.setHours(hh, mm, 0, 0);
-    if (d > new Date()) d.setDate(d.getDate() - 1);
-    sessionStart = d;
+// Returns seconds remaining (float) — sub-minute precision for display
+function getRemSec() {
+    if (resetTimestamp == null) return null;
+    return Math.max(0, (resetTimestamp - Date.now()) / 1000);
+}
+
+// Returns whole minutes remaining
+function parseRemInput() {
+    const sec = getRemSec();
+    return sec == null ? null : Math.round(sec / 60);
+}
+
+function clearRem() {
+    document.getElementById('remInput').value = '';
+    resetTimestamp = null;
+    updateSession();
+    buildCalendar();
+}
+
+function clearPct() {
+    document.getElementById('pctInput').value = '';
     updateSession();
 }
 
-function updateSession() {
-    const hasSess = !!sessionStart;
-    buildGuide(hasSess ? getElapsedPct() : null);
-    if (!hasSess) return;
+function getDisplayPct() {
+    const pctEl = document.getElementById('pctInput');
+    if (pctEl && pctEl.value !== '') {
+        return Math.min(100, Math.max(0, parseFloat(pctEl.value) || 0));
+    }
+    return null;
+}
 
-    const now     = new Date();
-    const elapsed = (now - sessionStart) / 60000;
-    const total   = SESSION_H * 60;
-    const remain  = Math.max(0, total - elapsed);
-    const pct     = Math.min(100, Math.round(elapsed / total * 100));
+function pctColor(pct) {
+    return pct < 40 ? 'var(--green)' : pct < 70 ? 'var(--orange)' : 'var(--red)';
+}
 
-    // ring
-    const circ = 295;
-    const fill = document.getElementById('ringFill');
-    fill.style.strokeDashoffset = circ * (1 - pct / 100);
-    fill.style.stroke = pct < 40 ? 'var(--green)' : pct < 70 ? 'var(--orange)' : 'var(--red)';
-    document.getElementById('ringPct').textContent = pct + '%';
+function setCtrlStatColor(boxId, pct) {
+    const box = document.getElementById(boxId);
+    if (!box) return;
+    box.classList.remove('hi-green','hi-orange','hi-red','hi-purple');
+    if (pct === null) return;
+    if (pct < 40) box.classList.add('hi-green');
+    else if (pct < 70) box.classList.add('hi-orange');
+    else box.classList.add('hi-red');
+}
 
-    // stats
-    const eH = Math.floor(elapsed / 60), eM = Math.round(elapsed % 60);
-    const rH = Math.floor(remain / 60),  rM = Math.round(remain % 60);
-    document.getElementById('statElapsed').textContent   = `${eH}h ${pad(eM)}m`;
-    document.getElementById('statRemaining').textContent = remain > 0 ? `${rH}h ${pad(rM)}m` : 'SCADUTA';
-    document.getElementById('statTaskDone').textContent  = `${pct}%`;
-
-    const resetAt = new Date(sessionStart.getTime() + total * 60000);
-    document.getElementById('statReset').textContent = `${pad(resetAt.getHours())}:${pad(resetAt.getMinutes())}`;
-
-    // recommendation
+function showRec(pct, expired) {
     const rec    = document.getElementById('rec');
     const rTitle = document.getElementById('recTitle');
     const rText  = document.getElementById('recText');
     rec.style.display = 'block';
-
-    if (remain <= 0) {
-        rec.className  = 'rec red';
+    if (expired || pct >= 100) {
+        rec.className = 'rec red';
         rTitle.textContent = 'Sessione scaduta';
         rText.textContent  = 'Apri una nuova conversazione. Salva il contesto importante prima.';
     } else if (pct < 40) {
-        rec.className  = 'rec green';
+        rec.className = 'rec green';
         rTitle.textContent = 'Stai bene';
-        rText.textContent  = `${100 - pct}% del tempo rimanente. Ottimo per task pesanti.`;
+        rText.textContent  = `${100 - pct}% rimanente. Ottimo per task pesanti.`;
     } else if (pct < 60) {
-        rec.className  = 'rec green';
+        rec.className = 'rec green';
         rTitle.textContent = 'Meta sessione';
         rText.textContent  = `Dovresti aver completato circa il ${pct}% dei task pianificati.`;
     } else if (pct < 80) {
-        rec.className  = 'rec orange';
+        rec.className = 'rec orange';
         rTitle.textContent = 'Fase finale';
         rText.textContent  = 'Chiudi i task aperti. Nessun task nuovo grande. Esegui /compact.';
     } else if (pct < 95) {
-        rec.className  = 'rec red';
+        rec.className = 'rec red';
         rTitle.textContent = 'Ultimi minuti';
         rText.textContent  = 'Solo task leggeri. Salva output. Reset imminente.';
     } else {
-        rec.className  = 'rec red';
+        rec.className = 'rec red';
         rTitle.textContent = 'Praticamente scaduta';
         rText.textContent  = 'Apri una nuova sessione appena possibile.';
     }
 }
 
-function getElapsedPct() {
-    if (!sessionStart) return null;
-    const elapsed = (new Date() - sessionStart) / 60000;
-    return Math.min(100, Math.round(elapsed / (SESSION_H * 60) * 100));
+function updateSession() {
+    const pct    = getDisplayPct();
+    const remMin = parseRemInput();
+    const total  = SESSION_H * 60;
+
+    buildGuide(pct, remMin);
+
+    // ---- ring + consumato (solo se pct disponibile) ----
+    if (pct !== null) {
+        const circ = 295;
+        const fill = document.getElementById('ringFill');
+        fill.style.strokeDashoffset = circ * (1 - pct / 100);
+        fill.style.stroke = pctColor(pct);
+        document.getElementById('ringPct').textContent  = pct + '%';
+        document.getElementById('csPct').textContent    = pct + '%';
+        document.getElementById('statTaskDone').textContent = pct + '%';
+        setCtrlStatColor('csPctBox', pct);
+    }
+
+    // ---- tempo rimasto + reset (solo se remMin disponibile) ----
+    if (remMin !== null) {
+        const rH = Math.floor(remMin / 60), rM = remMin % 60;
+        const remStr  = remMin > 0 ? `${rH}h ${pad(rM)}m` : 'SCADUTA';
+        // keep input field in sync with live countdown (don't override if user is actively editing)
+        const inp = document.getElementById('remInput');
+        if (document.activeElement !== inp) {
+            inp.value = `${pad(rH)}:${pad(rM)}`;
+        }
+        const elapsed = Math.max(0, total - remMin);
+        const eH = Math.floor(elapsed / 60), eM = Math.round(elapsed % 60);
+
+        const resetAt  = new Date(Date.now() + remMin * 60000);
+        const resetStr = `${pad(resetAt.getHours())}:${pad(resetAt.getMinutes())}`;
+
+        document.getElementById('csRem').textContent          = remStr;
+        document.getElementById('csReset').textContent        = resetStr;
+        document.getElementById('statElapsed').textContent    = `${eH}h ${pad(eM)}m`;
+        document.getElementById('statRemaining').textContent  = remStr;
+        document.getElementById('statReset').textContent      = resetStr;
+
+        const remBox = document.getElementById('csRemBox');
+        remBox.classList.remove('hi-green','hi-orange','hi-red','hi-purple');
+        if (remMin <= 0) remBox.classList.add('hi-red');
+        else if (remMin < 60) remBox.classList.add('hi-orange');
+        else remBox.classList.add('hi-green');
+
+        // pace: ideale vs reale (richiede entrambi)
+        const paceBox = document.getElementById('csPaceBox');
+        paceBox.classList.remove('hi-green','hi-orange','hi-red');
+        if (pct !== null) {
+            const idealPct = Math.min(100, Math.round(elapsed / total * 100));
+            const delta    = pct - idealPct;
+            let paceStr, paceClass;
+            if (remMin <= 0) {
+                paceStr = '—'; paceClass = null;
+            } else if (Math.abs(delta) <= 5) {
+                paceStr = 'in ritmo'; paceClass = 'hi-green';
+            } else if (delta > 0) {
+                paceStr = '+' + delta + '%'; paceClass = delta > 20 ? 'hi-red' : 'hi-orange';
+            } else {
+                paceStr = delta + '%'; paceClass = 'hi-green';
+            }
+            document.getElementById('csPaceVal').textContent = paceStr;
+            document.getElementById('csPaceLbl').textContent = 'ideale ' + idealPct + '%';
+            if (paceClass) paceBox.classList.add(paceClass);
+        } else {
+            // solo remMin, senza pct: mostra solo l'ideale
+            const idealPct = Math.min(100, Math.round(elapsed / total * 100));
+            document.getElementById('csPaceVal').textContent = idealPct + '%';
+            document.getElementById('csPaceLbl').textContent = 'dovresti essere';
+            paceBox.classList.add('hi-orange');
+        }
+    } else if (pct !== null) {
+        // solo pct, senza remMin
+        document.getElementById('csRem').textContent   = '—';
+        document.getElementById('csReset').textContent = '--:--';
+        document.getElementById('csPaceVal').textContent = '--';
+        document.getElementById('csPaceLbl').textContent = 'ideale --';
+    }
+
+    if (pct !== null) showRec(pct, remMin !== null && remMin <= 0);
+    updateConviene();
+    saveState();
+}
+
+// ---- WEEKLY BUDGET ----
+function getWeekDaysData() {
+    const now   = new Date();
+    const t     = romeNow();
+    const rDate = new Date(now.toLocaleString('en-US', { timeZone: TZ }));
+    const dow   = rDate.getDay();
+    const diff  = dow === 0 ? -6 : 1 - dow;
+
+    const labels = ['Lun','Mar','Mer','Gio','Ven','Sab','Dom'];
+    return labels.map((label, i) => {
+        const d = new Date(now);
+        d.setDate(now.getDate() + diff + i);
+        const dateStr = new Intl.DateTimeFormat('en-CA', { timeZone: TZ }).format(d);
+        const short   = new Intl.DateTimeFormat('en-US', { timeZone: TZ, weekday: 'short' }).format(d);
+        const wknd    = short === 'Sat' || short === 'Sun';
+        return {
+            label, short, dateStr,
+            isToday:   dateStr === t.dateStr,
+            isPast:    dateStr < t.dateStr,
+            isWeekend: wknd,
+            weight:    wknd ? 1.5 : 1.0
+        };
+    });
+}
+
+function renderWeeklyDist(gridId, remainId, subId, usedPct) {
+    const remaining = Math.max(0, 100 - (usedPct || 0));
+    const remEl = document.getElementById(remainId);
+    remEl.textContent = remaining.toFixed(0) + '% rimane';
+    remEl.className = 'weekly-dist-remain' +
+        (remaining < 20 ? ' crit' : remaining < 40 ? ' warn' : '');
+
+    const days   = getWeekDaysData();
+    const active = days.filter(d => !d.isPast);
+    const totW   = active.reduce((s, d) => s + d.weight, 0);
+    const maxRec = totW > 0 ? remaining * (1.5 / totW) : 0;
+
+    const t = romeNow();
+    const subEl = document.getElementById(subId);
+    if (active.length > 0 && totW > 0) {
+        const todayDay  = days.find(d => d.isToday);
+        const todayRec  = remaining * ((todayDay?.weight ?? 1) / totW);
+        subEl.textContent = `oggi: ${todayRec.toFixed(1)}% · ${active.length} giorni rimasti`;
+    } else {
+        subEl.textContent = '';
+    }
+
+    let html = '';
+    days.forEach(d => {
+        let recPct = 0;
+        if (!d.isPast && totW > 0) recPct = remaining * (d.weight / totW);
+        const barW  = maxRec > 0 ? Math.min(100, recPct / maxRec * 100) : 0;
+        const color = d.isWeekend ? 'var(--blue)'
+                    : d.isToday   ? 'var(--purple)'
+                    :                'var(--green)';
+        const todayPeak = d.isToday && !d.isWeekend && isPeak(t.hour, t.dayShort);
+        const note = d.isPast ? '' :
+                     d.isWeekend ? 'weekend' :
+                     d.isToday && todayPeak ? '<span style="color:var(--red-bright)">peak ora</span>' :
+                     d.isToday ? 'oggi' : '';
+        html += `
+        <div class="wday-card${d.isPast ? ' wday-past' : ''}${d.isToday ? ' wday-today' : ''}">
+            <div class="wday-label">${d.label}</div>
+            <div class="wday-bar"><div class="wday-fill" style="width:${d.isPast ? 0 : barW}%;background:${color}"></div></div>
+            <div class="wday-pct">${d.isPast ? '—' : recPct.toFixed(1) + '%'}</div>
+            <div class="wday-note">${note}</div>
+        </div>`;
+    });
+    document.getElementById(gridId).innerHTML = html;
+}
+
+function updateWeekly() {
+    const allPct = parseFloat(document.getElementById('wAllInput').value) || 0;
+    const sonPct = parseFloat(document.getElementById('wSonInput').value) || 0;
+    renderWeeklyDist('wAllGrid', 'wAllRemain', 'wAllSub', allPct);
+    renderWeeklyDist('wSonGrid', 'wSonRemain', 'wSonSub', sonPct);
+
+    // ctrl panel top readouts
+    const allRem = Math.max(0, 100 - allPct);
+    const sonRem = Math.max(0, 100 - sonPct);
+    const days   = getWeekDaysData();
+    const active = days.filter(d => !d.isPast);
+    const totW   = active.reduce((s, d) => s + d.weight, 0);
+    const todayDay = days.find(d => d.isToday);
+    const todayRec = (totW > 0 && todayDay) ? allRem * (todayDay.weight / totW) : 0;
+
+    const cwAll = document.getElementById('cwAll');
+    const cwSon = document.getElementById('cwSon');
+    cwAll.textContent = allPct ? allRem.toFixed(0) + '%' : '—';
+    cwSon.textContent = sonPct ? sonRem.toFixed(0) + '%' : '—';
+    document.getElementById('cwToday').textContent = allPct ? todayRec.toFixed(1) + '%' : '—';
+
+    // color
+    const allBox = document.getElementById('cwAllBox');
+    const sonBox = document.getElementById('cwSonBox');
+    [allBox, sonBox].forEach(b => b.classList.remove('hi-green','hi-orange','hi-red','hi-purple'));
+    if (allPct) {
+        if (allRem < 20) allBox.classList.add('hi-red');
+        else if (allRem < 40) allBox.classList.add('hi-orange');
+        else allBox.classList.add('hi-green');
+    }
+    if (sonPct) {
+        if (sonRem < 20) sonBox.classList.add('hi-red');
+        else if (sonRem < 40) sonBox.classList.add('hi-orange');
+        else sonBox.classList.add('hi-green');
+    }
+    updateWeekPace(allPct);
+    updatePlanReport();
+    saveState();
+}
+
+// ---- WEEKLY PACE ----
+function computeWeeklyPace() {
+    const days   = getWeekDaysData();
+    const t      = romeNow();
+    const totalW = days.reduce((s, d) => s + d.weight, 0);
+
+    let elapsedW = 0, remainW = 0;
+    for (const d of days) {
+        if (d.isPast) {
+            elapsedW += d.weight;
+        } else if (d.isToday) {
+            const fracDay = (t.hour * 60 + t.minute) / (24 * 60);
+            elapsedW += d.weight * fracDay;
+            remainW  += d.weight * (1 - fracDay);
+        } else {
+            remainW += d.weight;
+        }
+    }
+    return {
+        idealPct:      Math.min(100, (elapsedW / totalW) * 100),
+        elapsedW, remainW, totalW, days
+    };
+}
+
+function updateWeekPace(usedPct) {
+    const banner = document.getElementById('weekPaceBanner');
+    if (!usedPct) { banner.style.display = 'none'; return; }
+
+    const { idealPct, remainW, totalW, days } = computeWeeklyPace();
+    const delta = usedPct - idealPct;
+    const absDelta = Math.abs(delta);
+
+    // ceiling: even using 100% of remaining time, this is the max reachable
+    const maxAchievable = Math.min(100, usedPct + (remainW / totalW) * 100);
+    const ceilingStr = maxAchievable < 98
+        ? ` Massimo raggiungibile: ~${maxAchievable.toFixed(0)}%.`
+        : '';
+
+    // find best upcoming off-peak slots for recommendation
+    const remaining = days.filter(d => !d.isPast);
+    const offpeak   = remaining.filter(d => !d.isWeekend).map(d => d.label);
+    const weekends  = remaining.filter(d => d.isWeekend).map(d => d.label);
+    const bestSlots = [...weekends, ...offpeak].slice(0, 2).join(', ') || 'oggi';
+
+    let title, desc, color, bgColor, deltaStr;
+
+    if (absDelta <= 8) {
+        title    = 'In pari — continua cosi';
+        desc     = `Hai usato ${usedPct.toFixed(0)}%, ideale e' ${idealPct.toFixed(0)}%.${ceilingStr}`;
+        color    = 'var(--green)';
+        bgColor  = 'rgba(46,160,67,.07)';
+        deltaStr = delta >= 0 ? '+' + delta.toFixed(0) + '%' : delta.toFixed(0) + '%';
+    } else if (delta < -8 && delta >= -25) {
+        title    = 'Indietro — spingi nei prossimi slot';
+        desc     = `Hai usato ${usedPct.toFixed(0)}%, dovresti essere a ${idealPct.toFixed(0)}%. Approfitta di: ${bestSlots} fuori peak.${ceilingStr}`;
+        color    = 'var(--orange)';
+        bgColor  = 'rgba(210,153,34,.07)';
+        deltaStr = delta.toFixed(0) + '%';
+    } else if (delta < -25) {
+        const ceilingWarn = maxAchievable < 98
+            ? ` Anche usando tutto il tempo rimasto arrivi al massimo a ~${maxAchievable.toFixed(0)}% — alcune sessioni sono gia' perse.`
+            : ' Non recuperabile senza sessioni intensive.';
+        title    = 'Molto indietro — stai sprecando sessioni';
+        desc     = `Hai usato ${usedPct.toFixed(0)}%, dovresti essere a ${idealPct.toFixed(0)}%.${ceilingWarn} Inizia subito fuori peak.`;
+        color    = 'var(--red)';
+        bgColor  = 'rgba(218,54,51,.07)';
+        deltaStr = delta.toFixed(0) + '%';
+    } else {
+        title    = 'Avanti — puoi rallentare';
+        desc     = `Hai usato ${usedPct.toFixed(0)}%, ideale e' ${idealPct.toFixed(0)}%. Budget a rischio se continui cosi. Risparmia per fine settimana.`;
+        color    = 'var(--blue)';
+        bgColor  = 'rgba(31,111,235,.07)';
+        deltaStr = '+' + delta.toFixed(0) + '%';
+    }
+
+    banner.style.display      = 'flex';
+    banner.style.borderColor  = color;
+    banner.style.background   = bgColor;
+    document.getElementById('weekPaceTitle').textContent = title;
+    document.getElementById('weekPaceDesc').textContent  = desc;
+    document.getElementById('weekPaceDelta').textContent = deltaStr;
+    document.getElementById('weekPaceDelta').style.color = color;
+}
+
+// ---- PIANO MENSILE ----
+function updatePlanReport() {
+    const dayInput = parseInt(document.getElementById('planDayInput').value) || 0;
+    const planType = document.getElementById('planTypeInput').value;
+
+    dayInput ? localStorage.setItem('cpPlanDay',  String(dayInput)) : localStorage.removeItem('cpPlanDay');
+    planType ? localStorage.setItem('cpPlanType', planType)         : localStorage.removeItem('cpPlanType');
+
+    if (!dayInput) return;
+
+    const t = romeNow();
+    const todayDate = new Date(t.dateStr + 'T00:00:00');
+    const todayDay  = todayDate.getDate();
+
+    let cycleStart;
+    if (todayDay >= dayInput) {
+        cycleStart = new Date(todayDate.getFullYear(), todayDate.getMonth(), dayInput);
+    } else {
+        cycleStart = new Date(todayDate.getFullYear(), todayDate.getMonth() - 1, dayInput);
+    }
+    const cycleEnd = new Date(cycleStart.getFullYear(), cycleStart.getMonth() + 1, dayInput - 1);
+
+    const totalDays   = Math.round((cycleEnd - cycleStart) / 86400000) + 1;
+    const elapsedDays = Math.round((todayDate - cycleStart) / 86400000) + 1;
+    const remDays     = Math.max(0, totalDays - elapsedDays);
+    const pct         = Math.round(elapsedDays / totalDays * 100);
+
+    document.getElementById('planDayOf').textContent   = `${elapsedDays} / ${totalDays}`;
+    document.getElementById('planRemDays').textContent = remDays;
+    document.getElementById('planPct').textContent     = pct + '%';
+
+    const barEl = document.getElementById('planBar');
+    barEl.style.width = pct + '%';
+    barEl.style.background = pct < 40 ? 'var(--green)' : pct < 70 ? 'var(--orange)' : 'var(--red)';
+
+    const pctBox = document.getElementById('planPctBox');
+    pctBox.classList.remove('hi-green','hi-orange','hi-red');
+    if      (pct < 40) pctBox.classList.add('hi-green');
+    else if (pct < 70) pctBox.classList.add('hi-orange');
+    else               pctBox.classList.add('hi-red');
+
+    const planInfo = document.getElementById('planInfo');
+    const plans = {
+        pro:   { name: 'Pro',      price: '$20/mo',  color: 'var(--orange)',       note: 'Limiti base. CLI config obbligatoria per reggere. Solo disciplina d\'uso.' },
+        max5:  { name: 'Max 5x',   price: '$100/mo', color: 'var(--green-bright)', note: 'settings.json + read-once hook + CLAUDE.md snello = 3-5x piu\' utilizzo effettivo.' },
+        max20: { name: 'Max 20x',  price: '$200/mo', color: 'var(--purple)',       note: '20x limiti Pro. Peak multiplier attivo comunque — evita 14:00-20:00.' }
+    };
+
+    const renewStr = (() => {
+        const m = new Intl.DateTimeFormat('it-IT', { timeZone: TZ, month: 'long' }).format(cycleStart);
+        const mEnd = new Intl.DateTimeFormat('it-IT', { timeZone: TZ, month: 'long' }).format(cycleEnd);
+        return `${dayInput} ${m} — ${dayInput - 1 || 'fine'} ${mEnd}`;
+    })();
+
+    if (planType && plans[planType]) {
+        const p = plans[planType];
+        planInfo.style.display = 'block';
+        planInfo.innerHTML = `
+            <span style="font-weight:700;color:${p.color}">${p.name}</span>
+            <span style="color:var(--muted)">&nbsp;${p.price}&nbsp;·&nbsp;Ciclo: ${renewStr}&nbsp;·&nbsp;</span>
+            <span>${p.note}</span>`;
+    } else {
+        planInfo.style.display = dayInput ? 'block' : 'none';
+        planInfo.innerHTML = dayInput
+            ? `<span style="color:var(--muted)">Ciclo: ${renewStr}</span>`
+            : '';
+    }
+
+    // tip contestuale
+    const weeklyAllPct = parseFloat(document.getElementById('wAllInput').value) || 0;
+    renderPlanTip(pct, remDays, planType, weeklyAllPct);
+}
+
+function renderPlanTip(cyclePct, remDays, planType, weeklyAllPct) {
+    const tipEl = document.getElementById('planTip');
+    if (!cyclePct) { tipEl.style.display = 'none'; return; }
+
+    const t          = romeNow();
+    const weekend    = isWknd(t.dayShort);
+    const peakNow    = isPeak(t.hour, t.dayShort);
+    const hasWeekly  = weeklyAllPct > 0;
+    const planName   = planType === 'max20' ? 'Max 20x' : planType === 'max5' ? 'Max 5x' : 'Pro';
+
+    let tip = '', color = 'var(--border)';
+
+    // ultimi giorni del ciclo
+    if (remDays <= 3) {
+        if (hasWeekly && weeklyAllPct < 40) {
+            tip   = `Ultimi ${remDays} giorni con solo il ${weeklyAllPct}% usato questa settimana. Il budget scade — sessioni intensive adesso, anche su task leggeri.`;
+            color = 'var(--red)';
+        } else {
+            tip   = `Ultimi ${remDays} giorni del ciclo. Non lasciare sessioni non usate: il budget non si accumula al mese dopo.`;
+            color = 'var(--orange)';
+        }
+    // fine ciclo vicina
+    } else if (cyclePct >= 70) {
+        if (hasWeekly && weeklyAllPct < 30) {
+            tip   = `Ciclo al ${cyclePct}% con il ${weeklyAllPct}% usato questa settimana: ritmo troppo basso. Spingi fuori peak nei giorni rimasti o perdi budget pagato.`;
+            color = 'var(--red)';
+        } else if (planType === 'pro' && hasWeekly && weeklyAllPct > 65) {
+            tip   = `Fine ciclo Pro + utilizzo settimanale elevato (${weeklyAllPct}%). Attenzione ai limiti: rallenta o rischi di rimanere senza token prima del rinnovo.`;
+            color = 'var(--orange)';
+        } else {
+            tip   = `Fine ciclo vicina (${remDays} giorni). Usa le sessioni rimaste — il budget non si porta avanti.`;
+            color = 'var(--orange)';
+        }
+    // meta ciclo
+    } else if (cyclePct >= 35) {
+        if (weekend) {
+            tip   = `Meta' ciclo in weekend: nessun peak multiplier. Momento ideale per task pesanti su ${planName}.`;
+            color = 'var(--blue)';
+        } else if (!peakNow) {
+            tip   = `Meta' ciclo fuori peak. Ottimo per task intensivi${planType === 'pro' ? ' — usa Sonnet, non Opus' : ''}.`;
+            color = 'var(--green)';
+        } else if (hasWeekly && weeklyAllPct > 60 && planType === 'pro') {
+            tip   = `Meta' ciclo Pro con ${weeklyAllPct}% usato questa settimana. Monitora i limiti: sei in peak, rallenta.`;
+            color = 'var(--orange)';
+        } else {
+            tip   = `Peak hours (${PEAK_START}:00-${PEAK_END}:00). Aspetta le ${PEAK_END}:00 per i task pesanti — fuori peak i token costano meno.`;
+            color = 'var(--red)';
+        }
+    // inizio ciclo
+    } else {
+        if (planType === 'pro') {
+            tip   = `Inizio ciclo Pro. Prima azione: controlla che settings.json sia configurato (~/.claude/settings.json) — risparmia il 60-80% subito.`;
+            color = 'var(--purple)';
+        } else {
+            tip   = `Inizio ciclo ${planName}. Distribuisci le sessioni pesanti fuori peak (prima delle ${PEAK_START}:00 o dopo le ${PEAK_END}:00) per massimizzare l'output nel mese.`;
+            color = 'var(--purple)';
+        }
+    }
+
+    tipEl.style.display    = tip ? 'block' : 'none';
+    tipEl.style.borderColor = color;
+    tipEl.innerHTML        = tip;
 }
 
 // ---- COPY CONFIG ----
@@ -908,8 +1580,271 @@ function copyConfig() {
 }
 
 // ---- INIT ----
-buildGuide(null);
+// ---- PERSISTENCE ----
+const SK = { resetTs:'cpResetTs', pct:'cpPct', wAll:'cpWAll', wSon:'cpWSon' };
+
+function saveState() {
+    if (resetTimestamp != null && resetTimestamp > Date.now()) {
+        localStorage.setItem(SK.resetTs, String(resetTimestamp));
+    } else {
+        localStorage.removeItem(SK.resetTs);
+    }
+    const pct  = document.getElementById('pctInput').value;
+    const wAll = document.getElementById('wAllInput').value;
+    const wSon = document.getElementById('wSonInput').value;
+    pct  ? localStorage.setItem(SK.pct,  pct)  : localStorage.removeItem(SK.pct);
+    wAll ? localStorage.setItem(SK.wAll, wAll) : localStorage.removeItem(SK.wAll);
+    wSon ? localStorage.setItem(SK.wSon, wSon) : localStorage.removeItem(SK.wSon);
+}
+
+function loadState() {
+    const resetTs = localStorage.getItem(SK.resetTs);
+    if (resetTs) {
+        const ts     = parseInt(resetTs);
+        const remMin = Math.round((ts - Date.now()) / 60000);
+        if (remMin > 0 && remMin <= SESSION_H * 60) {
+            resetTimestamp = ts;
+            const h = Math.floor(remMin / 60), m = remMin % 60;
+            document.getElementById('remInput').value = `${pad(h)}:${pad(m)}`;
+        } else {
+            localStorage.removeItem(SK.resetTs);
+        }
+    }
+    const pct  = localStorage.getItem(SK.pct);
+    const wAll = localStorage.getItem(SK.wAll);
+    const wSon = localStorage.getItem(SK.wSon);
+    if (pct)  document.getElementById('pctInput').value  = pct;
+    if (wAll) document.getElementById('wAllInput').value = wAll;
+    if (wSon) document.getElementById('wSonInput').value = wSon;
+    const planDay  = localStorage.getItem('cpPlanDay');
+    const planType = localStorage.getItem('cpPlanType');
+    if (planDay)  document.getElementById('planDayInput').value  = planDay;
+    if (planType) document.getElementById('planTypeInput').value = planType;
+}
+
+// ---- CCUSAGE ----
+
+let ccRecords = [];  // { ts, input, output, cacheCreate, cacheRead, cost, model }
+
+async function readDirRecursive(handle, results = [], depth = 0) {
+    if (depth > 4) return results;
+    for await (const [name, entry] of handle.entries()) {
+        if (entry.kind === 'directory') {
+            await readDirRecursive(entry, results, depth + 1);
+        } else if (name.endsWith('.jsonl')) {
+            results.push(entry);
+        }
+    }
+    return results;
+}
+
+async function loadCCUsage() {
+    if (!window.showDirectoryPicker) {
+        alert('File System Access API non supportata da questo browser. Usa Chrome o Edge.');
+        return;
+    }
+    const btn = document.getElementById('ccBtn');
+    btn.textContent = 'Caricamento...';
+    btn.disabled = true;
+    try {
+        const dirHandle = await window.showDirectoryPicker({ mode: 'read' });
+        const files = await readDirRecursive(dirHandle);
+
+        const records = [];
+        for (const fileHandle of files) {
+            try {
+                const file = await fileHandle.getFile();
+                const text = await file.text();
+                for (const line of text.split('\n')) {
+                    if (!line.trim()) continue;
+                    try {
+                        const obj = JSON.parse(line);
+                        // Claude Code JSONL: assistant messages have message.usage
+                        const usage = obj.message?.usage;
+                        const ts    = obj.timestamp ? new Date(obj.timestamp).getTime() : null;
+                        if (ts && usage && (usage.input_tokens || usage.output_tokens)) {
+                            records.push({
+                                ts,
+                                input:       usage.input_tokens                  || 0,
+                                output:      usage.output_tokens                 || 0,
+                                cacheCreate: usage.cache_creation_input_tokens   || 0,
+                                cacheRead:   usage.cache_read_input_tokens        || 0,
+                                cost:        obj.costUSD                          || 0,
+                                model:       (obj.message?.model || '').toLowerCase()
+                            });
+                        }
+                    } catch(_) {}
+                }
+            } catch(_) {}
+        }
+
+        ccRecords = records.sort((a, b) => a.ts - b.ts);
+
+        // auto-suggest budget from max 5h block seen
+        const maxBlock = computeMaxBlock(ccRecords);
+        if (maxBlock > 0) {
+            const hint = document.getElementById('ccBudgetHint');
+            hint.textContent = `max storico: ${fmtK(maxBlock)} tok`;
+            if (!document.getElementById('ccBudgetInput').value) {
+                document.getElementById('ccBudgetInput').value = Math.round(maxBlock * 1.1);
+                saveCCBudget();
+            }
+        }
+
+        document.getElementById('ccLoadedAt').textContent =
+            `${files.length} file · aggiornato ${pad(new Date().getHours())}:${pad(new Date().getMinutes())}`;
+        document.getElementById('ccEmpty').style.display  = 'none';
+        document.getElementById('ccPanel').style.display  = 'block';
+        renderCCStats();
+
+    } catch(e) {
+        if (e.name !== 'AbortError') console.error('ccusage load error:', e);
+    } finally {
+        btn.textContent = 'Aggiorna';
+        btn.disabled = false;
+    }
+}
+
+function computeMaxBlock(records) {
+    if (!records.length) return 0;
+    const BLOCK_MS = SESSION_H * 3600000;
+    let max = 0;
+    // sliding window: for each record, sum tokens in the 5h block ending at that record
+    for (let i = 0; i < records.length; i++) {
+        const end   = records[i].ts;
+        const start = end - BLOCK_MS;
+        let sum = 0;
+        for (let j = i; j >= 0 && records[j].ts >= start; j--) {
+            sum += records[j].input + records[j].output + records[j].cacheCreate;
+        }
+        if (sum > max) max = sum;
+    }
+    return max;
+}
+
+function fmtK(n) {
+    if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
+    if (n >= 1000)    return Math.round(n / 1000) + 'K';
+    return String(n);
+}
+
+function renderCCStats() {
+    if (!ccRecords.length) return;
+
+    const now      = Date.now();
+    const BLOCK_MS = SESSION_H * 3600000;
+    const DAY_MS   = 86400000;
+    const t        = romeNow();
+
+    // current 5h block
+    const blockRecs = ccRecords.filter(r => r.ts >= now - BLOCK_MS);
+
+    // today
+    const todayRecs = ccRecords.filter(r =>
+        new Intl.DateTimeFormat('en-CA', { timeZone: TZ }).format(new Date(r.ts)) === t.dateStr
+    );
+
+    // this week (Mon-Sun)
+    const rDate = new Date(now.toLocaleString('en-US', { timeZone: TZ }));
+    const dow   = rDate.getDay();
+    const diff  = (dow === 0 ? -6 : 1 - dow);
+    const weekStart = new Date(rDate); weekStart.setDate(rDate.getDate() + diff); weekStart.setHours(0,0,0,0);
+    const weekRecs  = ccRecords.filter(r => r.ts >= weekStart.getTime());
+
+    const sum = recs => ({
+        tok:  recs.reduce((s,r) => s + r.input + r.output + r.cacheCreate, 0),
+        cost: recs.reduce((s,r) => s + r.cost, 0)
+    });
+
+    const block = sum(blockRecs);
+    const today = sum(todayRecs);
+    const week  = sum(weekRecs);
+
+    // budget %
+    const budget = parseInt(document.getElementById('ccBudgetInput').value) || 0;
+    const pctBlock = budget > 0 ? Math.min(100, Math.round(block.tok / budget * 100)) : null;
+
+    // auto-fill session % in planner if we have a % estimate
+    if (pctBlock !== null) {
+        const pctEl = document.getElementById('pctInput');
+        if (!pctEl.value) {
+            pctEl.value = pctBlock;
+            updateSession();
+        }
+        const hint = document.getElementById('ccBudgetHint');
+        const maxB = computeMaxBlock(ccRecords);
+        hint.textContent = maxB > 0 ? `max storico: ${fmtK(maxB)} tok` : '';
+    }
+
+    const statColor = pct => pct == null ? '' :
+        pct < 40 ? 'color:var(--green-bright)' :
+        pct < 70 ? 'color:var(--orange)' : 'color:var(--red-bright)';
+
+    document.getElementById('ccStats').innerHTML = `
+        <div class="ctrl-stat ${pctBlock != null ? (pctBlock < 40 ? 'hi-green' : pctBlock < 70 ? 'hi-orange' : 'hi-red') : ''}">
+            <div class="ctrl-stat-val">${pctBlock != null ? pctBlock + '%' : fmtK(block.tok)}</div>
+            <div class="ctrl-stat-lbl">sessione 5h${pctBlock != null ? ' (' + fmtK(block.tok) + ')' : ' tok'}</div>
+        </div>
+        <div class="ctrl-stat">
+            <div class="ctrl-stat-val">${fmtK(today.tok)}</div>
+            <div class="ctrl-stat-lbl">oggi tok</div>
+        </div>
+        <div class="ctrl-stat">
+            <div class="ctrl-stat-val">${fmtK(week.tok)}</div>
+            <div class="ctrl-stat-lbl">settimana tok</div>
+        </div>
+        <div class="ctrl-stat">
+            <div class="ctrl-stat-val" style="color:var(--green-bright)">$${(week.cost).toFixed(3)}</div>
+            <div class="ctrl-stat-lbl">costo settimana</div>
+        </div>
+        <div class="ctrl-stat">
+            <div class="ctrl-stat-val" style="color:var(--muted)">${blockRecs.length}</div>
+            <div class="ctrl-stat-lbl">msg sessione</div>
+        </div>
+    `;
+
+    // model breakdown for this block
+    const models = {};
+    blockRecs.forEach(r => {
+        const m = r.model.includes('opus') ? 'Opus' :
+                  r.model.includes('haiku') ? 'Haiku' :
+                  r.model.includes('sonnet') ? 'Sonnet' : r.model || '?';
+        if (!models[m]) models[m] = 0;
+        models[m] += r.input + r.output + r.cacheCreate;
+    });
+    const modelStr = Object.entries(models)
+        .sort((a,b) => b[1]-a[1])
+        .map(([m, tok]) => `${m}: ${fmtK(tok)}`)
+        .join(' · ');
+    document.getElementById('ccModels').textContent = modelStr ? 'Sessione per modello: ' + modelStr : '';
+}
+
+function saveCCBudget() {
+    const v = document.getElementById('ccBudgetInput').value;
+    v ? localStorage.setItem('cpCCBudget', v) : localStorage.removeItem('cpCCBudget');
+}
+
+// ---- THEME ----
+function applyTheme(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+    document.getElementById('themeBtn').textContent = theme === 'light' ? '☾' : '☀';
+    localStorage.setItem('cpTheme', theme);
+}
+function toggleTheme() {
+    const current = document.documentElement.getAttribute('data-theme') || 'dark';
+    applyTheme(current === 'dark' ? 'light' : 'dark');
+}
+
+// ---- INIT ----
+applyTheme(localStorage.getItem('cpTheme') || 'dark');
+loadState();
+buildGuide(null, null);
 buildCalendar();
+updateWeekly();
+updatePlanReport();
+// restore cc budget
+const savedBudget = localStorage.getItem('cpCCBudget');
+if (savedBudget) document.getElementById('ccBudgetInput').value = savedBudget;
 tick();
 setInterval(tick, 1000);
 setInterval(buildCalendar, 60000);
