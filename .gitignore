@@ -5,3 +5,4 @@ soc-siem-lab/it/cs42-wazuh-setup.md
 logs/
 dashboard/
 config.env
+.claude/

