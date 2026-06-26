@@ -2,8 +2,10 @@
     'use strict';
 
     // ── config ──────────────────────────────────────────────
-    const NODE       = Proxmox.NodeName || 'pve';
-    const REFRESH_MS = 5000;
+    const NODE           = Proxmox.NodeName || 'pve';
+    const REFRESH_MS     = 5000;
+    const LOG_SERVER_URL = 'http://192.168.1.10:3001';
+    const LOG_VMID       = 134;
 
     // layout constants (px)
     const HOST_R  = 48;   // host node radius
@@ -14,9 +16,11 @@
     const LEG_GAP = 80;   // vertical distance from bus line to vm top
 
     // ── state ───────────────────────────────────────────────
-    let dashActive   = false;
-    let refreshTimer = null;
-    let selectedVM   = null;
+    let dashActive     = false;
+    let refreshTimer   = null;
+    let selectedVM     = null;
+    let logPanelActive = false;
+    let logPollTimer   = null;
 
     // ── API ─────────────────────────────────────────────────
     async function fetchVMs() {
@@ -286,6 +290,7 @@
         document.getElementById('popup-btn-start').style.opacity  = vm.status === 'running' ? '0.3' : '1';
         document.getElementById('popup-btn-stop').style.opacity   = vm.status === 'stopped'  ? '0.3' : '1';
         document.getElementById('popup-btn-reboot').style.opacity = vm.status !== 'running'  ? '0.3' : '1';
+        document.getElementById('popup-btn-logs').style.display   = vmid === LOG_VMID ? '' : 'none';
 
         popup.classList.add('active');
         overlay.classList.add('active');
@@ -310,6 +315,42 @@
         if (cmd === 'reboot' && selectedVM.status !== 'running') return;
         sendCommand(selectedVM.vmid, selectedVM.type, cmd);
         customDashClosePopup();
+    };
+
+    // ── log panel ────────────────────────────────────────────
+    function escHtml(s) {
+        return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    async function pollLogs() {
+        const el = document.getElementById('logs-content');
+        if (!el) return;
+        try {
+            const res       = await fetch(LOG_SERVER_URL + '/logs');
+            const { lines } = await res.json();
+            const atBottom  = el.scrollHeight - el.scrollTop - el.clientHeight < 30;
+            el.innerHTML = lines.map(line => {
+                const isCmd = /\] \/\w/.test(line);
+                return `<div class="log-line${isCmd ? ' log-cmd' : ''}">${escHtml(line)}</div>`;
+            }).join('');
+            if (atBottom) el.scrollTop = el.scrollHeight;
+        } catch {
+            el.innerHTML = '<div class="log-error">LOG SERVER UNREACHABLE</div>';
+        }
+    }
+
+    window.openLogPanel = function () {
+        logPanelActive = true;
+        document.getElementById('dash-logs').classList.add('active');
+        pollLogs();
+        logPollTimer = setInterval(pollLogs, 2000);
+        customDashClosePopup();
+    };
+
+    window.closeLogPanel = function () {
+        logPanelActive = false;
+        document.getElementById('dash-logs').classList.remove('active');
+        clearInterval(logPollTimer);
     };
 
     // ── DOM builders ─────────────────────────────────────────
@@ -352,6 +393,7 @@
                 <button id="popup-btn-start"  class="popup-btn start"  onclick="customDashCommand('start')">&#9654; START</button>
                 <button id="popup-btn-stop"   class="popup-btn stop"   onclick="customDashCommand('stop')">&#9632; STOP</button>
                 <button id="popup-btn-reboot" class="popup-btn reboot" onclick="customDashCommand('reboot')">&#8635; REBOOT</button>
+                <button id="popup-btn-logs"   class="popup-btn logs"   onclick="openLogPanel()" style="display:none">&#9776; LOGS</button>
                 <button class="popup-btn close" onclick="customDashClosePopup()">&#10005;</button>
             </div>
         `;
@@ -361,6 +403,17 @@
         overlay.id = 'popup-overlay';
         overlay.onclick = customDashClosePopup;
         document.body.appendChild(overlay);
+
+        const logPanel = document.createElement('div');
+        logPanel.id = 'dash-logs';
+        logPanel.innerHTML = `
+            <div class="logs-header">
+                <span>MR.EDGAR &middot; DISCORD LOGS</span>
+                <button class="logs-close" onclick="closeLogPanel()">&#10005;</button>
+            </div>
+            <div id="logs-content"></div>
+        `;
+        document.body.appendChild(logPanel);
     }
 
     function buildToggleBtn() {
@@ -389,6 +442,7 @@
             label.textContent = 'MAP';
             if (dot) dot.style.background = '#4a8fd9';
             customDashClosePopup();
+            closeLogPanel();
             clearInterval(refreshTimer);
         }
     }

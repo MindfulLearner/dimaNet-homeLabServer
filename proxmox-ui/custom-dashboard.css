@@ -392,3 +392,93 @@
 #topology-canvas::-webkit-scrollbar { height: 4px; width: 4px; }
 #topology-canvas::-webkit-scrollbar-track { background: transparent; }
 #topology-canvas::-webkit-scrollbar-thumb { background: #1a2d6b; border-radius: 2px; }
+
+/* ── log panel ─────────────────────────────────────────── */
+#dash-logs {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 380px;
+    height: 100vh;
+    background: #04070f;
+    border-left: 1px solid #1a2d6b;
+    z-index: 99999;
+    font-family: monospace;
+    display: flex;
+    flex-direction: column;
+    transform: translateX(100%);
+    opacity: 0;
+    pointer-events: none;
+    transition: transform 0.25s ease, opacity 0.25s ease;
+}
+
+#dash-logs.active {
+    transform: translateX(0);
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.logs-header {
+    padding: 14px 16px;
+    border-bottom: 1px solid #1a2d6b;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: #4a8fd9;
+    background: #080d1e;
+    flex-shrink: 0;
+    text-transform: uppercase;
+}
+
+.logs-close {
+    background: transparent;
+    border: 1px solid #2a3050;
+    color: #4a5878;
+    cursor: pointer;
+    font-family: monospace;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 2px;
+    transition: opacity 0.2s;
+}
+
+.logs-close:hover { opacity: 0.6; }
+
+#logs-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 4px 0;
+}
+
+.log-line {
+    padding: 3px 14px;
+    font-size: 10px;
+    color: #2a4a6a;
+    line-height: 1.6;
+    border-bottom: 1px solid #07090f;
+    white-space: pre-wrap;
+    word-break: break-all;
+}
+
+.log-line.log-cmd {
+    color: #7ba4e8;
+    background: #0a1428;
+    border-bottom-color: #0e1830;
+}
+
+.log-error {
+    padding: 20px;
+    text-align: center;
+    color: #7a2828;
+    font-size: 10px;
+    letter-spacing: 2px;
+    animation: blink 1.2s infinite;
+}
+
+#logs-content::-webkit-scrollbar { width: 3px; }
+#logs-content::-webkit-scrollbar-track { background: transparent; }
+#logs-content::-webkit-scrollbar-thumb { background: #1a2d6b; border-radius: 2px; }
+
+#custom-vm-popup .popup-btn.logs { border-color: #1a4a7a; color: #4a8fd9; }
