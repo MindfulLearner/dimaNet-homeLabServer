@@ -39,7 +39,7 @@ Bot: online
 
 ### /healthcheck
 
-Mostra lo stato di sistema: uptime, CPU, RAM, disco.
+Mostra lo stato di sistema: uptime, load average, RAM, disco.
 
 ```
 Tu:  /healthcheck
@@ -47,8 +47,8 @@ Bot: eseguo healthcheck...
      === SYSTEM ===
      up 21:01, load average: 0.02, 0.01, 0.00
 
-     === CPU ===
-     %Cpu(s):  0.0 us, ...
+     === CPU (load) ===
+     0.02 0.01 0.00 1/312 4201
 
      === RAM ===
      Mem: 15Gi total, 1.6Gi used
@@ -56,6 +56,8 @@ Bot: eseguo healthcheck...
      === DISK ===
      /dev/mapper/pve-root  94G  62G  28G  70%  /
 ```
+
+Nota: usa `cat /proc/loadavg` invece di `top` per evitare hang in ambienti headless. `df` ha un timeout interno di 5 secondi per evitare blocchi su filesystem Proxmox (pmxcfs).
 
 ### /containers
 
@@ -100,6 +102,32 @@ Riaccensione prevista: 27/06/2026 alle 01:33 CEST
 ```
 
 Dopo il messaggio il server si spegne immediatamente. Il chip RTC gestisce la riaccensione in modo autonomo, senza dipendere da rete o software.
+
+### /sshrestart
+
+Riavvia il servizio SSH. Utile se sshd crasha o viene fermato da uno shutdown parziale.
+
+```
+Tu:  /sshrestart
+Bot: riavvio sshd...
+     ssh.service - OpenBSD Secure Shell server
+       Active: active (running) since ...
+```
+
+### /off
+
+Spegne il server immediatamente senza riaccensione automatica. Diverso da `/rtc` che imposta un timer RTC.
+
+```
+Tu:  /off
+Bot: burgerking SPENTO
+     Spegnimento: 27/06/2026 alle 03:15 CEST
+     (nessuna riaccensione automatica)
+```
+
+Usare `/off` quando si vuole uno spegnimento pulito senza preoccuparsi del timer. Per riaccendere serve accesso fisico o Wake-on-LAN.
+
+---
 
 ## Aggiungere un comando
 

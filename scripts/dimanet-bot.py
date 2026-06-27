@@ -7,6 +7,7 @@ ALLOWED_USER_IDS sovrascrivibile via env var omonima.
 
 import os
 import re
+import signal
 import subprocess
 from telegram import Update
 from telegram.ext import Application, CommandHandler, ContextTypes
@@ -37,14 +38,17 @@ ANSI = re.compile(r"\x1b\[[0-9;]*m")
 
 def _run(cmd: str, timeout: int = 30) -> str:
     try:
-        out = subprocess.check_output(
-            cmd, shell=True, stderr=subprocess.STDOUT,
-            timeout=timeout, text=True
+        proc = subprocess.Popen(
+            cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+            text=True, preexec_fn=os.setsid
         )
-    except subprocess.CalledProcessError as e:
-        out = e.output or "(nessun output)"
+        out, _ = proc.communicate(timeout=timeout)
     except subprocess.TimeoutExpired:
+        os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
+        proc.wait()
         out = "(timeout)"
+    except Exception as e:
+        out = f"(errore: {e})"
     return ANSI.sub("", out).strip()[:4000]
 
 def _guard(uid: int) -> bool:
@@ -62,9 +66,9 @@ async def cmd_healthcheck(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> Non
     await update.message.reply_text("eseguo healthcheck...")
     out = _run(
         "echo '=== SYSTEM ===' && uptime && echo && "
-        "echo '=== CPU ===' && top -bn1 | grep 'Cpu(s)' && echo && "
+        "echo '=== CPU (load) ===' && cat /proc/loadavg && echo && "
         "echo '=== RAM ===' && free -h && echo && "
-        "echo '=== DISK ===' && df -h | grep -vE 'tmpfs|udev|overlay|shm'",
+        "echo '=== DISK ===' && timeout 5 df -h | grep -vE 'tmpfs|udev|overlay|shm' || echo '(df timeout)'",
         timeout=20
     )
     await update.message.reply_text(f"<pre>{out}</pre>", parse_mode="HTML")
@@ -103,6 +107,22 @@ async def cmd_rtc(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> None:
     await update.message.reply_text(msg, parse_mode="HTML")
     subprocess.Popen(["rtcwake", "-m", "off", "-s", str(secs)])
 
+async def cmd_sshrestart(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> None:
+    if not _guard(update.effective_user.id):
+        return
+    await update.message.reply_text("riavvio sshd...")
+    out = _run("systemctl restart ssh && systemctl status ssh --no-pager -n 5")
+    await update.message.reply_text(f"<pre>{out}</pre>", parse_mode="HTML")
+
+async def cmd_off(update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> None:
+    if not _guard(update.effective_user.id):
+        return
+    host = _run("hostname")
+    now = _run("date '+%d/%m/%Y alle %H:%M %Z'")
+    msg = f"<b>{host} SPENTO</b>\nSpegnimento: {now}\n(nessuna riaccensione automatica)"
+    await update.message.reply_text(msg, parse_mode="HTML")
+    subprocess.Popen(["systemctl", "poweroff"])
+
 # ── main ──────────────────────────────────────────────────────────────────────
 def main() -> None:
     app = Application.builder().token(TOKEN).build()
@@ -110,6 +130,8 @@ def main() -> None:
     app.add_handler(CommandHandler("healthcheck", cmd_healthcheck))
     app.add_handler(CommandHandler("containers", cmd_containers))
     app.add_handler(CommandHandler("rtc", cmd_rtc))
+    app.add_handler(CommandHandler("sshrestart", cmd_sshrestart))
+    app.add_handler(CommandHandler("off", cmd_off))
     print(f"Bot avviato. Whitelist: {ALLOWED}")
     app.run_polling(drop_pending_updates=True)
 
